@@ -22,16 +22,22 @@ function queries(store) {
           WHERE candidate.thread_id = t.id AND candidate.author = 'owner' AND candidate.seq < decision.seq)
         AND NOT EXISTS (SELECT 1 FROM comments question WHERE question.thread_id = t.id
           AND question.seq > owner.seq AND question.seq < decision.seq AND json_type(question.detail, '$.asks') = 'text')
+        AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
+          AND event.event = 'reopened' AND event.created_at >= owner.created_at)
         AND NOT EXISTS (SELECT 1 FROM comments later WHERE later.thread_id = t.id AND later.seq > decision.seq)`),
     answered: store.prepare(`SELECT t.element_key, owner.body AS answer FROM comment_threads t
       JOIN comments owner ON owner.thread_id = t.id AND owner.author = 'owner'
       WHERE t.diagram_id = ? AND t.state = 'open' AND t.waits_on = 'owner'
         AND owner.created_at > ? AND owner.created_at <= ?
+        AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
+          AND event.event = 'reopened' AND event.created_at >= owner.created_at)
         AND NOT EXISTS (SELECT 1 FROM comments later WHERE later.thread_id = t.id AND later.seq > owner.seq)`),
     accepted: store.prepare(`SELECT t.element_key, json_extract(c.detail, '$.change') AS answer FROM change_sets c
       JOIN comment_threads t ON t.id = c.thread_id AND t.diagram_id = c.diagram_id
       WHERE c.diagram_id = ? AND c.origin = 'proposal' AND c.state IN ('accepted', 'reflected')
-        AND c.decided_at > ? AND c.decided_at <= ? AND json_type(c.detail, '$.change') = 'text'`),
+        AND c.decided_at > ? AND c.decided_at <= ? AND json_type(c.detail, '$.change') = 'text'
+        AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
+          AND event.event = 'reopened' AND event.created_at >= c.decided_at)`),
     recommendations: store.prepare(`SELECT t.element_key, proposed.body AS answer, owner.body AS choice, decision.body AS decision
       FROM comment_threads t JOIN comments proposed ON proposed.thread_id = t.id AND proposed.author = 'agent'
         AND json_extract(proposed.detail, '$.asks') = 'recommended'
@@ -39,6 +45,8 @@ function queries(store) {
       JOIN comments decision ON decision.thread_id = t.id AND decision.author = 'agent' AND decision.seq = owner.seq + 1
         AND json_type(decision.detail, '$.link') = 'text'
       WHERE t.diagram_id = ? AND owner.created_at > ? AND decision.created_at <= ?
+        AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
+          AND event.event = 'reopened' AND event.created_at >= owner.created_at)
         AND NOT EXISTS (SELECT 1 FROM comments later WHERE later.thread_id = t.id AND later.seq > decision.seq)`),
   });
   return statements.get(store);
@@ -91,7 +99,7 @@ export function isDecisionRecord(store, { diagram, confirmedDrawing, baselineDra
     next.state = old.state;
     recorded += 1;
   }
-  if (recorded === 0 && baselineDrawing === confirmedDrawing) return false;
+  if (recorded === 0) return false;
   try {
     return JSON.stringify(canonical(before)) === JSON.stringify(canonical(after));
   } catch {

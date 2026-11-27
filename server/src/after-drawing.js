@@ -44,7 +44,7 @@ import { confirmationsChanged } from './entries.js';
 import { isDecisionRecord } from './decision-record.js';
 import { passStage } from './passes.js';
 import { placeable } from './positions.js';
-import { reflectMerged } from './reflection.js';
+import { reflectMerged, recheckReflected } from './reflection.js';
 import { resolveDecision } from './resolve-decision.js';
 
 // PushAnswer's counts are at most 1,000,000.
@@ -225,6 +225,7 @@ export function afterDrawing(store, { project, commit, changed, time }) {
 
   for (const diagram of changed) {
     if (diagram.removed || diagram.status !== 'drawn') continue;
+    recheckReflected(store, { project, diagram: diagram.id, time });
     for (const thread of statements.openThreads.all(diagram.id)) {
       resolveDecision(store, { project, thread: Number(thread.id), time });
     }

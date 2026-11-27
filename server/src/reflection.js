@@ -63,7 +63,10 @@ function statementsOf(store) {
       reflect: store.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ? AND state = 'accepted'"),
       asking: store.prepare("SELECT 1 AS asking FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
       threadEntries: store.prepare('SELECT seq, author, body, created_at FROM comments WHERE thread_id = ? ORDER BY seq'),
-      threadSets: store.prepare("SELECT id, diagram_id, state, detail, created_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state IN ('reflected', 'rejected', 'cancelled')"),
+      threadSets: store.prepare("SELECT id, diagram_id, state, detail, created_at, decided_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state IN ('reflected', 'rejected', 'cancelled')"),
+      lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
+      reflectedThreads: store.prepare(`SELECT DISTINCT c.thread_id FROM change_sets c JOIN comment_threads t ON t.id = c.thread_id
+        WHERE c.project_id = ? AND c.diagram_id = ? AND c.origin = 'proposal' AND c.state = 'reflected' AND t.state = 'open'`),
       closeThread: store.prepare(
         "UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_at = ?, closed_by = 'reflection' WHERE id = ? AND state = 'open'",
       ),
@@ -238,7 +241,22 @@ export function reflectMerged(store, { project, commit, time }) {
     }
     changeSetsChanged(store, { project, diagram, time });
   }
-  for (const thread of asked) {
+  resolveReflected(store, { project, threads: asked, time });
+  return sets.length;
+}
+
+// A reflected proposal that could not be proved on its merge can become provable
+// after a later, complete drawing. Recheck it without reflecting its set twice.
+export function recheckReflected(store, { project, diagram, time }) {
+  const statements = statementsOf(store);
+  const threads = statements.reflectedThreads.all(project, diagram).map((row) => Number(row.thread_id));
+  resolveReflected(store, { project, threads, time });
+}
+
+function resolveReflected(store, { project, threads, time }) {
+  const statements = statementsOf(store);
+  const cache = new Map();
+  for (const thread of threads) {
     if (statements.asking.get(thread) !== undefined) continue;
     const proposals = statements.threadSets.all(thread);
     if (proposals.length === 0) continue;
@@ -257,6 +275,8 @@ export function reflectMerged(store, { project, commit, time }) {
     const extra = entries.some((entry) => Number(entry.seq) > earliestProposal && !proposalSequences.has(Number(entry.seq)));
     if (extra) continue;
     const reflected = proposals.filter((set) => set.state === 'reflected');
+    const reopenedAt = statements.lastReopen.get(thread)?.at;
+    if (reopenedAt != null && !reflected.some((set) => set.decided_at != null && set.decided_at > reopenedAt)) continue;
     const verified = reflected.length > 0 && reflected.every((set) => {
       const steps = statements.steps.all(set.id);
       const shown = statements.currentDrawn.get(Number(set.diagram_id))?.id;
@@ -278,9 +298,8 @@ export function reflectMerged(store, { project, commit, time }) {
     });
     if (!verified) continue;
     if (statements.closeThread.run(time, thread).changes > 0) {
-      recordResolved(store, { thread, detail: { change_sets: sets.filter((set) => Number(set.thread_id) === thread).map((set) => Number(set.id)) }, time });
+      recordResolved(store, { thread, detail: { change_sets: reflected.map((set) => Number(set.id)) }, time });
       threadChanged(store, { project, thread, time });
     }
   }
-  return sets.length;
 }

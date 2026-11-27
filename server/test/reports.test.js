@@ -433,10 +433,13 @@ describe('reports from the agent', () => {
     const path = '/pictures/01-domain/nexus';
     const board = s.diagram(space, { stage: '01-domain', sourceKey: path, kind: 'ddd_board' });
     const text = 'The approved answer.';
-    s.document(space, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ answer: text }] }));
+    s.document(space, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ answer: '' }] }));
     const thread = s.thread(board, { target: 'diagram', body: text });
     s.comment(thread, { body: text });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: link(97) }), thread);
+    s.snapshot(space, { at: '2026-11-23T01:01:00.000Z' });
+    s.document(space, path, '01-domain', JSON.stringify({ format: 1, hotspots: [{ answer: text }] }));
+    s.drawing(space, board.id);
     const pull = s.pullRequest(space, { number: 97 });
     const set = s.changeSet(space, board, { pullRequestId: pull });
     s.change(set, { op: 'rename', element: 'CTX-001', name: 'Example' });

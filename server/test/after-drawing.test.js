@@ -246,6 +246,30 @@ describe('after a drawing', () => {
     assert.equal(threadRow(thread).state, 'open');
   });
 
+  test('a reflected proposal is checked again when a failed drawing is repaired', async () => {
+    const space = project('reflection-after-repair');
+    await space.push({ tables: [table('TBL-146', 'old name')] });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const proposalAt = '2026-11-23T01:01:00.000Z';
+    const pull = rows.pullRequest(space, { number: 95, state: 'merged' });
+    const proposal = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: proposalAt, decidedAt: proposalAt, detail: { change: 'Use the new name' } });
+    rows.change(proposal, { element: 'TBL-146', name: 'new name' });
+    rows.comment(thread, { body: 'Use the new name', at: proposalAt });
+    const merge = newCommit();
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(merge, pull);
+    await space.push({ tables: [table('TBL-146', 'new name', { broken: true })], commit: merge });
+    assert.equal(changeSetRow(proposal).state, 'reflected');
+    assert.equal(threadRow(thread).state, 'open');
+    await space.push({ tables: [table('TBL-146', 'new name')] });
+    assert.equal(threadRow(thread).state, 'closed');
+    db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(thread);
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(thread, at(clock.now));
+    await space.push({ tables: [table('TBL-146', 'new name'), table('TBL-147', 'another table')] });
+    assert.equal(threadRow(thread).state, 'open');
+  });
+
   test('multiple handled proposals can resolve when the later reflected change replaces the first', async () => {
     const space = project('multiple-reflected');
     await space.push({ tables: [table('TBL-146', 'start')] });

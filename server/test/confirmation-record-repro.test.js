@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { readDomainPicture } from '../src/domain-picture.js';
 import { COMMENT_ROUTES } from '../src/comments.js';
+import { isDecisionRecord } from '../src/decision-record.js';
 import { confirmationsChanged, threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
 import { snapshotRoutes } from '../src/snapshots.js';
@@ -31,6 +32,8 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
   picture.hotspots[3].answer = '';
   picture.hotspots[4].state = 'open';
   picture.hotspots[4].answer = '';
+  picture.hotspots[5].state = 'open';
+  picture.hotspots[5].answer = '';
   const first = newCommit();
   const next = newCommit();
   const push = async (commit, source, replaces) => {
@@ -102,10 +105,47 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'confirmed');
     rows.comment(answered, { author: 'owner', body: 'Thank you.', at: '2026-11-27T10:04:00.000Z' });
     const moved = structuredClone(updated);
+    const laterText = 'Record the next approved answer.';
+    const later = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(5), body: laterText, at: '2026-11-27T10:04:00.000Z' });
+    rows.comment(later, { body: laterText, at: '2026-11-27T10:05:00.000Z' });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/pull/91` }), later);
+    moved.hotspots[5].answer = laterText;
+    moved.hotspots[5].state = 'answered';
     moved.contexts[0].where = moved.contexts[0].where.replace(/:\d+$/, ':999');
     const movedCommit = newCommit();
     await push(movedCommit, moved, winner);
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'confirmed');
+    // Reopening disputes the old approval even before the owner adds a new entry.
+    db.exec('SAVEPOINT disputed_record');
+    try {
+      const baselineDrawing = Number(db.prepare('SELECT max(id) AS id FROM drawings WHERE diagram_id = ?').get(diagram).id);
+      const path = db.prepare('SELECT source_key FROM diagrams WHERE id = ?').get(diagram).source_key;
+      const sample = { id: project, name: 'verified-record', commit: movedCommit };
+      rows.snapshot(sample);
+      const shifted = structuredClone(moved);
+      shifted.contexts[0].where = shifted.contexts[0].where.replace(/:\d+$/, ':1000');
+      rows.document(sample, path, '01-domain', JSON.stringify(shifted));
+      const shiftedDrawing = rows.drawing(sample, diagram);
+      assert.equal(isDecisionRecord(db, { diagram, confirmedDrawing: drawing, baselineDrawing, drawing: shiftedDrawing,
+        confirmedAt: time, time: '2026-11-27T11:00:00.000Z' }), false);
+      const disputed = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(4), body: decided, at: '2026-11-27T10:01:00.000Z' });
+      rows.comment(disputed, { body: decided, at: '2026-11-27T10:02:00.000Z' });
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/pull/91` }), disputed);
+      db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(disputed, '2026-11-27T10:03:00.000Z');
+      rows.snapshot(sample);
+      const candidate = structuredClone(moved);
+      candidate.hotspots[4].answer = decided;
+      candidate.hotspots[4].state = 'answered';
+      rows.document(sample, path, '01-domain', JSON.stringify(candidate));
+      const candidateDrawing = rows.drawing(sample, diagram);
+      const proof = { diagram, confirmedDrawing: drawing, baselineDrawing, drawing: candidateDrawing, confirmedAt: time, time: '2026-11-27T11:00:00.000Z' };
+      assert.equal(isDecisionRecord(db, proof), false);
+      db.prepare("DELETE FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").run(disputed);
+      assert.equal(isDecisionRecord(db, proof), true);
+    } finally {
+      db.exec('ROLLBACK TO disputed_record');
+      db.exec('RELEASE disputed_record');
+    }
     const changed = structuredClone(moved);
     // An identical answer from a different hotspot is not evidence for this one.
     changed.hotspots[4].answer = decided;

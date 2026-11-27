@@ -22,7 +22,8 @@ function queries(store) {
     pending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
     ownerPending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state = 'proposed' LIMIT 1"),
     pull: store.prepare("SELECT number, merge_commit FROM pull_requests WHERE project_id = ? AND number = ? AND state = 'merged' AND merge_commit IS NOT NULL"),
-    snapshot: store.prepare('SELECT id, revision FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
+    snapshot: store.prepare('SELECT id, revision, received_at FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
+    priorSnapshot: store.prepare('SELECT id, revision FROM snapshots WHERE project_id = ? AND revision < ? ORDER BY revision DESC LIMIT 1'),
     current: store.prepare('SELECT id, status, document_version, snapshot_id FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
     historical: store.prepare(`SELECT w.id, w.status FROM drawings w JOIN snapshots s ON s.id = w.snapshot_id
       WHERE w.diagram_id = ? AND s.revision <= ? ORDER BY s.revision DESC, w.id DESC LIMIT 1`),
@@ -45,7 +46,9 @@ export function decisionWaitingForRecord(store, { project, thread }) {
   const entries = q.entries.all(thread).reverse();
   const last = entries.at(-1);
   const owner = entries.findLast((entry) => entry.author === 'owner');
+  const reopenedAt = q.lastReopen.get(thread)?.at;
   if (!last || last.author !== 'agent' || !owner || /[?？]/u.test(owner.body)
+      || (reopenedAt != null && owner.created_at <= reopenedAt)
       || typeof JSON.parse(last.detail).link !== 'string') return false;
   return normalize(last.body) !== '' && approvedText(entries, owner, last)
     && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined);
@@ -82,29 +85,36 @@ export function resolveDecision(store, { project, thread, time }) {
   } else return false;
   const recorded = q.snapshot.get(project, commit);
   const held = q.snapshot.get(project, row.held_commit);
-  if (!recorded || !held || Number(recorded.revision) > Number(held.revision)) return false;
+  if (!recorded || !held || Number(recorded.revision) > Number(held.revision) || recorded.received_at <= owner.created_at) return false;
+  const prior = q.priorSnapshot.get(project, recorded.revision);
+  if (!prior) return false;
   if (row.kind === 'ddd_board') {
+    const previous = q.historical.get(row.diagram_id, prior.revision);
+    if (!previous || previous.status !== 'drawn' || q.incomplete.get(previous.id)) return false;
     const target = row.element_key === null ? null : q.hotspot.get(drawing.id, row.element_key);
     if (row.element_key !== null && !target) return false;
-    const holdsAnswer = (snapshot) => {
+    const holdsAnswer = (snapshot, previous = false) => {
       const source = q.source.get(snapshot, row.source_key);
-      if (!source) return false;
+      if (!source) return null;
       let picture;
-      try { picture = JSON.parse(source.body); } catch { return false; }
-      if (!Array.isArray(picture.hotspots)) return false;
+      try { picture = JSON.parse(source.body); } catch { return null; }
+      if (!Array.isArray(picture.hotspots) || picture.hotspots.some((item) => !item || typeof item.answer !== 'string')) return null;
+      if (target !== null && picture.hotspots.filter((item) => item?.number === target.number && typeof item.answer === 'string').length !== 1) return null;
       const matches = picture.hotspots.filter((item) => typeof item?.answer === 'string' && normalize(item.answer) === text);
-      return row.element_key === null ? matches.length === 1 : matches.some((item) => item.number === target.number);
+      return row.element_key === null ? (previous ? matches.length > 0 : matches.length === 1) : matches.some((item) => item.number === target.number);
     };
-    if (!holdsAnswer(recorded.id) || !holdsAnswer(drawing.snapshot_id)) return false;
+    if (holdsAnswer(prior.id, true) !== false || holdsAnswer(recorded.id) !== true || holdsAnswer(drawing.snapshot_id) !== true) return false;
   } else {
     const historical = q.historical.get(row.diagram_id, recorded.revision);
+    const previous = q.historical.get(row.diagram_id, prior.revision);
     if (!historical || historical.status !== 'drawn' || q.incomplete.get(historical.id)
-        || !q.source.get(recorded.id, row.source_key)) return false;
-    const holdsAnswer = (drawingId) => {
+        || !previous || previous.status !== 'drawn' || q.incomplete.get(previous.id)
+        || !q.source.get(recorded.id, row.source_key) || !q.source.get(prior.id, row.source_key)) return false;
+    const holdsAnswer = (drawingId, previous = false) => {
       const matches = q.names.all(drawingId).filter((element) => normalize(element.name) === text);
-      return row.element_key === null ? matches.length === 1 : matches.some((element) => element.element_key === row.element_key);
+      return row.element_key === null ? (previous ? matches.length > 0 : matches.length === 1) : matches.some((element) => element.element_key === row.element_key);
     };
-    if (!holdsAnswer(historical.id) || !holdsAnswer(drawing.id)) return false;
+    if (holdsAnswer(previous.id, true) || !holdsAnswer(historical.id) || !holdsAnswer(drawing.id)) return false;
   }
   if (q.close.run(time, thread).changes === 0) return false;
   recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
