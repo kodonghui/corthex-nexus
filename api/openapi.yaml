@@ -9383,7 +9383,7 @@ components:
       type: apiKey
       in: header
       name: CF-Access-Client-Id
-      description: "The agent credential's ID (ac_…), which the pinned hub reads from CORTHEX_NEXUS_CLIENT_ID. NEXUS checks it with the secret against the credential's digest (SPEC-049). Open: whether the gate in front of NEXUS passes the agent paths through or also checks these headers as its own service token is decided in stage 11."
+      description: "The legacy header for the agent credential ID (ac_…), paired only with CF-Access-Client-Secret. The pinned hub reads the ID from CORTHEX_NEXUS_CLIENT_ID. Agent paths must pass through the gate; NEXUS verifies the credential (SPEC-049). The public path still needs deployment verification."
     agentClientSecret:
       type: apiKey
       in: header

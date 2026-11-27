@@ -1,6 +1,6 @@
 // Agent credentials (SPEC-049, SPEC-050, rule 1, rule 5, rule 8; TASK-417): the owner issues, lists and revokes them
 // (API-279, API-280, API-281), the secret shows once and only its digest is kept, every agent request is checked by its
-// CF-Access-Client-Id and -Secret pair, and revoking releases the credential's claims. Credential values are made at
+// NEXUS or legacy ID and secret pair, and revoking releases the credential's claims. Credential values are made at
 // run time; no test holds one as a literal.
 
 import assert from 'node:assert/strict';
@@ -307,6 +307,8 @@ describe('agent credentials', () => {
       { ...modern, 'CF-Access-Client-Id': '' },
       { ...modern, ...pair({ id: newId('ac') }, secret) },
       { ...modern, ...pair(credential, randomBytes(32).toString('base64url')) },
+      { ...legacy, ...modern, 'Nexus-Agent-Client-Id': newId('ac') },
+      { ...legacy, ...modern, 'Nexus-Agent-Client-Secret': randomBytes(32).toString('base64url') },
       { ...modern, 'Nexus-Agent-Client-Id': [credential.id, credential.id] },
       { ...modern, 'Nexus-Agent-Client-Secret': `${secret}, ${secret}` },
       { ...modern, 'Nexus-Agent-Client-Secret': 'invalid' },

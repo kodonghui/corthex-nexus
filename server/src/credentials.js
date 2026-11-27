@@ -2,8 +2,9 @@
 // API-281), and admission checks the pair an agent sends on every agent request (see admission.js).
 //
 // A credential is a row of TBL-146 agent_credentials. Its ID, ac_ and 12 characters, is its row's key (see ids.js),
-// and the agent sends it as Nexus-Agent-Client-Id or CF-Access-Client-Id. Its secret is 32 random bytes in base64url, 43 characters, which the
-// agent sends as Nexus-Agent-Client-Secret or CF-Access-Client-Secret, paired with its ID. The secret is in API-280's first answer only: the store keeps its SHA-256 in
+// and the agent sends it as Nexus-Agent-Client-Id or CF-Access-Client-Id. Its secret is 32 random bytes in base64url,
+// 43 characters, sent as Nexus-Agent-Client-Secret or CF-Access-Client-Secret, paired with its ID. The secret is in
+// API-280's first answer only: the store keeps its SHA-256 in
 // hex as secret_digest (REQ-078), and a repeat of the request answers secret null. 32 random bytes cannot be guessed
 // back from their digest, so a plain digest is enough, and a slow one such as scrypt would only slow every agent
 // request. No answer and no log line holds a secret or a digest (rule 5).
