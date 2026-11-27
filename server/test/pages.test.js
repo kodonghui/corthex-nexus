@@ -127,23 +127,32 @@ describe('the pages', () => {
     assert.match(answer.text, /<a href="">새로고침<\/a>/);
   });
 
-  test('a failed versioned script changes the startup notice to an error and keeps a reload link', () => {
-    let listener;
+  test('a failed versioned script or stylesheet keeps a visible error and reload link', () => {
+    const listeners = {};
     const status = { replaceChildren: (...children) => { status.children = children; } };
-    const doc = { getElementById: () => status, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
+    const app = { prepend: (child) => { app.child = child; } };
+    let current = status;
+    const doc = { getElementById: (id) => id === 'app' ? app : current, createElement: () => ({ setAttribute(name, value) { this[name] = value; }, replaceChildren(...children) { this.children = children; } }) };
     runInNewContext(read('recovery.js').toString('utf8'), {
-      globalThis: { addEventListener: (type, handler, capture) => { assert.equal(type, 'error'); assert.equal(capture, true); listener = handler; } },
+      globalThis: { addEventListener: (type, handler) => { listeners[type] = handler; } },
       document: doc, location: { href: 'https://example.test/p' }, URL,
     });
-    listener({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
-    assert.match(status.children[0], /불러오지 못했어요/);
+    listeners.error({ target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } });
+    assert.match(status.children[0], /문제가 생겼어요/);
     assert.equal(status.children[1].href, '');
     assert.equal(status.children[1].textContent, '새로고침');
     delete status.children;
-    listener({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
+    listeners.error({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
     assert.equal(status.children, undefined);
-    listener({ target: {}, filename: 'https://example.test/web/v/old/main.js' });
-    assert.match(status.children[0], /불러오지 못했어요/);
+    listeners.error({ target: {}, filename: 'https://example.test/web/v/old/main.js' });
+    assert.match(status.children[0], /문제가 생겼어요/);
+    current = null;
+    listeners.error({ target: { tagName: 'LINK', href: 'https://example.test/web/v/old/a.css' } });
+    assert.equal(app.child.role, 'alert');
+    assert.match(app.child.children[0], /문제가 생겼어요/);
+    delete app.child;
+    listeners.load();
+    assert.equal(app.child.role, 'alert');
   });
 
   test('the Content-Security-Policy loads nothing from another site and allows no inline code', () => {
@@ -168,7 +177,8 @@ describe('the pages', () => {
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['content-type'], types[extname(path)], path);
       assert.ok(answer.bytes.equals(read(path)), path);
-      assert.equal(answer.headers['cache-control'], extname(path) === '.woff2' ? 'private, max-age=31536000, immutable' : 'no-store', path);
+      const cache = extname(path) === '.woff2' ? 'private, max-age=31536000, immutable' : path === 'recovery.js' ? 'private, max-age=60, must-revalidate' : 'no-store';
+      assert.equal(answer.headers['cache-control'], cache, path);
       assertPageHeaders(answer, path);
     }
   });
