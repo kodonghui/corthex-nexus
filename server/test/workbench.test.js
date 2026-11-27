@@ -409,21 +409,43 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
-  test('an invalid move rolls back so the box can be moved back within range', async () => {
+  test('a server-rejected move rolls back so a valid move can follow', async () => {
     const diagram = structuredClone(diagramOf('erd'));
     const element = diagram.elements.find((each) => each.kind === 'table');
-    element.detail.box.x = 1_000_000;
-    element.position = { x: 1_000_000, y: element.detail.box.y };
+    const start = 1_000_000 - 2 * STEP;
+    element.detail.box.x = start;
+    element.position = { x: start, y: element.detail.box.y };
     element.position_saved = true;
-    const moved = (body) => body.x > 1_000_000 ? problem(400, 'invalid_request')() : movedAnswer('erd')(body);
+    let attempts = 0;
+    const moved = (body) => ++attempts === 1 ? problem(400, 'invalid_request')() : movedAnswer('erd')(body);
     const page = await openStage('erd', { moved, more: { [diagramPath('erd')]: json(200, diagram) } });
     try {
       buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowRight' });
       await waitSend(page);
+      assert.equal(page.sent[0].body.x, start + STEP);
       assert.match(page.app.textContent, /그 위치로 옮길 수 없어 이동을 취소했어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, true);
       buttonNamed(page, 'tbl', element.name).dispatch('keydown', { key: 'ArrowLeft' });
       await waitSend(page);
-      assert.equal(page.sent.at(-1).body.x, 1_000_000 - STEP);
+      assert.equal(page.sent.at(-1).body.x, start - STEP);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[0].disabled, false);
+    } finally { page.close(); }
+  });
+
+  test('a two-pixel normal-scale drag creates an undo entry', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const at = boxOf('sitemap', 'SCR-143');
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 102, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent[0].body.x, at.x + 2);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.deepEqual(page.sent[1].body.expected, { x: at.x + 2, y: at.y });
+      assert.equal(page.sent[1].body.x, at.x);
     } finally { page.close(); }
   });
 
@@ -531,6 +553,384 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('zoom changes only the picture view and fit offers a bounded scale', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const svg = area.all('svg', 'pic')[0];
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      const original = Number(svg.getAttribute('width'));
+      const controls = area.all('div', 'zoom-controls')[0];
+      const buttons = controls.all('button');
+      buttons[1].click();
+      assert.equal(controls.all('output')[0].textContent, '110%');
+      assert.equal(Number(svg.getAttribute('width')), original * 1.1);
+      buttons[0].click();
+      assert.equal(controls.all('output')[0].textContent, '100%');
+      // The page may be scrolled so the board starts at the bottom edge of the viewport.
+      board.getBoundingClientRect = () => ({ left: 0, top: 5000 });
+      buttons[2].scrollIntoView = () => { board.getBoundingClientRect = () => ({ left: 0, top: 0 }); };
+      buttons[2].click();
+      assert.ok(Number.parseFloat(controls.all('output')[0].textContent) >= 1);
+      board.clientWidth = 25;
+      buttons[2].click();
+      assert.equal(controls.all('output')[0].textContent, '1%');
+      assert.match(controls.textContent, /그림이 너무 커서 전체를 한 화면에 담지 못했어요/);
+      board.dispatch('wheel', { ctrlKey: true, deltaY: 3, clientX: 0, clientY: 0 });
+      assert.match(controls.textContent, /그림이 너무 커서 전체를 한 화면에 담지 못했어요/);
+      buttons[1].click();
+      assert.equal(controls.all('output')[0].textContent, '2.5%');
+      assert.doesNotMatch(controls.textContent, /그림이 너무 커서/);
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      let stopped = false;
+      board.dispatch('dblclick', { clientX: 15, clientY: 15, stopPropagation() { stopped = true; } });
+      assert.equal(controls.all('output')[0].textContent, '10%');
+      assert.equal(stopped, true);
+      assert.equal(buttons[3].textContent, '글자 크게 보기');
+      assert.equal(buttons[3].hidden, false);
+      buttons[3].click();
+      assert.equal(controls.all('output')[0].textContent, '100%');
+      assert.equal(buttons[3].hidden, true);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('small control-wheel events enlarge a fitted picture instead of being rounded away', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const svg = area.all('svg', 'pic')[0];
+      const before = Number(svg.getAttribute('width'));
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      for (let count = 0; count < 10; count += 1) board.dispatch('wheel', { ctrlKey: true, deltaY: -1, clientX: 0, clientY: 0 });
+      assert.ok(Number(svg.getAttribute('width')) > before);
+      assert.equal(page.sent.length, 0);
+      await delay(300);
+      assert.match(area.all('span', 'sr-only')[0].textContent, /^그림 배율 /);
+    } finally { page.close(); }
+  });
+
+  test('a wheel gesture explains the maximum scale and waits for an active drag', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      for (let count = 0; count < 10; count += 1) area.all('div', 'zoom-controls')[0].all('button')[1].click();
+      board.dispatch('wheel', { ctrlKey: true, deltaY: -3, clientX: 0, clientY: 0 });
+      assert.match(area.textContent, /200%까지 확대/);
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      board.dispatch('wheel', { ctrlKey: true, deltaY: 3, clientX: 0, clientY: 0 });
+      assert.match(area.textContent, /옮기기를 마친 뒤/);
+      button.dispatch('pointercancel');
+      assert.doesNotMatch(area.textContent, /옮기기를 마친 뒤/);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('zoom buttons and fit wait for an active drag', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      const original = svg.getAttribute('width');
+      const box = buttonNamed(page, 'scr', 'Projects');
+      box.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      box.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      for (const index of [0, 1, 2]) {
+        buttons[index].click();
+        assert.equal(svg.getAttribute('width'), original);
+        assert.match(area.textContent, /옮기기를 마친 뒤/);
+      }
+      box.dispatch('pointercancel');
+      assert.doesNotMatch(area.textContent, /옮기기를 마친 뒤/);
+      buttons[1].click();
+      assert.equal(Number(svg.getAttribute('width')), Number(original) * 1.1);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a touch outside the picture does not participate in its pinch', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const svg = area.all('svg', 'pic')[0];
+      const box = buttonNamed(page, 'scr', 'Projects');
+      const outside = page.document.createElement('div');
+      page.app.append(outside);
+      const point = (x, target) => ({ clientX: x, clientY: 0, target });
+      const initial = Number(svg.getAttribute('width'));
+      board.dispatch('touchstart', { touches: [point(0, outside), point(30, board)] });
+      board.dispatch('touchmove', { touches: [point(0, outside), point(60, board)] });
+      assert.equal(Number(svg.getAttribute('width')), initial);
+      board.dispatch('touchstart', { touches: [point(0, board), point(30, box)] });
+      board.dispatch('touchmove', { touches: [point(0, board), point(60, box)] });
+      assert.equal(Number(svg.getAttribute('width')), initial * 2);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('redrawing a picture without changing zoom does not announce a new zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      page.shell.redraw();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '');
+      pictureBox(page).all('div', 'zoom-controls')[0].all('button')[1].click();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '그림 배율 110%');
+      page.shell.redraw();
+      await delay(300);
+      assert.equal(pictureBox(page).all('span', 'sr-only')[0].textContent, '');
+    } finally { page.close(); }
+  });
+
+  test('fit remeasures after a newly visible reading button wraps the controls', async () => {
+    const page = await openStage('sitemap');
+    const previousHeight = globalThis.innerHeight;
+    try {
+      globalThis.innerHeight = 800;
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      Object.assign(board, { clientWidth: 360, clientHeight: 500, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: buttons[3].hidden ? 300 : 400 });
+      buttons[2].click();
+      assert.equal(buttons[3].hidden, false);
+      assert.ok(Number(svg.getAttribute('height')) <= 800 - 400 - 26);
+    } finally {
+      if (previousHeight === undefined) delete globalThis.innerHeight;
+      else globalThis.innerHeight = previousHeight;
+      page.close();
+    }
+  });
+
+  test('fit grows a tiny picture before remeasuring when the page cannot scroll yet', async () => {
+    const page = await openStage('sitemap');
+    const previousHeight = globalThis.innerHeight;
+    try {
+      globalThis.innerHeight = 800;
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const buttons = area.all('div', 'zoom-controls')[0].all('button');
+      Object.assign(board, { clientWidth: 1000, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      for (let n = 0; n < 30; n += 1) buttons[0].click();
+      assert.equal(area.all('output')[0].textContent, '1%');
+      let top = 300;
+      board.getBoundingClientRect = () => ({ left: 0, top });
+      buttons[2].getBoundingClientRect = () => ({ top: top - 80 });
+      buttons[2].scrollIntoView = () => { top = Math.min(300, 800 - 26 - Number(svg.getAttribute('height'))); };
+      buttons[2].click();
+      assert.ok(Number.parseFloat(area.all('output')[0].textContent) > 100);
+      assert.ok(Number(svg.getAttribute('height')) <= 800 - top - 26);
+      assert.equal(page.sent.length, 0);
+    } finally {
+      if (previousHeight === undefined) delete globalThis.innerHeight;
+      else globalThis.innerHeight = previousHeight;
+      page.close();
+    }
+  });
+
+  test('an uncancellable pan asks for a fresh pinch instead of mixing gestures', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const touches = [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }];
+      board.dispatch('touchstart', { touches });
+      board.dispatch('touchmove', { touches, cancelable: false });
+      assert.match(area.textContent, /스크롤을 멈춘 뒤 두 손가락으로 다시 확대/);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a pinch continues from a new baseline when three fingers become two', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const initial = Number(svg.getAttribute('width'));
+      const point = (x) => ({ clientX: x, clientY: 0 });
+      board.dispatch('touchstart', { touches: [point(0), point(30)] });
+      board.dispatch('touchstart', { touches: [point(0), point(30), point(50)] });
+      board.dispatch('touchend', { touches: [point(0), point(40)] });
+      board.dispatch('touchmove', { touches: [point(0), point(60)] });
+      assert.equal(Number(svg.getAttribute('width')), initial * 1.5);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('starting a pinch explains that an active drag was cancelled', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const button = buttonNamed(page, 'scr', 'Projects');
+      const board = pictureBox(page).all('div', 'boardbox')[0];
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      board.dispatch('touchstart', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }] });
+      assert.match(page.app.textContent, /두 손가락 확대를 시작해 옮기기를 멈췄어요/);
+      button.dispatch('pointerup', { clientX: 120, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('redrawing during a drag releases the zoom gesture', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      page.shell.redraw();
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const before = Number(svg.getAttribute('width'));
+      board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
+      assert.ok(Number(svg.getAttribute('width')) > before * 1.09);
+      assert.match(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      const next = buttonNamed(page, 'scr', 'Projects');
+      next.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 2 });
+      assert.doesNotMatch(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      next.dispatch('pointercancel');
+    } finally { page.close(); }
+  });
+
+  test('a redraw during a pinch explains how to resume zooming', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const board = pictureBox(page).all('div', 'boardbox')[0];
+      board.dispatch('touchstart', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 0 }] });
+      page.shell.redraw();
+      assert.match(pictureBox(page).textContent, /그림이 바뀌어 확대를 멈췄어요/);
+      const svg = pictureBox(page).all('svg', 'pic')[0];
+      const before = svg.getAttribute('width');
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      board.dispatch('touchmove', { touches: [{ clientX: 0, clientY: 0 }, { clientX: 60, clientY: 0 }] });
+      assert.equal(svg.getAttribute('width'), before);
+      assert.match(pictureBox(page).textContent, /그림이 바뀌어 확대를 멈췄어요/);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a press without a drag is not reported as a cancelled move, and lost capture releases zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      let button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      page.shell.redraw();
+      assert.doesNotMatch(page.app.textContent, /그림이 새로 바뀌어 옮기기를 멈췄어요/);
+      button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 2 });
+      button.dispatch('lostpointercapture');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 3 });
+      button.dispatch('pointerup', { clientX: 100, clientY: 100 });
+      assert.equal(button.listeners.get('pointermove').length, 1);
+      assert.equal(button.listeners.get('lostpointercapture').length, 1);
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const before = Number(svg.getAttribute('width'));
+      board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
+      assert.ok(Number(svg.getAttribute('width')) > before);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a small pointer slip at very low zoom does not move a box', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 104, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 104, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
+  test('an arrow move remains visible after fitting a large diagram', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      const initialWidth = Number(svg.getAttribute('width'));
+      Object.assign(board, { clientWidth: 45, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const zoom = Number(svg.getAttribute('width')) / initialWidth;
+      const button = buttonNamed(page, 'scr', 'Projects');
+      const before = Number(holderOf(button).getAttribute('x'));
+      button.dispatch('keydown', { key: 'ArrowRight' });
+      const after = Number(holderOf(buttonNamed(page, 'scr', 'Projects')).getAttribute('x'));
+      assert.ok((after - before) * zoom >= 7.9);
+      await waitSend(page);
+    } finally { page.close(); }
+  });
+
+  test('moving at the API coordinate limit clamps once and does not send a no-op', async () => {
+    const diagram = diagramOf('sitemap');
+    const element = diagram.elements.find((item) => item.name === 'Projects');
+    element.position = { x: 999999, y: 20 };
+    const page = await openStage('sitemap', { more: { [diagramPath('sitemap')]: json(200, diagram) } });
+    try {
+      buttonNamed(page, 'scr', 'Projects').dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1, JSON.stringify(page.sent));
+      assert.equal(page.sent[0].body.x, 1000000);
+      buttonNamed(page, 'scr', 'Projects').dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      assert.equal(page.sent.length, 1);
+      assert.match(page.app.textContent, /이 방향으로는 더 옮길 수 없어요/);
+    } finally { page.close(); }
+  });
+  test('an empty table explains unreadable or removed material without asking to send it again', async () => {
+    const left = asElement({ key: 'unreadable', kind: 'left_out', name: '문서', status: 'left_out', detail: {} });
+    for (const [fields, expected] of [
+      [{ elements: [left] }, /문서 수정을 요청/],
+      [{ elements: [], drawing: { ...diagramOf('table').drawing, status: 'failed', failed_at: 'docs/example.md:1' } }, /문서 수정을 요청/],
+      [{ elements: [], removed: true }, null],
+    ]) {
+      const page = await openStage('table', { more: { [diagramPath('table')]: json(200, diagramOf('table', fields)) } });
+      try {
+        const body = pictureBox(page).textContent;
+        if (expected) assert.match(body, expected);
+        assert.doesNotMatch(body, /내용을 정리해 NEXUS에 보내줘/);
+      } finally { page.close(); }
+    }
+  });
+  test('an empty failed table without a failure location does not point to one', async () => {
+    const drawing = { ...diagramOf('table').drawing, status: 'failed', failed_at: null };
+    for (const phone of [false, true]) {
+      const page = await openStage('table', { phone, more: { [diagramPath('table')]: json(200, diagramOf('table', { elements: [], drawing })) } });
+      try {
+        const body = pictureBox(page).textContent;
+        assert.match(body, /문서 수정을 요청/);
+        assert.doesNotMatch(body, /위에 표시된 위치/);
+      } finally { page.close(); }
+    }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {
@@ -745,7 +1145,7 @@ describe('SCR-145 pictures', () => {
       button.dispatch('pointerup', { clientX: 101, clientY: 101 });
       await waitSend(page);
       assert.deepEqual(page.sent, []);
-      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointerdown', { button: 0, pointerType: 'touch', isPrimary: true, clientX: 100, clientY: 100, pointerId: 1 });
       button.dispatch('pointermove', { clientX: 150, clientY: 120 });
       assert.deepEqual([Number(holderOf(button).getAttribute('x')), Number(holderOf(button).getAttribute('y'))], [at.x + 50 - 6, at.y + 20 - 6]);
       button.dispatch('pointerup', { clientX: 160, clientY: 130 });
@@ -785,6 +1185,52 @@ describe('SCR-145 pictures', () => {
     }
   });
 
+  test('dragging back to the starting point selects the box without saving a move', async () => {
+    const page = await openStage('flow');
+    try {
+      const button = pictureBox(page).all('button', 'fbox')[0];
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointermove', { clientX: 100, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 100, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(page.document.activeElement.getAttribute('aria-pressed'), 'true');
+      assert.equal(page.document.activeElement.className.includes('fbox'), true);
+      assert.equal(pictureBox(page).descendants().some((element) => element.getAttribute('transform') === 'translate(0 0)'), false);
+    } finally { page.close(); }
+  });
+
+  test('a deliberate two-pixel final move is saved at normal zoom', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const at = boxOf('sitemap', 'SCR-143');
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 102, clientY: 100 });
+      await waitSend(page);
+      assert.deepEqual(page.sent.map((each) => each.body), [{ element: 'SCR-143', x: at.x + 2, y: at.y }]);
+    } finally { page.close(); }
+  });
+
+  test('at low zoom, releasing close to the starting point is not a large accidental move', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 101, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(page.document.activeElement.getAttribute('aria-pressed'), 'true');
+    } finally { page.close(); }
+  });
+
   test('a phone, a removed diagram, stage 08\'s panels, a lane and a context take no move', async () => {
     const checks = [
       ['board', { phone: true }, (page) => buttonNamed(page, 'stk', 'Send snapshot')],
@@ -797,6 +1243,7 @@ describe('SCR-145 pictures', () => {
       const page = await openStage(which, options);
       try {
         const button = find(page);
+        assert.equal(button.getAttribute('data-diagram-movable'), null, which);
         const before = holderOf(button).getAttribute?.('x') ?? null;
         button.dispatch('keydown', { key: 'ArrowRight', preventDefault() {} });
         button.dispatch('pointerdown', { button: 0, clientX: 0, clientY: 0 });
@@ -811,7 +1258,7 @@ describe('SCR-145 pictures', () => {
     }
     const phone = await openStage('board', { phone: true });
     try {
-      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.']);
+      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.', '아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.']);
       assert.ok(texts(phone, 'span').includes(WORKBENCH_WORDS.phone));
     } finally {
       phone.close();

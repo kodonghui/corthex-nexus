@@ -59,6 +59,16 @@
           "date": "2026-11-24"
         },
         {
+          "approved": "REQ-082 adds guidance on the next action and the consequence of confirmation. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "Zoom requirement REQ-081 added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
           "approved": "REQ-083 adds per-tab position undo and redo. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
@@ -79,6 +89,16 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): no flow walks a removed diagram; FL-007, FL-003's rejection and FL-004's cancel stand as drawn. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "FL-002 and FL-006 show the next action and the consequence of confirming. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "FL-002 adds zoom and fit; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         },
         {
           "approved": "FL-002 adds undo and redo of a move. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
@@ -143,6 +163,56 @@
           "approved": "SPEC-027's exception for a removed diagram, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved text \"and is listed after the others, marked removed, only while it has open threads; it opens for reading, replying to and closing its threads only, and a new thread, a move, a direct edit, accepting a proposal and confirming are refused.\" becomes \"and is listed after the others, marked removed, only while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection; it opens for reading, replying to and closing its threads, rejecting its AI proposals and cancelling its direct edits, and a new thread, a move, a new direct edit, accepting a proposal and confirming are refused.\" It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SPEC-054 explains empty-stage material, question replies and confirmation recording. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 defines zoom and fit; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 zoom and fit range corrected from 25–200% to 1–200%; fit explains when the picture cannot fit even at 1%. The maintainer approved the correction through the delegate named for checkpoints on 2026-11-27. Below 10%, buttons use smaller steps so the approved range is usable; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 corrects the new below-100% zoom state: double-click enlarges that point; at 100% and above double-click keeps the prior rename action and F2 still renames. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 adds a visible return to 100% from the new zoomed-out state after the goal-only task needed 11 plus presses. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 brings fit controls into view before measuring available height, reduces accidental low-zoom drags and explains a cancelled drag or uncancellable pan. The maintainer's checkpoint delegate authorized these corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 records the measured small correction: a wheel gesture explains a scale limit or an active drag, and returning within the low-zoom drag threshold saves no move. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 records the measured correction that a pinch cancelling an active drag explains the cancellation, and the wait-for-drag notice ends with the drag. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 clarifies that buttons, double-click and wheel wait during an active drag, and pinch counts fingers that began inside the picture. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         },
         {
           "approved": "SPEC-055 defines position history and SPEC-012 now refuses conditional undo or redo when the position changed; ordinary moves still use last-write wins. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
@@ -225,6 +295,16 @@
           "approved": "TBL-151's comment in db/nexus.sql, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): the approved \"it stays listed while it has open threads (SPEC-027).\" becomes \"it stays listed while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (SPEC-027).\" No table, column or constraint changed, and TBL-158's trace line stays. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "No data change: the guidance uses existing stage, question and confirmation data. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "No change for zoom: view scale is local and needs no stored data; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         },
         {
           "approved": "No table change: history stays in the tab and existing saved positions are reused. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
@@ -411,6 +491,16 @@
           "date": "2026-11-27"
         },
         {
+          "approved": "No API change: the guidance uses existing API-263, API-264 and API-265 data. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 needs no operation; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
           "approved": "API-274 optionally compares the expected saved position and refuses a changed position atomically. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
@@ -461,6 +551,16 @@
           "approved": "No change, pull request 154, at commit 50d4904, the feature change for a removed diagram that keeps what waits on it (option A of pull request 150's analysis): ?d= already takes a removed diagram still listed (SPEC-027), whatever keeps it listed. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "No route change: guidance is added to existing screens. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "No change for zoom: no screen or route is added; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         },
         {
           "approved": "No new screen or route is needed for position history. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
@@ -538,6 +638,66 @@
           "approved": "Every change set waiting for reflection, pull request 160, at commit cd81ed3: SCR-146#waiting, approved as \"Direct edits waiting for reflection: they come first, each with Cancel edit (on a phone, without it), and the confirm button is off with \"Reflect or cancel the waiting changes first\".\" (\"반영을 기다리는 직접 편집: …\"), now lists every change set waiting for reflection, each direct edit with Cancel edit (on a phone, without it) and each accepted AI proposal without it, since SPEC-029 refuses a confirmation while any change set waits, an accepted AI proposal included (API-275's 409 waiting_reflection). Nothing else in SCR-146 and no number of states changes. It was asked as its own question and answered before the stage passed. The maintainer approved the recommendation through the delegate they named for checkpoints; the answer is in the project's records.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "SCR-142 and SCR-145 add question, empty-stage and confirmation guidance; changes to the prior empty, confirmation and to-do wording were separately approved. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "The same confirmation explanation and corrected stage-pass wording also apply to SCR-146, which shares that action; SCR-145 omits the old suggestion that the next push arrives by itself, since it conflicts with the new request guidance. These small corrections to the approved guidance were made under the checkpoint delegate's 2026-11-27 authorization; their basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 advises fixing unreadable source rather than resending and does not solicit material for a removed diagram; SCR-146 gives the confirm explanation only when confirmation is available. The maintainer's checkpoint delegate authorized these small corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 adds zoom and fit controls; the maintainer approved the recommendation through the delegate named for checkpoints. The answer is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 zoom controls corrected from 25–200% to 1–200% and an explanation is shown if 1% still cannot fit. The maintainer approved the correction through the delegate named for checkpoints on 2026-11-27. Smaller button steps below 10% make the range usable; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 explains the below-100% double-click and preserves rename by F2 or double-click at 100% and above. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 adds 글자 크게 보기 below 100% after the goal-only task needed 11 plus presses. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records bringing fit controls into view, the low-zoom drag threshold and messages for an interrupted drag or uncancellable pan. The maintainer's checkpoint delegate authorized these corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 clarifies that minus uses the smaller step when the displayed scale rounds to 10%, avoiding a button that appears stuck. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records the measured small correction: a wheel gesture explains a scale limit or an active drag, and returning within the low-zoom drag threshold saves no move. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records the measured correction that a pinch cancelling an active drag explains the cancellation, and the wait-for-drag notice ends with the drag. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 clarifies that buttons, double-click and wheel wait during an active drag, and pinch counts fingers that began inside the picture. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         },
         {
           "approved": "SCR-145 shows undo and redo, keyboard behavior, pending and conflict states. The maintainer approved the recommendation through the delegate named for checkpoints on 2026-11-27; the answers are in the project records.",

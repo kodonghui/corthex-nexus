@@ -15,6 +15,7 @@
 // of element key to the name it is shown by), nodes (a Map that each chosen thing's node goes into, by key) }.
 
 import { h, s } from './dom.js';
+import { emptyStageGuidance } from './guidance.js';
 import { aiBadge, ghostCap, KIND_WORDS, markChips, nameWith, overClasses } from './overlays.js';
 import { endsOf, straight } from './relayout.js';
 
@@ -147,11 +148,13 @@ function svgPicture(view) {
     layers.over.push(s('path', { class: link.waiting ? 'ov-link wait' : 'ov-link', d: pathOf(points) }), s('path', { class: 'ov-head', d: headOf(points) }));
   }
   const svg = s('svg', {
-    class: `pic k-${diagram.kind}`, width, height, viewBox: `${x} ${y} ${width} ${height}`,
+    class: `pic k-${diagram.kind}`, width: width * (view.zoom ?? 1), height: height * (view.zoom ?? 1), viewBox: `${x} ${y} ${width} ${height}`,
   }, layers.back, layers.lines, layers.boxes, layers.moved, layers.over);
   // The workbench keeps the box's scroll across redraws and opens a picture at its first box (workbench.js).
   view.box = h('div', { class: 'boardbox' }, h('div', { class: 'pic-wrap', role: 'group', 'aria-label': labelOf(diagram, place) }, svg));
   view.origin = { x, y };
+  view.svg = svg;
+  view.size = { width, height };
   return view.box;
 }
 
@@ -471,7 +474,15 @@ function statePanels(view) {
 // as drawn. Each row's name is the button that chooses it; a row has no box, so it never moves.
 function itemTable(view) {
   const rows = (view.diagram.elements ?? []).filter((element) => element.kind === 'row');
-  if (rows.length === 0) return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems));
+  if (rows.length === 0) {
+    const failed = view.diagram.drawing?.status === 'failed';
+    const leftOut = (view.diagram.elements ?? []).some((element) => element.status === 'left_out');
+    const advice = view.diagram.removed ? null : failed
+      ? '문서가 그려지지 않았어요. 함께 일하는 AI에게 문서 수정을 요청해 주세요.' : leftOut
+      ? '읽지 못한 항목이 있어요. 아래 위치를 확인하고 함께 일하는 AI에게 문서 수정을 요청해 주세요.'
+      : emptyStageGuidance(view.diagram.stage);
+    return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems), advice === null ? null : h('p', {}, advice));
+  }
   return h('table', { class: 'tb items', 'aria-label': view.diagram.name },
     h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, '이름'), h('th', { scope: 'col' }, '상태'), h('th', { scope: 'col' }, '링크'))),
     h('tbody', {}, rows.map((element) => {

@@ -58,7 +58,8 @@ function entryRow(entry, shell) {
   const kind = KINDS[entry.kind] ?? null;
   const stage = stageOf(entry.stage);
   const place = [stage === undefined ? entry.stage : `${stage.number} ${stage.name}`, entry.diagram_name].filter(Boolean).join(' · ');
-  const reason = entry.kind === 'confirm' ? REASONS[entry.reason] ?? null : null;
+  const reason = entry.kind === 'confirm' ? REASONS[entry.reason] ?? null
+    : entry.kind === 'question' ? '열어서 질문을 읽고 댓글에 답해 주세요.' : null;
   return h('a', { class: 'li', href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread }) },
     h('span', { class: 'lead' }, kind === null ? null : h('span', { class: kind.class }, kind.text)),
     h('span', { class: 'grow' }, h('b', {}, place), reason === null ? null : h('span', { class: 'sec' }, reason)),

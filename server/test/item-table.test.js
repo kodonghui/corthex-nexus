@@ -62,14 +62,14 @@ describe('the item-table drawer', () => {
     assert.equal(stored.sha256, sha256(source), `docs/02-prd/requirements.md changed since test/item-table-items.json was made: ${AGAIN}`);
     // One item for each requirement the source's table defines, in its order.
     const defined = [...source.toString('utf8').matchAll(/^\| (REQ-\d+) \|/gm)].map(([, id]) => id);
-    assert.equal(defined.length, 81);
+    assert.equal(defined.length, 83);
     assert.deepEqual(stored.items.map((entry) => entry.id), defined);
   });
 
   test('this repository\'s stage 02 draws one row per requirement, with its name, status and links (SPEC-005)', () => {
     const { items } = storedItems();
     const { elements, name } = draw(items);
-    assert.equal(elements.length, 81);
+    assert.equal(elements.length, 83);
     assert.equal(name, undefined);
     assert.deepEqual(elements, items.map((entry) => rowOf(entry)));
     // Each row by its name, the requirement's title; the trace ID is its key, not its name (SPEC-010).
@@ -227,7 +227,7 @@ describe('item tables through the push', () => {
     const [drawing, ...others] = drawings(table.id);
     assert.deepEqual([drawing.status, others], ['drawn', []]);
     const rows = elements(drawing.id);
-    assert.equal(rows.length, 81);
+    assert.equal(rows.length, 83);
     assert.deepEqual(rows, items.map((entry) => {
       const row = rowOf(entry);
       return { element_key: row.key, trace_id: row.trace_id, kind: 'row', name: row.name, parent_key: null, status: null, detail: row.detail };
@@ -398,7 +398,7 @@ describe('item tables through the push', () => {
     snapshot.truncated = true;
     snapshot.items = snapshot.items.filter((entry) => entry.stage !== '10-wbs');
     await push(own, snapshot);
-    assert.equal(elements(drawings(diagram(name, '/items/02-prd').id)[0].id).length, 81);
+    assert.equal(elements(drawings(diagram(name, '/items/02-prd').id)[0].id).length, 83);
     for (const stage of ['08-screen-states', '09-mockup', '10-wbs', '12-qa', '13-presentation']) {
       assert.equal(diagram(name, `/items/${stage}`), undefined, stage);
     }

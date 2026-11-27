@@ -65,7 +65,7 @@ class ItemTableItemsTest(unittest.TestCase):
         again = "make it again as this file's docstring says"
         self.assertEqual(stored["sha256"], made["sha256"], f"{made['source']} changed since the stored items: {again}")
         self.assertEqual(stored, made, f"the pinned hub's stage-02 items differ from the stored ones: {again}")
-        self.assertEqual(len(made["items"]), 81)
+        self.assertEqual(len(made["items"]), 83)
 
     def test_the_drawers_removed_words_are_the_pinned_hubs(self):
         text = DRAWER.read_text(encoding="utf-8")

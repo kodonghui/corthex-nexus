@@ -43,14 +43,15 @@ PROJECT = "corthex-nexus"
 # Pull request links in the project's repository. The server reads only their form; nothing opens them.
 PULL = "https://github.com/kodonghui/corthex-nexus/pull/%d"
 # The stage page of a checkpoint in the address form of SCR-145, on a placeholder host. The hub needs an https link
-# for a checkpoint that names a NEXUS checkpoint, and the local server has none.
+# for the TASK-449 explicit-link check; the local server has no https address.
 WHERE = "https://nexus.example.com/p/%s/nexus/07-sitemap" % PROJECT
 # The 32 characters of the contract's IDs, for a request key of the owner's writes.
 ID_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz"
 # The operations each command calls, as the server's log names them; status calls none. A push that sends nothing
-# reads the held commit only.
+# reads the held commit only. The shared map also names propose for test_hub_source_path.py.
 CALLS = {
     "push": ["getHeldCommit", "pushSnapshot"],
+    "propose": ["makeProposal"],
     "push sending nothing": ["getHeldCommit"],
     "todo": ["getAgentTodo"],
     "claim": ["claimEntry"],
@@ -121,7 +122,7 @@ class LocalServer:
             return refused.code, json.loads(refused.read())
 
 
-class HubRunTest(HubCheckoutCase):
+class HubRunFixture(HubCheckoutCase):
     def setUp(self):
         self.node = node_program(self, "the hub run")
         super().setUp()
@@ -239,23 +240,31 @@ class HubRunTest(HubCheckoutCase):
                          ("05-erd", "TBL-146", "owner", "agent"), thread)
         return thread["id"]
 
-    def assert_calls_and_log(self, *commands):
-        """The server's log names the agent operations the commands called, in order, and no line holds what rule 5
-        keeps out, nor a session, a link or a comment's text."""
+    def assert_private_log(self, *extra):
+        """Check protected values in the server log and the credential secret in hub output."""
         lines = [json.loads(line) for line in self.stop_server()]
-        self.assertEqual([line["action"] for line in lines if line["sender"] == "hub-run"], calls(*commands))
-        digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
-        # The log's own text, where JSON escapes a path's backslashes, and its values as read.
         text = "\n".join(self.log_lines + [value for line in lines for value in map(str, line.values())])
+        digest = hashlib.sha256(self.secret.encode("ascii")).hexdigest()
         data = str(self.server.data)
-        for value in (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
-                      json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
-                      self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION):
-            # assertFalse, so that a failure never prints the value it found.
-            self.assertFalse(value in text, "the server's log holds what it keeps out; value withheld")
+        protected = (self.secret, digest, self.server.owner_sign_in, data, data.replace("\\", "/"),
+                     json.dumps(data)[1:-1], self.session["CORTHEX_NEXUS_SESSION"],
+                     self.other["CORTHEX_NEXUS_SESSION"], PULL % 1, PULL % 2, QUESTION, DECISION,
+                     "Yes: a revoked credential keeps its name.") + extra
+        # Check raw JSON too: paths may have escaped backslashes. Never print a protected value on failure.
+        for value in protected:
+            self.assertFalse(value in text or json.dumps(value, ensure_ascii=False)[1:-1] in text,
+                             "the server log holds protected test data; value withheld")
         for output in self.outputs:
             self.assertFalse(self.secret in output, "the hub shows the credential's secret; value withheld")
 
+    def assert_calls_and_log(self, *commands):
+        """Check the hub's ordered operations and rule-5 protected values."""
+        lines = [json.loads(line) for line in self.stop_server()]
+        self.assertEqual([line["action"] for line in lines if line["sender"] == "hub-run"], calls(*commands))
+        self.assert_private_log()
+
+
+class HubRunTest(HubRunFixture):
     def test_each_command_gets_an_answer_the_hub_reads(self):
         first = self.commit
         thread = self.first_push_and_comment()
@@ -310,6 +319,25 @@ class HubRunTest(HubCheckoutCase):
         self.assertEqual(sent["stages"]["07-sitemap"]["parts"]["nexus"]["checkpoints"][-1]["nexus"], confirmation)
 
         self.assert_calls_and_log("push", "comment", "todo", "claim", "decide", "reflect", "record", "status", "push")
+
+    def test_the_v3_push_job_after_header_cutover(self):
+        first = self.read(self.session, "push", PROJECT, "--first")
+        self.assertEqual((first["revision"], first["commit"]), (1, self.commit))
+        with (self.project / "README.md").open("a", encoding="utf8") as readme:
+            readme.write("\nSynthetic v3 push revision.\n")
+        self.commit = self.commit_and_publish("Synthetic v3 push revision")
+        code, row, _ = self.run_push_step({"CORTHEX_NEXUS_URL": self.server.url,
+                                          "CORTHEX_NEXUS_CLIENT_ID": self.credential,
+                                          "CORTHEX_NEXUS_CLIENT_SECRET": self.secret},
+                                         use_workflow_header_mode=False)
+        self.outputs.append(self.push_output)
+        self.assertEqual((code, row["outcome"], row["answer"]["sent"]), (0, "done", True), row)
+        self.assertEqual((row["answer"]["pushed"]["revision"], row["answer"]["pushed"]["commit"]),
+                         (2, self.commit))
+        status, project = self.server.owner("GET", "/api/projects/" + PROJECT)
+        self.assertEqual(status, 200)
+        self.assertEqual(project["revision"], 2)
+        self.assert_calls_and_log("push", "push")
 
     def test_the_hub_reads_the_refusals_by_design(self):
         # Before the first push, the space is missing: the to-do is empty, and push waits for the user's yes.

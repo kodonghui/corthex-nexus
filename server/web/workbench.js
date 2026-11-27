@@ -33,11 +33,13 @@ import { CONTAINERS, placement } from './relayout.js';
 import { store, stored } from './storage.js';
 import { THREAD_WORDS, threadsFocus, threadsOpened, threadsPart, threadsWhole } from './threads.js';
 import { workshopEntry } from './workshop.js';
+import { clampZoom, fitZoom, MAX_ZOOM, MIN_ZOOM, zoomScroll, zoomStep } from './zoom.js';
 
 export const STEP = 8;
 export const LONG_STEP = 40;
 export const SEND_AFTER_MS = 400;
 const DRAG_FROM = 3;
+const ZOOM_WAIT_DRAG = '옮기기를 마친 뒤 그림 크기를 바꿔 주세요.';
 const MOVED_KINDS = new Set(['ddd_board', 'erd', 'sitemap', 'user_flow']);
 
 export const WORKBENCH_WORDS = Object.freeze({
@@ -58,7 +60,7 @@ export const WORKBENCH_WORDS = Object.freeze({
 // The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them. The
 // board's on a PC is the mockup's again, F2 renaming included, since TASK-460 renames (WBS section 4).
 const DESCRIPTIONS = Object.freeze({
-  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮기고, 두 번 눌러 이름을 바꿔 보세요. 키보드로는 화살표로 옮기고 F2로 이름을 바꿔요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
+  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌거나 화살표 키로 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
   user_flow: 'Git 문서의 Mermaid 흐름도에서 그린 그림이에요. 흐름 파일마다 그림이 하나 있어요.',
   erd: 'Git의 스키마에서 그린 ERD예요. 테이블마다 상자가 하나 있어요.',
   sitemap: 'Git의 사이트맵에서 그린 화면 트리예요.',
@@ -142,7 +144,7 @@ function stateOf(ctx) {
       history = { undo: [], redo: [], busy: false, inFlight: null, epoch: 0, invalidated: stored('sessionStorage', historyMark(diagram.id)) === '1' };
       byDiagram.set(diagram.id, history);
     }
-    state = { diagram: diagram.id, selected: null, moves: new Map(), before: new Map(), pending: new Set(), sending: new Set(), failed: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), history };
+    state = { diagram: diagram.id, selected: null, moves: new Map(), before: new Map(), pending: new Set(), sending: new Set(), failed: new Set(), again: new Set(), timer: null, frame: null, drags: new WeakMap(), dragListeners: new WeakSet(), zoom: 1, pinching: false, history };
     // Whether the workbench still shows this diagram, for an answer that comes after a switch.
     const own = state;
     state.live = () => states.get(ctx.shell) === own;
@@ -172,6 +174,7 @@ function build(ctx, row) {
     state.history.invalidated = false;
     store('sessionStorage', historyMark(state.diagram), null);
   }
+  state.dragNotice = h('div', { class: 'wb-notice' });
   state.pictureBox = h('div', { class: 'wb-picture', on: { keydown: (event) => escape(state, event) } });
   state.selectedBox = h('section', { class: 'panel', 'aria-label': WORKBENCH_WORDS.selected, on: { keydown: (event) => escape(state, event) } });
   state.tokenBox = null;
@@ -193,6 +196,7 @@ function build(ctx, row) {
     diagramList(ctx, row),
     notDrawn(diagram),
     state.notice,
+    state.dragNotice,
     changes.line,
     state.pictureBox,
   ];
@@ -268,7 +272,13 @@ function legendOf(diagram, model) {
 
 // The picture, drawn again with the moves not yet answered; the element that had the focus gets it back.
 function drawPicture(state) {
-  if (state.dragNode != null) cancelled(state, state.dragNode);
+  const pinchInterrupted = state.pinching;
+  state.pinching = false;
+  if (state.dragNode) {
+    const moved = state.drags.get(state.dragNode)?.moved;
+    cancelled(state, state.dragNode);
+    if (moved) fill(state.dragNotice, h('div', { class: 'nt warn', role: 'alert' }, '그림이 새로 바뀌어 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+  }
   const { ctx } = state;
   const diagram = ctx.data.diagram;
   const view = {
@@ -279,6 +289,7 @@ function drawPicture(state) {
     names: state.names,
     nodes: new Map(),
     shapes: new Map(),
+    zoom: state.zoom,
     select: (key) => select(state, key),
     keydown: (element, event) => keydown(state, element, event),
     dblclick: (element) => renameFrom(state, element, () => select(state, element.key)),
@@ -293,7 +304,75 @@ function drawPicture(state) {
     if (state.tokenBox !== null) fill(state.tokenBox, tokenList(view));
   } else {
     const controls = !state.phone && !diagram.removed && MOVED_KINDS.has(diagram.kind) ? historyControls(state) : null;
-    fill(state.pictureBox, controls, pictureOf(view));
+    const picture = pictureOf(view);
+    if (view.svg) {
+      for (const element of diagram.elements ?? []) {
+        if (movable(state, element)) view.nodes.get(element.key)?.setAttribute('data-diagram-movable', '');
+      }
+      const prior = state.zoomUI;
+      const focusIndex = prior ? [prior.decrease, prior.increase, prior.fit, prior.readable].indexOf(document.activeElement) : -1;
+      const oldNotice = prior?.notice.textContent ?? '';
+      fill(state.pictureBox, zoomControls(state), controls, picture);
+      state.zoomUI.notice.textContent = oldNotice;
+      if (pinchInterrupted) state.zoomUI.notice.textContent = '그림이 바뀌어 확대를 멈췄어요. 두 손가락으로 다시 확대해 주세요.';
+      const newControls = [state.zoomUI.decrease, state.zoomUI.increase, state.zoomUI.fit, state.zoomUI.readable];
+      if (focusIndex >= 0 && !newControls[focusIndex].disabled && !newControls[focusIndex].hidden) newControls[focusIndex].focus();
+      view.box.addEventListener('dblclick', (event) => {
+        if (state.zoom >= 1) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const rect = view.box.getBoundingClientRect();
+        changeZoom(state, Math.min(1, state.zoom * 4), event.clientX - rect.left, event.clientY - rect.top);
+      }, true);
+      view.box.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey) return;
+        event.preventDefault();
+        if (state.dragNode) {
+          state.zoomUI.notice.textContent = ZOOM_WAIT_DRAG;
+          return;
+        }
+        const rect = view.box.getBoundingClientRect();
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.box.clientHeight : 1);
+        changeZoom(state, state.zoom * Math.exp(-delta * 0.002), event.clientX - rect.left, event.clientY - rect.top);
+      }, { passive: false });
+      let pinch = null;
+      // Touch.target stays where each finger started, even when it moves across the page.
+      const pictureTouches = (event) => Array.from(event.touches ?? []).filter((touch) =>
+        touch.target == null || view.box.contains(touch.target));
+      const beginPinch = (touches) => {
+        if (touches.length !== 2) { pinch = null; state.pinching = false; return; }
+        if (state.dragNode) {
+          const moved = state.drags.get(state.dragNode)?.moved;
+          cancelled(state, state.dragNode);
+          if (moved) fill(state.dragNotice, h('div', { class: 'nt warn', role: 'alert' }, '두 손가락 확대를 시작해 옮기기를 멈췄어요. 다시 옮겨 주세요.'));
+        }
+        const [a, b] = touches;
+        pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
+        state.pinching = true;
+      };
+      view.box.addEventListener('touchstart', (event) => {
+        if (state.view !== view) return;
+        beginPinch(pictureTouches(event));
+      }, { passive: true });
+      view.box.addEventListener('touchmove', (event) => {
+        if (state.view !== view) return;
+        const touches = pictureTouches(event);
+        if (!pinch || touches.length !== 2 || pinch.distance === 0) return;
+        if (event.cancelable === false) {
+          pinch = null;
+          state.pinching = false;
+          state.zoomUI.notice.textContent = '스크롤을 멈춘 뒤 두 손가락으로 다시 확대해 주세요.';
+          return;
+        }
+        event.preventDefault();
+        const [a, b] = touches;
+        const rect = view.box.getBoundingClientRect();
+        changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
+          (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
+      }, { passive: false });
+      view.box.addEventListener('touchend', (event) => { if (state.view === view) beginPinch(pictureTouches(event)); });
+      view.box.addEventListener('touchcancel', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
+    } else fill(state.pictureBox, controls, picture);
   }
   if (view.box !== undefined) {
     state.scrolled = diagram.id;
@@ -324,11 +403,106 @@ function scrollTo(view, scroll) {
       if (first === null || shown.y < first.y || (shown.y === first.y && shown.x < first.x)) first = shown;
     }
     if (first === null) return;
-    const left = first.x - origin.x;
-    box.scrollLeft = Math.max(0, Math.min(left, left + first.width / 2 - (box.clientWidth ?? 0) / 2));
+    const left = (first.x - origin.x) * (view.zoom ?? 1);
+    box.scrollLeft = Math.max(0, Math.min(left, left + first.width * (view.zoom ?? 1) / 2 - (box.clientWidth ?? 0) / 2));
   };
   if (box.isConnected === false) queueMicrotask(apply);
   else apply();
+}
+
+function zoomControls(state) {
+  const decrease = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 축소', on: { click: () => changeZoom(state, zoomStep(state.zoom, -1)) } }, '−');
+  const increase = h('button', { class: 'btn tertiary', type: 'button', 'aria-label': '그림 확대', on: { click: () => changeZoom(state, zoomStep(state.zoom, 1)) } }, '+');
+  const value = h('output', { 'aria-live': 'off', 'aria-label': '그림 배율' });
+  const announcement = h('span', { class: 'sr-only', 'aria-live': 'polite' });
+  const notice = h('span', { role: 'status' });
+  const readable = h('button', { class: 'btn tertiary zoom-readable', type: 'button', on: { click: () => changeZoom(state, 1) } }, '글자 크게 보기');
+  const hint = h('span', { class: 'small' }, state.ctx.shell.isPhone()
+    ? '작게 본 그림은 원하는 곳을 두 번 누르거나 두 손가락을 벌리면 커져요.' : '작게 본 그림은 원하는 곳을 두 번 누르면 커져요.');
+  const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
+    if (waitForDrag(state)) return;
+    const { box, size } = state.view;
+    // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
+    fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
+    const available = (top = Math.max(0, box.getBoundingClientRect?.().top ?? 0)) => {
+      const metrics = boxMetrics(box);
+      return { width: Math.max(1, box.clientWidth - metrics.horizontalPadding),
+        height: Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical) };
+    };
+    // A tiny picture may leave too little page height for the controls to scroll to the top.
+    // Enlarge provisionally for the space below those controls, then scroll and measure the real space.
+    const boxTop = box.getBoundingClientRect?.().top ?? 0;
+    const controlTop = fit.getBoundingClientRect?.().top ?? 0;
+    let space = available(Math.max(0, boxTop - Math.max(0, controlTop)));
+    let fitted = fitZoom(size.width, size.height, space.width, space.height);
+    changeZoom(state, fitted, 0, 0);
+    fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
+    // A scale below 100% can reveal controls and move the picture down; use its actual position.
+    space = available();
+    fitted = fitZoom(size.width, size.height, space.width, space.height);
+    changeZoom(state, fitted, 0, 0);
+    notice.textContent = size.width * fitted > space.width || size.height * fitted > space.height
+      ? '그림이 너무 커서 전체를 한 화면에 담지 못했어요.' : '';
+    box.scrollLeft = 0;
+    box.scrollTop = 0;
+  } } }, '화면에 맞추기');
+  state.zoomUI = { decrease, increase, fit, value, notice, readable, announcement };
+  updateZoomControls(state);
+  return h('div', { class: 'zoom-controls', role: 'group', 'aria-label': '그림 크기' }, decrease, value, increase, fit, readable, hint, notice, announcement);
+}
+
+function boxMetrics(box) {
+  const css = globalThis.getComputedStyle?.(box);
+  const number = (value, fallback) => Number.isFinite(Number.parseFloat(value)) ? Number.parseFloat(value) : fallback;
+  const left = number(css?.paddingLeft, 12), right = number(css?.paddingRight, 12);
+  const top = number(css?.paddingTop, 12), bottom = number(css?.paddingBottom, 12);
+  const borderX = number(css?.borderLeftWidth, 1), borderY = number(css?.borderTopWidth, 1);
+  return { insetX: left + borderX, insetY: top + borderY, horizontalPadding: left + right,
+    vertical: top + bottom + borderY + number(css?.borderBottomWidth, 1), maxHeight: number(css?.maxHeight, 650) };
+}
+
+function updateZoomControls(state) {
+  const { decrease, increase, value, readable } = state.zoomUI;
+  const focused = document.activeElement;
+  decrease.disabled = state.zoom <= MIN_ZOOM;
+  increase.disabled = state.zoom >= MAX_ZOOM;
+  readable.hidden = state.zoom >= 1;
+  if (decrease.disabled && focused === decrease) increase.focus();
+  if (increase.disabled && focused === increase) decrease.focus();
+  if (readable.hidden && focused === readable) increase.focus();
+  value.textContent = `${Math.round(state.zoom * 1000) / 10}%`;
+}
+
+function waitForDrag(state) {
+  if (!state.dragNode) return false;
+  state.zoomUI.notice.textContent = ZOOM_WAIT_DRAG;
+  return true;
+}
+
+function changeZoom(state, wanted, x, y) {
+  if (waitForDrag(state)) return;
+  const { box, svg, size } = state.view;
+  const next = clampZoom(wanted);
+  if (next === state.zoom) {
+    if (!state.zoomUI.notice.textContent && next === MAX_ZOOM) state.zoomUI.notice.textContent = '그림은 200%까지 확대할 수 있어요.';
+    if (!state.zoomUI.notice.textContent && next === MIN_ZOOM) state.zoomUI.notice.textContent = '그림은 1%까지 축소할 수 있어요.';
+    return;
+  }
+  state.zoomUI.notice.textContent = '';
+  // The SVG starts inside the scroll box's border and padding.
+  const { insetX, insetY } = boxMetrics(box);
+  const centerX = (x ?? (box.clientWidth / 2 + (box.clientLeft ?? 1))) - insetX;
+  const centerY = (y ?? (box.clientHeight / 2 + (box.clientTop ?? 1))) - insetY;
+  const left = zoomScroll(box.scrollLeft, centerX, state.zoom, next);
+  const top = zoomScroll(box.scrollTop, centerY, state.zoom, next);
+  state.zoom = next;
+  svg.setAttribute('width', size.width * next);
+  svg.setAttribute('height', size.height * next);
+  box.scrollLeft = left;
+  box.scrollTop = top;
+  updateZoomControls(state);
+  clearTimeout(state.zoomAnnouncement);
+  state.zoomAnnouncement = setTimeout(() => { state.zoomUI.announcement.textContent = `그림 배율 ${state.zoomUI.value.textContent}`; }, 250);
 }
 
 // A mockup's tokens (SPEC-009), each chosen like any element, with a swatch of its first value when that is a colour.
@@ -566,31 +740,42 @@ function movable(state, element) {
 }
 
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
+const positionBound = (value) => Math.max(-1_000_000, Math.min(1_000_000, Math.round(value)));
 
 function keydown(state, element, event) {
   if (changeKey(state, element, event, () => select(state, element.key))) return;
   const way = ARROWS[event.key];
   if (way === undefined || !movable(state, element)) return;
   event.preventDefault();
-  const step = event.shiftKey ? LONG_STEP : STEP;
+  fill(state.dragNotice);
+  // Keep arrow movement visible in screen pixels at every zoom level, as a drag is.
+  const step = Math.round((event.shiftKey ? LONG_STEP : STEP) / state.zoom);
   const at = state.view.place.boxes.get(element.key);
-  moveTo(state, element.key, { x: at.x + way[0] * step, y: at.y + way[1] * step });
+  const wanted = { x: at.x + way[0] * step, y: at.y + way[1] * step };
+  const to = { x: positionBound(wanted.x), y: positionBound(wanted.y) };
+  moveTo(state, element.key, to);
+  if (Math.abs(wanted.x) > 1_000_000 || Math.abs(wanted.y) > 1_000_000) {
+    fill(state.dragNotice, h('div', { class: 'nt warn', role: 'status' }, '이 방향으로는 더 옮길 수 없어요.'));
+  }
 }
 
-// A drag: the box follows the pointer, and the move is taken once it is let go 3 pixels or more from where it started.
+// A drag follows the pointer; below 25% it needs an eight-pixel gesture, otherwise DRAG_FROM pixels.
 function pointerdown(state, element, event) {
-  if ((event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
+  if ((event.pointerType === 'touch' && event.isPrimary === false) || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
   const node = state.view.nodes.get(element.key);
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
+  fill(state.dragNotice);
   const at = state.view.place.boxes.get(element.key);
   const shape = state.view.shapes.get(element.key) ?? null;
-  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at };
-  if (!state.drags.has(node)) {
+  const drag = { key: element.key, start: { x: event.clientX, y: event.clientY }, at, holder, shape, moved: false, to: at, zoom: state.zoom,
+    threshold: state.zoom < 0.25 ? 8 : DRAG_FROM };
+  if (!state.dragListeners.has(node)) {
     node.addEventListener('pointermove', (move) => dragged(state.drags.get(node), move));
     node.addEventListener('pointerup', (up) => dropped(state, node, up));
     node.addEventListener('pointercancel', () => cancelled(state, node));
     node.addEventListener('lostpointercapture', () => cancelled(state, node));
+    state.dragListeners.add(node);
   }
   state.drags.set(node, drag);
   state.dragNode = node;
@@ -602,9 +787,9 @@ function dragged(drag, event) {
   if (drag === undefined) return;
   const dx = event.clientX - drag.start.x;
   const dy = event.clientY - drag.start.y;
-  if (!drag.moved && Math.hypot(dx, dy) < DRAG_FROM) return;
+  if (!drag.moved && Math.hypot(dx, dy) < drag.threshold) return;
   drag.moved = true;
-  drag.to = { x: Math.round(drag.at.x + dx), y: Math.round(drag.at.y + dy) };
+  drag.to = { x: positionBound(drag.at.x + dx / drag.zoom), y: positionBound(drag.at.y + dy / drag.zoom) };
   drag.holder.setAttribute('x', drag.to.x - PAD);
   drag.holder.setAttribute('y', drag.to.y - PAD);
   // A flow box's shape is drawn apart from its button: it follows by an SVG transform, never a style.
@@ -613,6 +798,7 @@ function dragged(drag, event) {
 
 // A drag the browser took over, such as for a gesture: the box goes back to where it was, and nothing is sent.
 function cancelled(state, node) {
+  if (state.zoomUI?.notice.textContent === ZOOM_WAIT_DRAG) state.zoomUI.notice.textContent = '';
   const drag = state.drags.get(node);
   state.drags.delete(node);
   if (state.dragNode === node) state.dragNode = null;
@@ -624,17 +810,28 @@ function cancelled(state, node) {
 }
 
 function dropped(state, node, event) {
+  if (state.zoomUI?.notice.textContent === ZOOM_WAIT_DRAG) state.zoomUI.notice.textContent = '';
   const drag = state.drags.get(node);
   state.drags.delete(node);
   if (state.dragNode === node) state.dragNode = null;
   if (drag === undefined) { updateHistoryControls(state); return; }
   dragged(drag, event);
-  if (drag.moved) moveTo(state, drag.key, drag.to);
-  else updateHistoryControls(state);
+  if (drag.moved) {
+    const distance = Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y);
+    const returned = drag.zoom < 0.25 ? distance < drag.threshold : distance === 0;
+    moveTo(state, drag.key, returned ? drag.at : drag.to);
+  } else updateHistoryControls(state);
 }
 
 // Puts a box at a place: chosen, drawn there with its lines, and sent once the moves stop.
 function moveTo(state, key, to) {
+  const current = state.view.place.boxes.get(key);
+  if (current && current.x === to.x && current.y === to.y) {
+    if (state.selected !== key) { state.selected = key; drawSelected(state); }
+    state.focus = key;
+    drawPicture(state);
+    return;
+  }
   const previous = state.view.place.boxes.get(key);
   if (!state.before.has(key) && previous) {
     const element = (state.ctx.data.diagram.elements ?? []).find((each) => each.key === key);
