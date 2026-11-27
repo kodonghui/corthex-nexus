@@ -1,6 +1,6 @@
 # NEXUS v3 QA: interim release gate
 
-Recommendation: **no-go**, including for the first group. This is an interim assessment of the QA plan and local walks, not a release-commit gate. The 243 case rows in [QA draft PR 166](https://github.com/kodonghui/corthex-nexus/pull/166) at commit `5d7184b` recorded 206 pass, 36 not run and 1 blocked. Since then workflow permission was added. TC-221 passed a preliminary run at pin commit `6145f53` in PR 167, which remains unmerged, so it remains not run in the gate: the updated count in QA PR 166 at `b68c73e` is 206 pass, 37 not run and 0 blocked; many passes are from earlier commits, and the release commit must be checked again. No case is waived. No open S1 or S2 is recorded; four S3 findings, BUG-002 to BUG-005, remain open. BUG-001 was fixed and merged in PR 165 and incorporated in QA draft commit `bc3a3d0`.
+Recommendation: **no-go**, including for the first group. This is an interim assessment of the QA plan and local walks, not a release-commit gate. The 243 case rows in [QA draft PR 166](https://github.com/kodonghui/corthex-nexus/pull/166) at commit `5d7184b` recorded 206 pass, 36 not run and 1 blocked. Since then GitHub OAuth `workflow` scope was added, permitting the push of PR 167’s changed hub workflow. TC-221 passed a preliminary run at pin commit `6145f53` and was rerun on `e95fdbd` in PR 167, which remains unmerged, so it remains not run in the gate: the updated count in QA PR 166 at `4b163ee` is 206 pass, 37 not run and 0 blocked; many passes are from earlier commits, and the release commit must be checked again. No case is waived. No open S1 or S2 is recorded; five S3 findings, BUG-002 to BUG-006, remain open in the [QA draft files](https://github.com/kodonghui/corthex-nexus/pull/166/files). BUG-001 was fixed and merged in PR 165 and incorporated in QA draft commit `bc3a3d0`.
 
 ## Blocking items
 
@@ -15,11 +15,11 @@ There are 18 non-gate cases without a pass. Each remains open with its named fol
 - TC-198 and TC-199: measured P95 performance on the intended environment is still needed.
 - TC-200, TC-201 and TC-202: browser-version, design and accessibility coverage remains unrun.
 - TC-213: real read-only external-tool status requires the deployed environment and appropriate credentials.
-- TC-221: the preliminary pinned-hub run passed; the pin PR is unmerged and the result is not yet credited as a gate pass.
+- TC-221: the preliminary pinned-hub run passed; the pin PR is unmerged and the result is not yet credited as a case pass.
 - TC-228, TC-229, TC-232, TC-236 and TC-237: the named full flow walks remain unrun.
 - TC-238 to TC-242: full screen-state and mockup comparisons remain unrun; selected local states have partial evidence in the walk report.
 - TC-243: real-phone read and comment walk remains unrun.
 
-A Node layout timing test took 1,158 ms and 1,034 ms against its 1,000 ms limit in two runs on the shared host; the same suite also passed once. The cause is not established. This observation does not establish the required P95 in the intended environment.
+`server/test/layout.test.js`’s single cold-run layout timing test took 1,158 ms and 1,034 ms against its 1,000 ms limit in two runs on the shared host; the same suite also passed once. The cause is not established; BUG-006 in QA PR 166 tracks the test failure as a hypothesis, without weakening the test or claiming a product failure. This observation does not establish the required P95 in the intended environment.
 
-The controlled gate, API refusals and response-loss tests are local evidence and do not prove the deployed Access or provider path. Optional AI exploratory testing was not run and is not a gate item. Recompute counts and review bug status, pinned tests, screen evidence, and open review threads on the exact release commit before any go/no-go decision.
+This report depends on QA PR 166: its plan and bug records are the stage-12 source, and it must land before this report. The controlled gate, API refusals and response-loss tests are local evidence and do not prove the deployed Access or provider path. Optional AI exploratory testing was not run and is not a gate item. Recompute counts and review bug status, pinned tests, screen evidence, and open review threads on the exact release commit before any go/no-go decision.
