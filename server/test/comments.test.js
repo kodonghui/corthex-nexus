@@ -337,6 +337,7 @@ describe('agent comments', () => {
     const unansweredResult = await decide(idOf('nc', unanswered), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(unansweredResult.json.thread.state, 'open');
     const otherDiagram = s.diagram(example);
+    s.document(example, '/pictures/05-erd', '05-erd', 'The recorded ERD.');
     s.elements(otherDiagram.drawing, [
       { key: 'TBL-146', trace_id: 'TBL-146', name: text },
       { key: 'TBL-147', trace_id: 'TBL-147', name: 'Another item' },
@@ -395,6 +396,29 @@ describe('agent comments', () => {
     const result = await decide(idOf('nc', thread), { link: `${repository}/pull/44`, text }, { project: example.name });
     assert.equal(result.json.thread.state, 'open');
     assert.equal(result.json.thread.waits_on, 'agent');
+  });
+
+  test('a non-domain decision verifies its historical and current drawings across later pushes', async () => {
+    for (const mode of ['unchanged', 'redrawn', 'changed']) {
+      const example = s.project(`record-erd-${mode}`);
+      const board = s.diagram(example);
+      const text = 'The selected name.';
+      s.elements(board.drawing, [{ key: 'TBL-146', trace_id: 'TBL-146', name: text }]);
+      s.document(example, '/pictures/05-erd', '05-erd', 'The ERD.');
+      const thread = s.thread(board, { elementKey: 'TBL-146', body: text });
+      s.snapshot(example);
+      s.document(example, '/pictures/05-erd', '05-erd', 'The ERD.');
+      const recorded = example.commit;
+      if (mode !== 'unchanged') {
+        s.snapshot(example);
+        s.document(example, '/pictures/05-erd', '05-erd', 'The later ERD.');
+        const drawing = s.drawing(example, board.id);
+        s.elements(drawing, [{ key: 'TBL-146', trace_id: 'TBL-146', name: mode === 'changed' ? 'Another name.' : text }]);
+      }
+      const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+      const result = await decide(idOf('nc', thread), { link: `${repository}/commit/${recorded}`, text }, { project: example.name });
+      assert.equal(result.json.thread.state, mode === 'changed' ? 'open' : 'closed');
+    }
   });
 
   test('the pinned decision request can identify a verified held commit without a new hub field', async () => {

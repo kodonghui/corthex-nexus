@@ -8,8 +8,8 @@
 //   marks them (API-258).
 // - Where. Each is reflected at the drawing its diagram shows: its latest that drew, since a failed drawing shows the
 //   last good one (SPEC-001). It is reflected even when that drawing lacks the change (SPEC-025).
-// - Threads (REQ-031). The thread of a proposal closes, by reflection, once none of its change sets is proposed or
-//   accepted.
+// - Threads (REQ-031). A proposal thread resolves after all proposals are handled only when the reflected changes
+//   are verified and no later conversation entry leaves an unresolved question.
 // - What is missing (note 26). For each diagram and pull request, every step of the reflected change sets that the
 //   drawing does not show is listed in one comment, on a new thread on the diagram as a whole at that drawing, which
 //   waits on the owner and so is a question of the owner's to-do. The comment is the agent's that reported the pull
@@ -259,7 +259,8 @@ export function reflectMerged(store, { project, commit, time }) {
     const reflected = proposals.filter((set) => set.state === 'reflected');
     const verified = reflected.length > 0 && reflected.every((set) => {
       const steps = statements.steps.all(set.id);
-      const shown = diagrams.get(Number(set.diagram_id)).shown;
+      const shown = statements.currentDrawn.get(Number(set.diagram_id))?.id;
+      if (shown === undefined) return false;
       const itemTable = statements.diagramKind.get(Number(set.diagram_id))?.kind === 'item_table';
       const elements = elementsOf(statements, shown, cache);
       const decided = statements.decided.all(set.diagram_id);

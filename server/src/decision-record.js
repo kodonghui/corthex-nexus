@@ -54,10 +54,10 @@ function canonical(value, key = '') {
   return value;
 }
 
-export function isDecisionRecord(store, { diagram, confirmedDrawing, drawing, confirmedAt, time }) {
+export function isDecisionRecord(store, { diagram, confirmedDrawing, baselineDrawing = confirmedDrawing, drawing, confirmedAt, time }) {
   const q = queries(store);
   if (q.incomplete.get(confirmedDrawing) || q.incomplete.get(drawing) || q.failed.get(diagram, confirmedDrawing, drawing)) return false;
-  const oldSource = q.source.get(confirmedDrawing);
+  const oldSource = q.source.get(baselineDrawing);
   const newSource = q.source.get(drawing);
   if (!oldSource || !newSource) return false;
   let before, after;
@@ -77,8 +77,7 @@ export function isDecisionRecord(store, { diagram, confirmedDrawing, drawing, co
   evidence.push(...q.recommendations.all(diagram, confirmedAt, time)
     .filter((row) => RECOMMENDATION_CHOICES.has(normalize(row.choice)) && normalize(row.answer) === normalize(row.decision))
     .map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
-  if (evidence.length === 0) return false;
-  const hotspots = q.hotspots.all(confirmedDrawing);
+  const hotspots = q.hotspots.all(baselineDrawing);
   let recorded = 0;
   for (let index = 0; index < before.hotspots.length; index += 1) {
     const old = before.hotspots[index];
@@ -92,7 +91,7 @@ export function isDecisionRecord(store, { diagram, confirmedDrawing, drawing, co
     next.state = old.state;
     recorded += 1;
   }
-  if (recorded === 0) return false;
+  if (recorded === 0 && baselineDrawing === confirmedDrawing) return false;
   try {
     return JSON.stringify(canonical(before)) === JSON.stringify(canonical(after));
   } catch {

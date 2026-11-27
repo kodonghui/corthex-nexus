@@ -20,6 +20,7 @@ import { SourceFailure } from '../src/drawing.js';
 import { changeSetsChanged, confirmationsChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
 import { readProject } from '../src/project.js';
+import { reflectMerged } from '../src/reflection.js';
 import { snapshotRoutes } from '../src/snapshots.js';
 import { openStore } from '../src/store.js';
 import { placeOf, testDrawers } from './drawers.js';
@@ -266,6 +267,29 @@ describe('after a drawing', () => {
     await space.push({ tables: [table('TBL-146', 'final')], commit: merge });
     assert.equal(threadRow(thread).state, 'closed');
     assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).n), 1);
+  });
+
+  test('proposals on one conversation can resolve after separate merges', async () => {
+    const space = project('proposals-in-separate-merges');
+    await space.push({ tables: [table('TBL-146', 'first name'), table('TBL-147', 'second name')] });
+    space.snapshot = Number(db.prepare('SELECT id FROM snapshots WHERE project_id = ? AND commit_sha = ?').get(space.id, space.commit).id);
+    const firstDiagram = diagram(space, ERD);
+    const thread = rows.thread(firstDiagram, { elementKey: 'TBL-146' });
+    const firstAt = '2026-11-23T01:01:00.000Z';
+    const secondAt = '2026-11-23T01:02:00.000Z';
+    const first = rows.changeSet(space, firstDiagram, { origin: 'proposal', threadId: thread, state: 'accepted', at: firstAt,
+      decidedAt: firstAt, detail: { change: 'First proposal' } });
+    rows.setChangeSet(first, { reflectedDrawing: firstDiagram.drawing });
+    rows.change(first, { element: 'TBL-146', name: 'first name' });
+    rows.comment(thread, { body: 'First proposal', at: firstAt });
+    const pull = rows.pullRequest(space, { number: 93, state: 'merged' });
+    db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(space.commit, pull);
+    const second = rows.changeSet(space, firstDiagram, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
+      at: secondAt, decidedAt: secondAt, detail: { change: 'Second proposal' } });
+    rows.change(second, { element: 'TBL-147', name: 'second name' });
+    rows.comment(thread, { body: 'Second proposal', at: secondAt });
+    assert.equal(reflectMerged(db, { project: space.id, commit: space.commit, time: at(clock.now) }), 1);
+    assert.equal(threadRow(thread).state, 'closed');
   });
 
   test('a merged document that lacks a change is reflected anyway, and one comment on the diagram says what is missing (SPEC-025, note 26)', async () => {

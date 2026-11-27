@@ -316,7 +316,7 @@ function drawShown(state) {
     h('div', { class: 'btns mid' }, h('span', { class: 'small' }, whereOf(state, thread)), stateTag(thread)),
     thread.entries.map((entry) => entryOf(shell, entry)),
     open ? replyForm(state, thread) : null,
-    open ? closeRow(state, thread) : thread.closed_by === 'reflection' ? closeRow(state, thread, true) : null));
+    open ? closeRow(state, thread) : thread.resolved === true ? closeRow(state, thread, true) : null));
 }
 
 // One entry of a thread: who wrote it and when, the quote it answers, its text, what to look at first and the

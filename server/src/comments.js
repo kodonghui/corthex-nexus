@@ -472,8 +472,8 @@ function markAnswered({ store, params, request, body, credential, now }) {
   return { body: { thread: summaryOf(statements, done.thread), changed: true } };
 }
 
-// API-255: an entry of kind decision with its link. An open thread then waits on the owner, as after any agent's entry;
-// a closed one takes it and stays closed.
+// API-255: a decision entry with its link. An open thread can resolve when its record is verified, wait on the agent
+// while a record is missing, or wait on the owner; a closed one takes the entry and stays closed.
 function recordDecision({ store, params, request, body, credential, now }) {
   const session = sessionOf(request.headers, { required: true });
   const decision = decisionOf(body);

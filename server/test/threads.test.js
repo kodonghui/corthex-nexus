@@ -319,6 +319,7 @@ describe('the owner\'s threads', () => {
   test('the owner can reopen an automatically resolved thread, retaining its history', async () => {
     const id = thread(erd, { elementKey: 'TBL-146' });
     s.closeThread(id, { by: 'reflection' });
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(id, TIME);
     threadChanged(db, { project: space.id, thread: id, time: TIME });
     const key = `"${newId('nw')}"`;
     const request = { method: 'POST', path: threadPath(nc(id), '/reopen'), headers: { ...owner(), 'Content-Type': 'application/json', 'Idempotency-Key': key }, body: '{}' };
@@ -335,6 +336,9 @@ describe('the owner\'s threads', () => {
     s.closeThread(ownerClosed);
     const other = { ...request, path: threadPath(nc(ownerClosed), '/reopen'), headers: { ...request.headers, 'Idempotency-Key': `"${newId('nw')}"` } };
     assert.equal(responses.note('reopenThread', await server.send(other)).status, 400);
+    const legacy = thread(erd, { elementKey: 'TBL-146' });
+    s.closeThread(legacy, { by: 'reflection' });
+    assert.equal((await reopen(nc(legacy))).status, 400);
     const agent = { ...request, headers: { ...s.agent.headers, 'Content-Type': 'application/json', 'Idempotency-Key': `"${newId('nw')}"` } };
     assert.equal((await server.send(agent)).status, 403);
     assert.equal((await reopen(nc(id), { project: 'no-such-project' })).status, 404);

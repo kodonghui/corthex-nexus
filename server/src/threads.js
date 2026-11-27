@@ -12,7 +12,7 @@
 //   readable gets the thread on the diagram, its key kept and marked with its last name, as an element that left
 //   would (comments.js's targetOf; SPEC-016, SPEC-027). A removed diagram takes no new thread (SPEC-027).
 // - A reply (API-268) adds the owner's entry in order, and an open thread then waits on the agent (SPEC-017). A closed
-//   thread takes none: thread_closed, and a new comment starts a new thread. There is no reopening.
+//   thread takes none: thread_closed. An automatically resolved thread can be reopened by its owner (API-294).
 // - Closing (API-269) marks the thread closed by the owner (SPEC-028); closed again, it answers changed false. It
 //   changes only the thread: a proposal that answers it stays as it is, and a claim of its agent entry stays as its row
 //   is and holds nothing once the entry closes (claims.js).
@@ -69,6 +69,7 @@ function statementsOf(store) {
       ),
       reopen: store.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ? AND state = 'closed' AND closed_by = 'reflection'"),
       reopened: store.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)"),
+      resolution: store.prepare('SELECT event FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
     };
     prepared.set(store, statements);
   }
@@ -228,7 +229,9 @@ function reopenThread({ store, params, body, now }) {
   const project = projectOf(statements, params.project);
   const thread = threadOf(statements, project, params.thread);
   if (thread.state === 'open') return { body: { thread: threadSummary(store, thread), changed: false } };
-  if (thread.closedBy !== 'reflection') throw invalidRequest('thread', 'only an automatically resolved thread can be reopened');
+  if (thread.closedBy !== 'reflection' || statements.resolution.get(thread.id)?.event !== 'resolved') {
+    throw invalidRequest('thread', 'only an automatically resolved thread can be reopened');
+  }
   const time = timeNow(now);
   statements.reopen.run(thread.id);
   statements.reopened.run(thread.id, time);

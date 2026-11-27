@@ -69,6 +69,7 @@ function statementsOf(store) {
       // Whether a diagram has a drawing that drew before the given one.
       drawnBefore: store.prepare("SELECT 1 AS drawn FROM drawings WHERE diagram_id = ? AND status = 'drawn' AND id < ? LIMIT 1"),
       currentDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' ORDER BY id DESC LIMIT 1"),
+      previousDrawn: store.prepare("SELECT id FROM drawings WHERE diagram_id = ? AND status = 'drawn' AND id >= ? AND id < ? ORDER BY id DESC LIMIT 1"),
       // Stage passes: those an invalidated confirmation rested on, and the stage's latest.
       changeSince: store.prepare(
         'UPDATE stage_passes SET changed_at = ? WHERE project_id = ? AND stage = ? AND changed_at IS NULL AND passed_at >= ?',
@@ -185,7 +186,9 @@ export function afterDrawing(store, { project, commit, changed, time }) {
       keepPlaced(statements, id, diagram.drawing);
       const live = statements.live.get(id);
       if (live !== undefined && live.source_digest !== diagram.digest && !isDecisionRecord(store, {
-        diagram: id, confirmedDrawing: Number(live.drawing_id), drawing: diagram.drawing, confirmedAt: live.confirmed_at, time,
+        diagram: id, confirmedDrawing: Number(live.drawing_id),
+        baselineDrawing: Number(statements.previousDrawn.get(id, live.drawing_id, diagram.drawing)?.id ?? live.drawing_id),
+        drawing: diagram.drawing, confirmedAt: live.confirmed_at, time,
       })) {
         statements.invalidate.run(time, diagram.drawing, Number(live.id));
         statements.changeSince.run(time, project, stage, live.confirmed_at);

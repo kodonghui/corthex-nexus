@@ -24,6 +24,8 @@ function queries(store) {
     pull: store.prepare("SELECT number, merge_commit FROM pull_requests WHERE project_id = ? AND number = ? AND state = 'merged' AND merge_commit IS NOT NULL"),
     snapshot: store.prepare('SELECT id, revision FROM snapshots WHERE project_id = ? AND commit_sha = ?'),
     current: store.prepare('SELECT id, status, document_version, snapshot_id FROM drawings WHERE diagram_id = ? ORDER BY id DESC LIMIT 1'),
+    historical: store.prepare(`SELECT w.id, w.status FROM drawings w JOIN snapshots s ON s.id = w.snapshot_id
+      WHERE w.diagram_id = ? AND s.revision <= ? ORDER BY s.revision DESC, w.id DESC LIMIT 1`),
     incomplete: store.prepare(INCOMPLETE_DRAWING),
     names: store.prepare("SELECT element_key, name FROM elements WHERE drawing_id = ? AND (status IS NULL OR status <> 'removed')"),
     hotspot: store.prepare("SELECT json_extract(detail, '$.number') AS number FROM elements WHERE drawing_id = ? AND element_key = ? AND kind = 'hotspot'"),
@@ -95,9 +97,14 @@ export function resolveDecision(store, { project, thread, time }) {
     };
     if (!holdsAnswer(recorded.id) || !holdsAnswer(drawing.snapshot_id)) return false;
   } else {
-    if (drawing.document_version !== commit) return false;
-    const matches = q.names.all(drawing.id).filter((element) => normalize(element.name) === text);
-    if (row.element_key === null ? matches.length !== 1 : !matches.some((element) => element.element_key === row.element_key)) return false;
+    const historical = q.historical.get(row.diagram_id, recorded.revision);
+    if (!historical || historical.status !== 'drawn' || q.incomplete.get(historical.id)
+        || !q.source.get(recorded.id, row.source_key)) return false;
+    const holdsAnswer = (drawingId) => {
+      const matches = q.names.all(drawingId).filter((element) => normalize(element.name) === text);
+      return row.element_key === null ? matches.length === 1 : matches.some((element) => element.element_key === row.element_key);
+    };
+    if (!holdsAnswer(historical.id) || !holdsAnswer(drawing.id)) return false;
   }
   if (q.close.run(time, thread).changes === 0) return false;
   recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });

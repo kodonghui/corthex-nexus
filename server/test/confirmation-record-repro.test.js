@@ -100,11 +100,17 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
     assert.equal(competing.filter((result) => result.status === 'fulfilled').length, 1);
     const winner = candidates[competing.findIndex((result) => result.status === 'fulfilled')];
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'confirmed');
-    const changed = structuredClone(updated);
+    rows.comment(answered, { author: 'owner', body: 'Thank you.', at: '2026-11-27T10:04:00.000Z' });
+    const moved = structuredClone(updated);
+    moved.contexts[0].where = moved.contexts[0].where.replace(/:\d+$/, ':999');
+    const movedCommit = newCommit();
+    await push(movedCommit, moved, winner);
+    assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'confirmed');
+    const changed = structuredClone(moved);
     // An identical answer from a different hotspot is not evidence for this one.
     changed.hotspots[4].answer = decided;
     changed.hotspots[4].state = 'answered';
-    await push(newCommit(), changed, winner);
+    await push(newCommit(), changed, movedCommit);
     assert.equal(db.prepare('SELECT state FROM confirmations WHERE id = ?').get(confirmation).state, 'invalidated');
     assert.notEqual(db.prepare('SELECT changed_at FROM stage_passes WHERE id = ?').get(pass).changed_at, null);
   } finally {

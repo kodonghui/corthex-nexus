@@ -445,6 +445,19 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('an older reflection closure without a resolution event has no reopen action', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const legacy = threadOf('erd', original, { closed_by: 'reflection' });
+    const page = await openStage('erd', { more: { [threadPath(T.closed)]: json(200, legacy) } });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      assert.equal(buttonOf(shownThread(page), THREAD_WORDS.reopen), undefined);
+    } finally {
+      page.close();
+    }
+  });
+
   test('a reply to a thread closed meanwhile shows the bar over the picture, and its text moves to the new comment of the same place', async () => {
     const page = await openStage('erd', { posts: () => problem(409, 'thread_closed')() });
     try {

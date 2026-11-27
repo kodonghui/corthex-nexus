@@ -422,4 +422,6 @@ API-255 continues to accept the pinned hub’s existing request and response. A 
 
 For the existing hub, the agent can put the project's full commit link in the existing `decide --link` field after the default-branch snapshot is pushed. NEXUS requires that it holds that commit and the current snapshot, and checks the approved text against the relevant drawing in both; the link by itself proves nothing. A pull-request link can also resolve when a merge commit has been reported and its held snapshot passes the same checks. An unreported or unheld commit remains waiting for the agent.
 
+For a proposal, later conversation entries other than identified proposals leave the thread open when the server cannot prove whether they add a question. A reflected change that is missing from the drawing also stays open; a separate thread identifies the missing change. This conservative rule can leave a harmless acknowledgement waiting until the conversation is handled explicitly.
+
 Migration assessment, 2026-11-27, from a read-only backup: five conversations wait on the owner; four have a final decision link, none has an exact match to the latest owner text, and no reported merged pull request has a commit. None meets the automatic-resolution proof, so leave all five open. A later decision, push or merge report re-evaluates eligible conversations using the same rule.
