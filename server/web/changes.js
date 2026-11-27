@@ -290,7 +290,7 @@ function diagramParts(state) {
     sinceParts(state, heading),
     tokens,
     diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
-    state.changes.asking?.id === CONFIRMING ? null : h('p', {}, CONFIRM_WORDS.beforeConfirm),
+    h('p', {}, CONFIRM_WORDS.beforeConfirm),
     confirmControl(state),
   ];
 }
@@ -342,7 +342,7 @@ const offButton = (wide = true) => h('button', { type: 'button', class: wide ? '
 export const pageOffButton = () => offButton(false);
 
 // The ID the question of 이 그림 확정 is asked under, apart from every change set's.
-export const CONFIRMING = 'confirm';
+const CONFIRMING = 'confirm';
 
 // The record request, or its question with confirm and cancel; Escape stops asking. wide is
 // the panel's full-width button; SCR-146 draws it at its own width.

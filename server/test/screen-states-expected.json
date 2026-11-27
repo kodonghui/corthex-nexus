@@ -522,7 +522,7 @@
      "name": "SCR-145#empty",
      "status": null,
      "detail": {
-      "description": "Nothing sent for this stage: \"Nothing sent yet.\" The stage names the material needed and gives the owner words to request it in the AI conversation they use (SPEC-054). An item table with no items: \"This stage has no items yet\" and the same next-action guidance; if rows were left out, explain the source needs fixing instead; a removed diagram does not ask to send material (SPEC-005, SPEC-054).",
+      "description": "Nothing sent for this stage: \"Nothing sent yet.\" The stage names the material needed and gives the owner words to request it in the AI conversation they use (SPEC-054). An item table with no items: \"This stage has no items yet\" and the same next-action guidance; if drawing failed or rows were left out, explain the source needs fixing instead; a removed diagram does not ask to send material (SPEC-005, SPEC-054).",
       "responses": [
        "API-265#200"
       ],
@@ -784,7 +784,7 @@
        "x": 0,
        "y": 3304,
        "width": 328,
-       "height": 260
+       "height": 320
       }
      }
     },
@@ -804,7 +804,7 @@
        "x": 340,
        "y": 3304,
        "width": 328,
-       "height": 260
+       "height": 320
       }
      }
     },
@@ -814,7 +814,7 @@
      "name": "SCR-145#not-drawn",
      "status": null,
      "detail": {
-      "description": "The document does not draw: \"Fix the document so that it draws, then confirm.\" with where the drawing failed; the confirm button is off. A user flow that does not parse shows its source text with the error line marked (SPEC-006); a mockup that cannot be shown, such as one never drawn, shows its name and the reason in place of the page (SPEC-009).",
+      "description": "The document does not draw: \"Fix the document so that it draws, then confirm.\" with where the drawing failed; the confirm button is off. On a phone, say the document did not draw and ask the AI being used to fix it; do not offer the button. A user flow that does not parse shows its source text with the error line marked (SPEC-006); a mockup that cannot be shown, such as one never drawn, shows its name and the reason in place of the page (SPEC-009).",
       "responses": [
        "API-275#409 (not-drawn)",
        "API-293#409"
@@ -824,7 +824,7 @@
        "x": 680,
        "y": 3304,
        "width": 328,
-       "height": 260
+       "height": 320
       }
      }
     },
@@ -852,7 +852,7 @@
       "where": "docs/08-screens/SCR-145.md:56",
       "box": {
        "x": 0,
-       "y": 3576,
+       "y": 3636,
        "width": 328,
        "height": 360
       }

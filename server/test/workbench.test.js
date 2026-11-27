@@ -176,6 +176,7 @@ describe('SCR-145 pictures', () => {
     const left = asElement({ key: 'unreadable', kind: 'left_out', name: '문서', status: 'left_out', detail: {} });
     for (const [fields, expected] of [
       [{ elements: [left] }, /문서 수정을 요청/],
+      [{ elements: [], drawing: { ...diagramOf('table').drawing, status: 'failed', failed_at: 'docs/example.md:1' } }, /문서 수정을 요청/],
       [{ elements: [], removed: true }, null],
     ]) {
       const page = await openStage('table', { more: { [diagramPath('table')]: json(200, diagramOf('table', fields)) } });

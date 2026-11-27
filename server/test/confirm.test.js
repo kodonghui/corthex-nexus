@@ -403,6 +403,7 @@ describe('SCR-145 "이 그림"', () => {
     const page = await openAt('erd', { posted: () => answer.answer });
     try {
       press(byId(page, 'confirm'));
+      assert.ok(shownTexts(diagramSection(page), 'p').includes(CONFIRM_WORDS.beforeConfirm));
       const group = diagramSection(page).all('div', 'btns').find((div) => div.getAttribute('role') === 'group');
       assert.deepEqual([shownTexts(group, 'span'), buttonsIn(group)], [[CONFIRM_WORDS.askConfirm], [CONFIRM_WORDS.yes, '취소']]);
       assert.equal(group.getAttribute('aria-labelledby'), 'confirm-ask');
@@ -526,6 +527,13 @@ describe('SCR-145 "이 그림"', () => {
 });
 
 describe('SCR-146', () => {
+  test('the recording explanation stays visible while confirming', async () => {
+    const page = await openAt('erd', { screen: 'changes', diagram: confirmedWith('erd', 'invalidated') });
+    try {
+      press(byId(page, 'confirm'));
+      assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.beforeConfirm));
+    } finally { page.close(); }
+  });
   test('normal: "6개" by the title, the link to the confirmed version, each changed element, 이 그림 확정 and 그림으로', async () => {
     const page = await openAt('erd', { screen: 'changes', diagram: confirmedWith('erd', 'invalidated') });
     try {

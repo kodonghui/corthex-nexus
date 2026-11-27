@@ -473,8 +473,10 @@ function statePanels(view) {
 function itemTable(view) {
   const rows = (view.diagram.elements ?? []).filter((element) => element.kind === 'row');
   if (rows.length === 0) {
+    const failed = view.diagram.drawing?.status === 'failed';
     const leftOut = (view.diagram.elements ?? []).some((element) => element.status === 'left_out');
-    const advice = view.diagram.removed ? null : leftOut
+    const advice = view.diagram.removed ? null : failed
+      ? '문서가 그려지지 않았어요. 위에 표시된 위치를 확인하고 함께 일하는 AI에게 문서 수정을 요청해 주세요.' : leftOut
       ? '읽지 못한 항목이 있어요. 아래 위치를 확인하고 함께 일하는 AI에게 문서 수정을 요청해 주세요.'
       : emptyStageGuidance(view.diagram.stage);
     return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems), advice === null ? null : h('p', {}, advice));
