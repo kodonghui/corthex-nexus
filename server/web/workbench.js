@@ -660,7 +660,9 @@ function updateHistoryControls(state) {
 
 function historyKey(state, event) {
   if (!state || state.phone || state.ctx.data.diagram.removed || !state.historyUI || state.pictureBox?.isConnected === false) return;
-  if (!(event.ctrlKey || event.metaKey) || event.altKey || (String(event.key).toLowerCase() !== 'z' && event.code !== 'KeyZ')) return;
+  const key = String(event.key);
+  const physicalZ = event.code === 'KeyZ' && !/^[a-z]$/i.test(key);
+  if (!(event.ctrlKey || event.metaKey) || event.altKey || (key.toLowerCase() !== 'z' && !physicalZ)) return;
   const target = event.target;
   if (target?.isContentEditable || target?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return;
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
@@ -716,6 +718,14 @@ async function runHistory(state, redo, retryKey = null) {
     if (reset) {
       await state.ctx.shell.reload();
       if (!state.live()) { history.busy = false; return; }
+      if (state.ctx.shell.fresh('diagram')?.id !== state.diagram) {
+        history.busy = false;
+        history.needsRefresh = true;
+        history.interruptedOutcome = outcome;
+        fill(state.moveNotice, state.ctx.shell.errorNotice(state.ctx.shell.readFailure('diagram'), () => recoverInterrupted(state, outcome)));
+        updateHistoryControls(state);
+        return;
+      }
     }
     history.busy = false;
     fill(state.moveNotice, h('div', { class: 'nt info', role: 'status' }, redo ? '이동을 다시 실행했어요.' : '이동을 되돌렸어요.'));

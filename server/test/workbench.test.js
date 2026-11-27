@@ -700,6 +700,9 @@ describe('SCR-145 pictures', () => {
       page.app.append(input);
       input.dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
       assert.equal(page.sent.length, 1);
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'y', code: 'KeyZ', ctrlKey: true });
+      await delay(30);
+      assert.equal(page.sent.length, 1);
       buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ㅋ', code: 'KeyZ', ctrlKey: true });
       await page.settle();
       assert.equal(page.sent.length, 2);
@@ -759,6 +762,29 @@ describe('SCR-145 pictures', () => {
       await page.settle();
       assert.equal(page.document.activeElement === input, true);
     } finally { release(); page.close(); }
+  });
+
+  test('a successful automatic reset waits for a successful reread before offering redo', async () => {
+    let failRead = false;
+    const page = await openStage('erd', { moved: (body) => {
+      if (body.reset) failRead = true;
+      return movedAnswer('erd')(body);
+    }, more: { [diagramPath('erd')]: () => failRead ? problem(500, 'internal')() : json(200, diagramOf('erd'))() } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      assert.doesNotMatch(page.app.textContent, /이동을 되돌렸어요/);
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, true);
+      const retry = page.app.all('div', 'wb-notice')[0].all('button').find((button) => button.textContent === '다시 시도');
+      assert.ok(retry);
+      failRead = false;
+      retry.click();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, false);
+    } finally { page.close(); }
   });
 
   test('a conflicting undo reloads instead of overwriting another tab', async () => {
