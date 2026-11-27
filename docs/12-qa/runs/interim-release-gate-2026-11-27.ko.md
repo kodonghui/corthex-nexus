@@ -1,10 +1,10 @@
 # NEXUS v3 QA: 임시 릴리스 게이트
 
-추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. 이후 GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 PR 167의 고정 커밋 `6145f53`에서 예비 통과하고 `e95fdbd`에서 다시 통과했다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `4b163ee` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. 제안된 S2/P1 BUG-008이 열려 게이트를 막으며 S3 발견 사항 5건 BUG-002~005와 BUG-007이 [QA 초안 파일](https://github.com/kodonghui/corthex-nexus/pull/166/files)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
+추천은 첫 그룹을 포함해 **no-go**다. 이는 QA 계획과 로컬 검증의 임시 판정이며 릴리스 커밋의 게이트는 아니다. [QA 초안 PR 166](https://github.com/kodonghui/corthex-nexus/pull/166)의 커밋 `5d7184b`에 있는 계획의 243개 케이스는 당시 pass 206, not run 36, blocked 1이었다. 이후 GitHub OAuth의 `workflow` 권한이 추가돼 PR 167의 hub 워크플로 변경을 푸시할 수 있게 됐고 TC-221이 PR 167의 고정 커밋 `6145f53`에서 예비 통과하고 `e95fdbd`와 `fc621d3`에서 다시 통과했다. 그 PR이 병합 전이어서 TC-221은 미실행으로 두며 QA PR 166의 커밋 `ec78b41` 기준 현재 pass 206, not run 37, blocked 0이다. 다수의 pass는 이전 커밋의 증거이므로 릴리스 커밋에서 다시 확인해야 한다. waiver는 없다. 제안된 S2/P1 BUG-008이 열려 게이트를 막으며 S3 발견 사항 5건 BUG-002~005와 BUG-007이 [QA 초안 파일](https://github.com/kodonghui/corthex-nexus/pull/166/files)에서 열려 있다. BUG-001은 PR 165에서 수정·병합됐고 QA 초안 커밋 `bc3a3d0`에 반영됐다.
 
 ## 차단 항목
 
-[BUG-008](https://github.com/kodonghui/corthex-nexus/pull/169)은 배포 검증에서 보고된 열린 S2/P1 제안이며 해당 PR의 번호 변경은 대기 중이다. 공개 에이전트 요청은 401이었으나 같은 테스트 자격은 loopback에서 인증에 도달했다. 헤더가 사라지는 지점과 원인은 아직 분리되지 않았다. 수정과 검증 전까지 이 발견 자체가 게이트를 막는다.
+[BUG-008](https://github.com/kodonghui/corthex-nexus/pull/169)은 배포 검증에서 보고된 열린 S2/P1 제안이다. 공개 에이전트 요청은 401이었으나 같은 테스트 자격은 loopback에서 인증에 도달했다. 헤더가 사라지는 지점과 원인은 아직 분리되지 않았다. TC-244는 PR 169의 회귀 검증용으로 예약됐고 위 243개 집계에는 아직 들어가지 않는다. 수정과 검증 전까지 이 발견 자체가 게이트를 막는다.
 
 게이트 케이스 8개 TC-225, TC-226, TC-227, TC-230, TC-231, TC-233, TC-234, TC-235는 필수 브라우저 흐름 검증이 남았다. 계획에 적힌 화살표·역할·너비별 스크린샷과 데이터 확인이 필요하다. 이 항목들은 첫 그룹도 막는다. 로컬 합성 화면 캡처는 일부 상태만 다루므로 이 케이스들을 끝내지 못한다. 격리된 로컬 환경에는 실제 휴대폰과 실제 Access 로그인·만료 경로가 없었으며 테스트 게이트는 그 결과를 입증하지 못한다.
 
@@ -19,7 +19,7 @@ PR 169에는 별도의 첫 그룹 배포가 보고됐다. 나머지 게이트 11
 - TC-213: 실제 읽기 전용 외부 도구 상태는 배포 환경과 적절한 자격이 필요하다.
 - TC-221: 고정 hub 예비 검증은 통과했지만 고정 PR이 병합 전이라 통과로 세지 않는다.
 - TC-228, TC-229, TC-232, TC-236, TC-237: 해당 흐름 전체 검증이 미실행이다.
-- TC-238~242: 화면 상태와 목업 전체 비교가 미실행이다. 일부 로컬 상태 증거는 [실행 보고서](https://github.com/kodonghui/corthex-nexus/blob/4b163ee3386f0e6c2e22a533c07d056a374d5212/docs/12-qa/runs/qa-resume-2026-11-27.ko.md)에 있다.
+- TC-238~242: 화면 상태와 목업 전체 비교가 미실행이다. 일부 로컬 상태 증거는 [실행 보고서](https://github.com/kodonghui/corthex-nexus/blob/ec78b41848acb5c08dcd9abf935d8d49e091c774/docs/12-qa/runs/qa-resume-2026-11-27.ko.md)에 있다.
 - TC-243: 실제 휴대폰 읽기와 댓글 검증이 미실행이다.
 
 공유 호스트에서 `server/test/layout.test.js`의 단일 콜드 실행 시간 테스트가 제한 1,000ms보다 긴 1,158ms, 1,034ms, 1,185ms로 세 번 실패했고 같은 전체 검사의 다른 실행들은 통과했다. 실패는 PR 167의 `23261b1`과 `3083d6c` 및 병합 작업 트리, `e95fdbd`와 리뷰 작업 트리에서 관찰됐다. 원인은 아직 확인하지 못해 QA PR 166의 BUG-007에 테스트 결함 가설로 기록했으며, 테스트를 완화하거나 제품 결함으로 단정하지 않았다. 이 결과로 목표 환경의 P95를 입증할 수는 없다.

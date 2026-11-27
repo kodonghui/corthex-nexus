@@ -2,7 +2,6 @@
 
 from contextlib import closing
 
-import hashlib
 import http.client
 import http.server
 import json
@@ -19,15 +18,9 @@ PROJECT, PULL = hub_run.PROJECT, hub_run.PULL
 
 class HubQaWalk(hub_run.HubRunFixture):
     def tearDown(self):
-        lines = self.stop_server()
-        text = "\n".join(lines)
-        protected = (self.secret, hashlib.sha256(self.secret.encode("ascii")).hexdigest(),
-                     self.server.owner_sign_in, str(self.server.data), self.session["CORTHEX_NEXUS_SESSION"],
-                     self.other["CORTHEX_NEXUS_SESSION"], "A synthetic reply.", "Synthetic retry reply.")
-        for value in protected:
-            self.assertFalse(value in text, "the server log contains protected test data; value withheld")
-        for output in self.outputs:
-            self.assertFalse(self.secret in output, "the hub output contains a credential; value withheld")
+        self.assert_private_log(PULL % 12, PULL % 80, PULL % 81, PULL % 82,
+                                "A synthetic reply.", "A second synthetic reply.", "Synthetic retry reply.",
+                                "Synthetic reason", "Synthetic change", "Synthetic question")
 
     def test_two_sessions_trade_a_thread(self):
         thread = self.first_push_and_comment()
@@ -90,7 +83,7 @@ class HubQaWalk(hub_run.HubRunFixture):
                     return database.execute("SELECT count(*) FROM snapshots WHERE commit_sha = ?", (commit,)).fetchone()[0]
                 return database.execute("SELECT count(*) FROM snapshots").fetchone()[0]
         self.assertEqual(snapshot_count(self.commit), 1)
-        self.assertGreaterEqual(snapshot_count(), 1)
+        self.assertEqual(snapshot_count(), 2)
         status, _ = self.server.owner("POST", path, {"name": PROJECT})
         self.assertEqual(status, 200)
         self.assertEqual(snapshot_count(), 0)
@@ -126,7 +119,7 @@ class HubQaWalk(hub_run.HubRunFixture):
                 DropOnce.failures.append(True)
                 self.send_error(501)
 
-            do_PUT = do_PATCH = do_DELETE = unsupported
+            do_HEAD = do_OPTIONS = do_PUT = do_PATCH = do_DELETE = unsupported
 
             def forward(self):
                 if self.headers.get("Transfer-Encoding") is not None:
