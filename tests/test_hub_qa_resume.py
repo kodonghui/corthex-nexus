@@ -3,6 +3,8 @@
 import http.client
 import http.server
 import json
+import re
+import sqlite3
 import threading
 import urllib.parse
 import unittest
@@ -38,6 +40,11 @@ class HubQaWalk(hub_run.HubRunTest):
         self.read(self.other, "release", PROJECT, thread)
         self.owner_reply(thread)
         self.assertTrue(self.read(self.session, "claim", PROJECT, thread)["mine"])
+        self.read(self.session, "reply", PROJECT, thread, "--text", "A second synthetic reply.")
+        shown = self.read(self.other, "show", PROJECT, thread)
+        replies = [entry["text"] for entry in shown["entries"]
+                   if entry.get("text") in ("A synthetic reply.", "A second synthetic reply.")]
+        self.assertEqual(replies, ["A synthetic reply.", "A second synthetic reply."])
 
     def test_remove_informs_without_deleting(self):
         thread = self.first_push_and_comment()
@@ -68,8 +75,13 @@ class HubQaWalk(hub_run.HubRunTest):
             readme.write("\nSynthetic QA revision.\n")
         self.commit = self.commit_and_publish("Synthetic QA revision")
         self.assertEqual(self.read(self.session, "push", PROJECT)["revision"], 2)
+        def snapshot_count():
+            with sqlite3.connect(str(self.server.data / "nexus-v3.sqlite")) as database:
+                return database.execute("SELECT count(*) FROM snapshots WHERE commit_sha = ?", (self.commit,)).fetchone()[0]
+        self.assertEqual(snapshot_count(), 1)
         status, _ = self.server.owner("POST", path, {"name": PROJECT})
         self.assertEqual(status, 200)
+        self.assertEqual(snapshot_count(), 0)
         self.assertEqual(self.server.owner("GET", "/api/projects/" + PROJECT)[0], 404)
         code, row = self.command(self.session, "push", PROJECT)
         self.assertEqual((code, row["outcome"], row["failure"]), (1, "refused", "first push needs --first"))
@@ -97,6 +109,12 @@ class HubQaWalk(hub_run.HubRunTest):
 
             def do_POST(self):
                 self.forward()
+
+            def unsupported(self):
+                DropOnce.failures.append(True)
+                self.send_error(501)
+
+            do_PUT = do_PATCH = do_DELETE = unsupported
 
             def forward(self):
                 if self.headers.get("Transfer-Encoding") is not None:
@@ -172,9 +190,11 @@ class HubQaWalk(hub_run.HubRunTest):
 
         schema = self.project / "db/nexus.sql"
         original = schema.read_text(encoding="utf8")
+        self.assertIn("-- TBL-147 ", original)
+        self.assertIn("-- TBL-148 ", original)
         start = original.index("-- TBL-147 ")
         end = original.index("-- TBL-148 ", start)
-        changed = (original[:start] + original[end:]).replace("agent_credentials", "agent_keys")
+        changed = re.sub(r"\bagent_credentials\b", "agent_keys", original[:start] + original[end:])
         schema.write_text(changed, encoding="utf8")
         sitemap = self.project / "docs/07-sitemap/nexus.yaml"
         original = sitemap.read_text(encoding="utf8")
@@ -223,5 +243,6 @@ class HubQaWalk(hub_run.HubRunTest):
                     self.read(self.session, "record", PROJECT, checkpoint, "opened", "--pr", PULL % 82)
                     merged = self.read(self.session, "record", PROJECT, checkpoint, "merged", "--pr", PULL % 82)
                     self.assertEqual(merged["checkpoint"]["pull_request"], PULL % 82)
+                    self.assertEqual(self.read(self.session, "show", PROJECT, checkpoint)["pull_request"], PULL % 82)
                     status, diagram_answer = self.server.owner("GET", "/api/projects/%s/diagrams/%s" % (PROJECT, diagram))
                     self.assertEqual((status, diagram_answer["confirmation"]["pull_request"]), (200, PULL % 82))
