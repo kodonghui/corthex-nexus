@@ -757,8 +757,8 @@ async function runHistory(state, redo, retryKey = null) {
         if (refreshing || history.inFlight !== null) return;
         refreshing = true;
         await state.ctx.shell.reload();
-        const fresh = await state.ctx.shell.read(diagramApi(state.ctx.data.diagram.project, state.diagram));
-        if (fresh.status === 200 && state.live()) {
+        const fresh = state.ctx.shell.fresh('diagram');
+        if (fresh?.id === state.diagram && state.live()) {
           history.undo.length = 0; history.redo.length = 0; history.busy = false;
           history.invalidated = false;
           store('sessionStorage', historyMark(state.diagram), null);
@@ -787,11 +787,11 @@ async function recoverInterrupted(state, outcome) {
   history.refreshing = true;
   updateHistoryControls(active);
   await shell.reload();
-  const fresh = await shell.read(diagramApi(active.ctx.data.diagram.project, active.diagram));
+  const fresh = shell.fresh('diagram');
   history.refreshing = false;
   const shown = states.get(shell);
   if (!shown || shown.history !== history || !shown.live()) return;
-  if (fresh.status === 200) {
+  if (fresh?.id === shown.diagram) {
     history.needsRefresh = false;
     if (history.interruptedOutcome?.status >= 200 && history.interruptedOutcome.status < 500) {
       store('sessionStorage', historyMark(shown.diagram), null);
@@ -800,7 +800,7 @@ async function recoverInterrupted(state, outcome) {
     drawPicture(shown);
     updateHistoryControls(shown);
   } else {
-    fill(shown.moveNotice, shell.errorNotice(fresh, () => recoverInterrupted(shown, history.interruptedOutcome)));
+    fill(shown.moveNotice, shell.errorNotice(shell.readFailure('diagram'), () => recoverInterrupted(shown, history.interruptedOutcome)));
   }
 }
 

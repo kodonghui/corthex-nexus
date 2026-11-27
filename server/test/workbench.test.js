@@ -543,6 +543,29 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a failed project refresh cannot be mistaken for a fresh diagram', async () => {
+    let failProject = false, diagramReads = 0;
+    const page = await openStage('erd', { moved: (body) => body.expected ? new TypeError('Failed to fetch') : movedAnswer('erd')(body),
+      more: {
+        [`/api/projects/${P}`]: () => failProject ? problem(500, 'internal')() : json(200, projectOf())(),
+        [diagramPath('erd')]: () => { diagramReads += 1; return json(200, diagramOf('erd'))(); },
+      } });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await page.settle();
+      const before = diagramReads;
+      failProject = true;
+      page.app.all('button').find((button) => button.textContent === '새로 고침').click();
+      await page.settle();
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.erd}`), '1');
+      assert.equal(diagramReads, before);
+      assert.equal(page.app.all('button').some((button) => button.textContent === '다시 시도'), true);
+    } finally { page.close(); }
+  });
+
   test('a server error after undo keeps the same request key for retry', async () => {
     let attempts = 0;
     const page = await openStage('erd', { moved: (body) => body.expected && ++attempts === 1
@@ -639,6 +662,31 @@ describe('SCR-145 pictures', () => {
       pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
       await waitSend(page);
       assert.equal(page.sent.length, 2);
+    } finally { release(); page.close(); }
+  });
+
+  test('a failed project reread after a late move keeps movement blocked', async () => {
+    let release, failProject = false, diagramReads = 0;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow', { moved: (body) => held.then(() => movedAnswer('flow')(body)), more: {
+      [`/api/projects/${P}`]: () => failProject ? problem(500, 'internal')() : json(200, projectOf())(),
+      [diagramPath('flow')]: () => { diagramReads += 1; return json(200, diagramOf('flow'))(); },
+    } });
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      const before = diagramReads;
+      failProject = true;
+      release();
+      await page.settle();
+      assert.equal(diagramReads, before);
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.session.getItem(`nexus-move-uncertain:${ID.flow}`), '1');
     } finally { release(); page.close(); }
   });
 
