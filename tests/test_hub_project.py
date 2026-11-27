@@ -128,7 +128,7 @@ class HubCheckoutCase(unittest.TestCase):
         return subprocess.run([sys.executable, str(script)] + list(words), cwd=str(self.project), env=env,
                               capture_output=True, text=True, encoding="utf8", timeout=120)
 
-    def run_push_step(self, secrets, extra=""):
+    def run_push_step(self, secrets, extra="", *, use_workflow_header_mode=True):
         """The push step's lines, with `python3` as this test's Python, in the step's folder, with the step's env.
 
         `extra` adds words to the step's last line, the hub's command. The step's whole output, standard output and
@@ -141,6 +141,16 @@ class HubCheckoutCase(unittest.TestCase):
             raise unittest.SkipTest("needs bash")
         home = Path(tempfile.mkdtemp(prefix="runner-home-", dir=str(self.base)))
         env = dict(base_environment(home), DEFAULT_BRANCH="main", HUB_TEST_PYTHON=sys.executable, **secrets)
+        # Include the literal workflow setting, not only the expression-backed secrets.
+        workflow = PUSH_WORKFLOW.read_text(encoding="utf8")
+        step = re.search(r"^      - name: Push the snapshot\n(.*?)(?=^      - name:|\Z)", workflow, re.M | re.S)
+        self.assertIsNotNone(step, "the push step is missing")
+        step_text = step.group(1)
+        setting = re.search(r"^ +CORTHEX_NEXUS_AUTH_HEADERS: ([a-z-]+)\s*$", step_text, re.M)
+        if "CORTHEX_NEXUS_AUTH_HEADERS:" in step_text:
+            self.assertIsNotNone(setting, "update this workflow fixture for its header mode syntax")
+        if use_workflow_header_mode and setting:
+            env["CORTHEX_NEXUS_AUTH_HEADERS"] = setting.group(1)
         script = "\n".join(['python3() { "$HUB_TEST_PYTHON" "$@"; }'] + lines[:-1] + [lines[-1] + extra]) + "\n"
         result = subprocess.run([bash, "-e", "-c", script], cwd=str(self.project), env=env, capture_output=True,
                                 text=True, encoding="utf8", timeout=120)

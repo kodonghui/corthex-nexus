@@ -83,6 +83,7 @@
 | TASK-468 | 기다리는 것을 지키는 지운 그림: 열린 스레드, 답을 기다리는 AI 제안, 반영을 기다리는 직접 편집 중 하나가 있는 동안 프로젝트 읽기가 나열하고 그림 읽기가 엶 (2026-11-24 기능 변경, 4절) | SPEC-027 | API-264, API-265, TBL-151, TBL-155, TBL-158 | TASK-440, TASK-441, TASK-444, TASK-445 | Claude worker | S | 답을 기다리는 AI 제안만, 또는 반영을 기다리는 직접 편집만 있는 지운 그림은 맨 뒤에 지움 표시로 나오고 열림; 수락한 AI 제안이나 살아 있는 확정만 있는 지운 그림은 나오지 않고 diagram_not_found로 답함; 마지막 열린 스레드를 닫고, 답을 기다리는 마지막 AI 제안을 거절하거나 거두거나 수락하고, 기다리는 마지막 편집을 취소하거나 반영하면 다음 읽기는 diagram_not_found로 답함; 거절한 제안의 스레드는 열린 채로 남아, 닫을 때까지 그림을 목록에 남김(SPEC-020); API-264, API-265의 응답마다 통과하는 테스트가 있음 |
 | TASK-469 | 확정의 기록 PR: 먼저 06단계 정정으로 API-265의 확정이 그 확정을 기록하는 PR을 주고, SCR-145의 "이 그림"이 기록됨 옆에 그것을 보여 줌 (PR 160, 4절) | SPEC-029, SPEC-031, SPEC-035 | SCR-145, API-265, TBL-157, TBL-160 | TASK-447, TASK-461 | Claude worker | S | 06단계 정정이 코드보다 먼저 따로 체크포인트를 통과함; SCR-145#confirmed가 "기록됨"과 그 PR을 포함해 두 너비에서 화면 정의와 맞고, 기록 전에는 목업의 "기록되면 여기에 그 PR이 나와요."가 보임; API-265의 응답마다 통과하는 테스트가 있음 |
 | TASK-470 | 제안의 소스 경로: 먼저 06단계 정정으로 API-256이 source_text가 대신하는 파일의 저장소 경로 source_path를 받고, NEXUS가 01단계의 Markdown을 직접 읽어, 01단계와 여러 파일에서 그린 05·07단계 드로잉에서도 source_text가 변경을 만듦 (TASK-438·TASK-466의 빈틈, 4절) | SPEC-018 | API-256, TBL-149, TBL-150, TBL-158, TBL-159 | TASK-438, TASK-466 | Claude worker | L | 06단계 정정이 코드 전에 따로 체크포인트를 통과함; 01단계에 source_text가 있으면, 그리고 여러 파일에서 그린 05·07단계 드로잉에 source_text와 source_path가 있으면 차이가 변경이 됨; 이 저장소의 docs/01-domain을 NEXUS가 읽은 결과가 고정 hub가 만든 그림(server/test/ddd-board-picture.json에 저장)과 같고, 01·05·07단계마다 두 파일 중 하나를 바꾼 사례에서 NEXUS의 그림이 고정 hub가 두 파일로 만든 그림(server/test/picture-cases.json에 저장)과 같음; API-256의 응답마다 통과하는 테스트가 있음 |
+| TASK-471 | 빈 단계, 질문과 확정 순서 안내 | SPEC-054 | SCR-142, SCR-145, SCR-146 | TASK-455, TASK-458, TASK-461 | 관리자 | M | 빈 단계마다 필요한 자료와 다음 행동; 질문의 답변 방법; 확정 대상과 기록 순서를 PC와 휴대폰에서 알림 |
 
 ## 3. 열린 질문
 
@@ -97,6 +98,10 @@
 7. **도구 토큰.** TASK-467이 도구를 읽기 전에 관리자께 직접 여쭤요. Notion·Jira의 읽기 전용 토큰을 만들어 서버 환경에 넣는 일은 대리인의 위임 밖이에요.
 
 ## 4. 승인된 항목과 다른 점
+
+아래 e410ce9 관련 설명은 당시의 승인과 차이의 이력입니다. 이후 고정한 hub e6b46ac은 1becbab을 포함해 source_path를 보내며 TASK-470이 NEXUS 쪽 차이를 닫았습니다. TC-221은 그 조합을 별도로 검증합니다.
+
+- TASK-471은 09단계 목업의 확정 문구·기록 설명·휴대폰 표시와 기존 TASK-469 문구를 08단계 안내로 바꿔요. 목업은 다음 승인된 수정까지 과거 디자인으로 남아요. SCR-146에도 같은 설명을 적용하는 작은 정정은 2026-11-27 관리자 대리인의 위임에 따라 했어요.
 
 - 2026-11-23 06단계 체크포인트는 SPEC-006, SPEC-008, SPEC-009를 첫 릴리스에서 뺐습니다. 같은 날 기능 변경이 그 결정을 뒤집었고(관리자 결정, 프로젝트 기록에 있음), 이 WBS는 세 줄을 첫 릴리스에 넣습니다(TASK-424, TASK-426, TASK-427, TASK-428, TASK-429, TASK-431).
 - SPEC-018의 승인 기준 "Given a comment asking to rename X, when the agent posts a proposal renaming X to Y, then the owner sees Y over X, marked as proposed"와 계약의 `source_text` "The proposed document, from which NEXUS works out the changes"는 TASK-438(PR 137)에서 03·08단계에서만 맞습니다. 이 두 단계에서는 NEXUS가 다이어그램의 그리기 함수로 `source_text`를 그립니다. 고정 hub의 `propose`는 01·05·07단계만 받으므로(e410ce9의 `commands.py`에 있는 `PICTURE_STAGES`), 지금은 두 단계 어디에도 닿지 않습니다. 05·07단계는 hub가 읽은 그림으로 그리고 NEXUS가 SQL이나 YAML을 읽지 않으므로, 2026-11-24에 이 두 단계를 위해 TASK-466을 더했습니다.
