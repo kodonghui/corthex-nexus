@@ -445,6 +445,17 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('the thread list marks a resolved conversation before its details are opened', async () => {
+    const briefs = BRIEFS.erd.map((brief) => brief.id === T.closed ? { ...brief, resolved: true } : brief);
+    const page = await openStage('erd', { more: { [diagramPath('erd')]: json(200, diagramOf('erd', { threads: briefs })) } });
+    try {
+      assert.ok(rowsOf(page).some(([name, state]) => name === 'project_spaces' && state === THREAD_WORDS.resolved));
+      assert.equal(shownThread(page), null);
+    } finally {
+      page.close();
+    }
+  });
+
   test('an older reflection closure without a resolution event has no reopen action', async () => {
     const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
     const legacy = threadOf('erd', original, { closed_by: 'reflection' });

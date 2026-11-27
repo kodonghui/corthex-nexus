@@ -332,8 +332,11 @@ describe('agent comments', () => {
     const result = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(result.status, 201);
     assert.equal(result.json.thread.state, 'closed');
+    assert.equal(result.json.thread.resolved, true);
     assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).n), 1);
     assert.equal(openEntry('question', thread), null);
+    const closedRecord = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
+    assert.equal(closedRecord.json.thread.resolved, true);
     const recommendation = s.thread(board, { target: 'diagram', author: 'agent', body: text });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), recommendation);
     s.comment(recommendation, { author: 'owner', body: '추천안' });

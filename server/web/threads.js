@@ -281,6 +281,8 @@ function brief(state, id, thread, added = 0) {
   if (found === undefined) return;
   found.state = thread.state;
   found.waits_on = thread.waits_on;
+  if (thread.resolved === true) found.resolved = true;
+  else delete found.resolved;
   found.last_at = thread.last_at;
   found.entries = Array.isArray(thread.entries) ? thread.entries.length : found.entries + added;
 }

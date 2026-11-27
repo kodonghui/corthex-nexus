@@ -256,6 +256,12 @@ export function recheckReflected(store, { project, diagram, time }) {
 function resolveReflected(store, { project, threads, time }) {
   const statements = statementsOf(store);
   const cache = new Map();
+  const decidedCache = new Map();
+  const stepsCache = new Map();
+  const stepsFor = (id) => {
+    if (!stepsCache.has(id)) stepsCache.set(id, statements.steps.all(id));
+    return stepsCache.get(id);
+  };
   for (const thread of threads) {
     if (statements.asking.get(thread) !== undefined) continue;
     const proposals = statements.threadSets.all(thread);
@@ -278,18 +284,19 @@ function resolveReflected(store, { project, threads, time }) {
     const reopenedAt = statements.lastReopen.get(thread)?.at;
     if (reopenedAt != null && !reflected.some((set) => set.decided_at != null && set.decided_at > reopenedAt)) continue;
     const verified = reflected.length > 0 && reflected.every((set) => {
-      const steps = statements.steps.all(set.id);
+      const steps = stepsFor(set.id);
       const shown = statements.currentDrawn.get(Number(set.diagram_id))?.id;
       if (shown === undefined) return false;
       const itemTable = statements.diagramKind.get(Number(set.diagram_id))?.kind === 'item_table';
       const elements = elementsOf(statements, shown, cache);
-      const decided = statements.decided.all(set.diagram_id);
+      if (!decidedCache.has(set.diagram_id)) decidedCache.set(set.diagram_id, statements.decided.all(set.diagram_id));
+      const decided = decidedCache.get(set.diagram_id);
       const index = decided.findIndex((row) => Number(row.id) === Number(set.id));
       const shownOrReplaced = (step, position) => {
         if (shows(step, elements, itemTable)) return true;
         const later = [
           ...steps.slice(position + 1).map((replacement) => ({ state: 'reflected', replacement })),
-          ...decided.slice(index + 1).flatMap((other) => statements.steps.all(other.id).map((replacement) => ({ state: other.state, replacement }))),
+          ...decided.slice(index + 1).flatMap((other) => stepsFor(other.id).map((replacement) => ({ state: other.state, replacement }))),
         ].filter(({ replacement }) => replaces(replacement, step)).at(-1);
         return later !== undefined && later.state === 'reflected' && shows(later.replacement, elements, itemTable);
       };
