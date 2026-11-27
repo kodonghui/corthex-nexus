@@ -299,13 +299,16 @@ function drawPicture(state) {
         changeZoom(state, state.zoom * Math.exp(-delta * 0.002), event.clientX - rect.left, event.clientY - rect.top);
       }, { passive: false });
       let pinch = null;
-      view.box.addEventListener('touchstart', (event) => {
-        if (state.view !== view) return;
-        if (event.touches.length !== 2) return;
+      const beginPinch = (touches) => {
+        if (touches.length !== 2) { pinch = null; state.pinching = false; return; }
         if (state.dragNode) cancelled(state, state.dragNode);
-        const [a, b] = event.touches;
+        const [a, b] = touches;
         pinch = { distance: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), zoom: state.zoom };
         state.pinching = true;
+      };
+      view.box.addEventListener('touchstart', (event) => {
+        if (state.view !== view) return;
+        beginPinch(event.touches);
       }, { passive: true });
       view.box.addEventListener('touchmove', (event) => {
         if (state.view !== view) return;
@@ -322,7 +325,7 @@ function drawPicture(state) {
         changeZoom(state, pinch.zoom * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pinch.distance,
           (a.clientX + b.clientX) / 2 - rect.left, (a.clientY + b.clientY) / 2 - rect.top);
       }, { passive: false });
-      view.box.addEventListener('touchend', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
+      view.box.addEventListener('touchend', (event) => { if (state.view === view) beginPinch(event.touches ?? []); });
       view.box.addEventListener('touchcancel', () => { if (state.view === view) { pinch = null; state.pinching = false; } });
     } else fill(state.pictureBox, picture);
   }
@@ -630,13 +633,21 @@ function dropped(state, node, event) {
   if (state.dragNode === node) state.dragNode = null;
   if (drag === undefined) return;
   dragged(drag, event);
-  if (drag.moved) moveTo(state, drag.key, drag.to);
+  if (drag.moved) {
+    const returned = event.clientX === drag.start.x && event.clientY === drag.start.y;
+    moveTo(state, drag.key, returned ? drag.at : drag.to);
+  }
 }
 
 // Puts a box at a place: chosen, drawn there with its lines, and sent once the moves stop.
 function moveTo(state, key, to) {
   const current = state.view.place.boxes.get(key);
-  if (current && current.x === to.x && current.y === to.y) return;
+  if (current && current.x === to.x && current.y === to.y) {
+    if (state.selected !== key) { state.selected = key; drawSelected(state); }
+    state.focus = key;
+    drawPicture(state);
+    return;
+  }
   if (state.selected !== key) {
     state.selected = key;
     drawSelected(state);

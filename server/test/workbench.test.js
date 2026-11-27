@@ -282,6 +282,25 @@ describe('SCR-145 pictures', () => {
     } finally { page.close(); }
   });
 
+  test('a pinch continues from a new baseline when three fingers become two', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      const svg = area.all('svg', 'pic')[0];
+      Object.assign(board, { clientWidth: 500, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      board.getBoundingClientRect = () => ({ left: 0, top: 0 });
+      const initial = Number(svg.getAttribute('width'));
+      const point = (x) => ({ clientX: x, clientY: 0 });
+      board.dispatch('touchstart', { touches: [point(0), point(30)] });
+      board.dispatch('touchstart', { touches: [point(0), point(30), point(50)] });
+      board.dispatch('touchend', { touches: [point(0), point(40)] });
+      board.dispatch('touchmove', { touches: [point(0), point(60)] });
+      assert.equal(Number(svg.getAttribute('width')), initial * 1.5);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
+  });
+
   test('redrawing during a drag releases the zoom gesture', async () => {
     const page = await openStage('sitemap');
     try {
@@ -676,6 +695,22 @@ describe('SCR-145 pictures', () => {
     } finally {
       page.close();
     }
+  });
+
+  test('dragging back to the starting point selects the box without saving a move', async () => {
+    const page = await openStage('flow');
+    try {
+      const button = pictureBox(page).all('button', 'fbox')[0];
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 120, clientY: 100 });
+      button.dispatch('pointermove', { clientX: 100, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 100, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
+      assert.equal(page.document.activeElement.getAttribute('aria-pressed'), 'true');
+      assert.equal(page.document.activeElement.className.includes('fbox'), true);
+      assert.equal(pictureBox(page).descendants().some((element) => element.getAttribute('transform') === 'translate(0 0)'), false);
+    } finally { page.close(); }
   });
 
   test('a phone, a removed diagram, stage 08\'s panels, a lane and a context take no move', async () => {
