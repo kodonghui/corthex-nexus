@@ -1143,6 +1143,7 @@ The page reads `?d=` and `?thread=` as given, and the screen decides what they n
 | `web/main.js` | Reads the address and starts the shell with its screen, or with the 404 screen. |
 | `web/shell.js` | The shell: the header, the stage tabs, the shared states and the read time. |
 | `web/screens.js` | The five screens, as below, and the 404 screen. |
+| `web/guidance.js` | Names each empty stage’s needed material and words to ask for it in an AI conversation. |
 | `web/todo.js` | SCR-142's body: the to-do, the backup warning and the empty state (see [Owner to-do screen](#owner-to-do-screen)). |
 | `web/projects.js` | SCR-143's body: the projects and the agent credentials, with issuing and revoking (see [Projects screen](#projects-screen)). |
 | `web/states.js` | The state of each answer (section 3 of [docs/08-screens](../docs/08-screens/README.md)), the read time, how long ago a time was, the gate's reload step and the theme. |
@@ -1421,7 +1422,7 @@ TASK-460 (SPEC-019 to SPEC-023, SPEC-027) adds the changes to SCR-145's [workben
   - The kind line is the words of its steps, in their order, each once, joined with " · ": an add whose key names a DDD kind is "{kind} 더하기", such as "이벤트 더하기"; any other add is "더하기", a rename "이름 바꾸기", a connection "잇기" and a removal "지우기". A proposal with no steps is "더하기" when it adds by trace ID, or else "바꾸기".
   - 수락 and 거절 each ask once in the card, "수락할까요?" or "거절할까요?" with the action and 취소, and Escape stops asking. Only the action sends, with the body `{}` and a new request key.
   - An accepted proposal stays in the list with "수락했어요. 에이전트가 문서에 넣으면 실선이 돼요." and 반영 대기 until it is reflected. A removed diagram's proposals show 거절 only (SPEC-027). A mockup has no section, since it takes no proposal.
-- **What waits for reflection** (SCR-145#waiting, SPEC-022, SPEC-023, API-273). While API-265 lists an accepted change set, the work panel's "이 그림" section shows "반영 대기 N", "반영을 기다리는 변경을 먼저 반영하거나 취소하세요. 에이전트가 문서에 넣으면 이 표시가 사라져요.", the list of what waits, newest accepted first, and "이 그림 확정" turned off.
+- **What waits for reflection** (SCR-145#waiting, SPEC-022, SPEC-023, API-273). While API-265 lists an accepted change set, the work panel's "이 그림" section shows "반영 대기 N", "반영을 기다리는 변경을 먼저 반영하거나 취소하세요. 에이전트가 문서에 넣으면 이 표시가 사라져요.", the list of what waits, newest accepted first, and "이 그림 확정하고 기록 요청" turned off.
   - A row is a direct rename's new name over "이름 바꾸기 · {old name}에서", a direct connection's "{from} → {to}" over 잇기, or an accepted proposal's change over "AI 제안 수락". A direct edit has 편집 취소 on a PC.
   - When nothing waits, the section shows the diagram's confirmation instead (see [Workbench confirmations](#workbench-confirmations)).
   - On a removed diagram the section holds the tag and the list only, in the confirm button's place (note 8 of the WBS).
@@ -1456,19 +1457,19 @@ TASK-461 (SPEC-023, SPEC-029, SPEC-030, SPEC-034) adds confirming a diagram to S
 | File | What it does |
 | --- | --- |
 | `web/confirm.js` | The words, the state of the latest confirmation API-265 gives, the elements changed since it, and the link to the confirmed version. It reads and writes nothing itself. |
-| `web/changes.js` | Beside [Workbench changes](#workbench-changes), the rest of the work panel's "이 그림" section, 이 그림 확정 with its question, and 확정 취소 (API-275, API-276). |
-| `web/changes-page.js` | SCR-146's body, its loading state and its title's tag. It draws through `web/changes.js`, so the two screens share the line of answers, the waiting rows, 편집 취소 and 이 그림 확정. |
+| `web/changes.js` | Beside [Workbench changes](#workbench-changes), the rest of the work panel's "이 그림" section, 이 그림 확정하고 기록 요청 with its question, and 확정 취소 (API-275, API-276). |
+| `web/changes-page.js` | SCR-146's body, its loading state and its title's tag. It draws through `web/changes.js`, so the two screens share the line of answers, the waiting rows, 편집 취소 and 이 그림 확정하고 기록 요청. |
 
-- **"이 그림"** (SCR-145#normal, SPEC-034). On a PC, while nothing waits, the section shows the state of the latest confirmation that API-265 gives:
-  - never confirmed: "확정 전", "아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.", "남은 AI 제안은 확정에 들어가지 않아요." and 이 그림 확정;
-  - ended because the document changed (invalidated): "바뀐 곳 N" and "확정한 뒤 바뀐 곳이 N개 있어요. 다시 확정하면 에이전트가 기록해요.", then up to four changed elements, 더함 first, then 바뀜, then 뺌 by key. "+N개 더 · 바뀐 곳 모두 보기" leads to SCR-146 when there are more than four. The note and 이 그림 확정 follow. With no element changed, "확정 전" shows alone with the note and the button;
-  - cancelled: "확정 전", "확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.", the elements changed since, the note and 이 그림 확정;
-  - confirmed (SCR-145#confirmed): "확정함", "이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요." and 확정 취소. Under the message, in small text, "기록되면 여기에 그 PR이 나와요." until the agent records it, and then "기록됨 · {how long ago} · PR #{number} ↗" ([The record's pull request on a confirmation](#the-records-pull-request-on-a-confirmation));
+- **"이 그림"** (SCR-145#normal, SPEC-034). On a PC, when the diagram is drawn, not already confirmed and nothing waits, the section suggests answering any questions and reviewing changes, then explains that confirming sends a recording task and all stage drawings and tables must be recorded before the stage passes. It shows the state of the latest confirmation that API-265 gives:
+  - never confirmed: "확정 전", "아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.", "남은 AI 제안은 확정에 들어가지 않아요." and 이 그림 확정하고 기록 요청;
+  - ended because the document changed (invalidated): "바뀐 곳 N" and "확정한 뒤 바뀐 곳이 N개 있어요. 다시 확정하면 에이전트가 기록해요.", then up to four changed elements, 더함 first, then 바뀜, then 뺌 by key. "+N개 더 · 바뀐 곳 모두 보기" leads to SCR-146 when there are more than four. The note and 이 그림 확정하고 기록 요청 follow. With no element changed, "확정 전" shows alone with the note and the button;
+  - cancelled: "확정 전", "확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.", the elements changed since, the note and 이 그림 확정하고 기록 요청;
+  - confirmed (SCR-145#confirmed): "확정함", "이 그림을 확정했어요. 이 단계의 모든 그림과 표가 기록되면 단계가 통과돼요." and 확정 취소. Under the message, in small text, "함께 일하는 AI가 기록할 차례예요. 기록되면 여기에 결과가 나와요." until the agent records it, and then "기록됨 · {how long ago} · PR #{number} ↗" ([The record's pull request on a confirmation](#the-records-pull-request-on-a-confirmation));
   - not drawn (SCR-145#not-drawn): "그려지지 않음", "문서를 고쳐 그려지게 한 뒤 확정하세요." and the button off. A live confirmation keeps its line and 확정 취소.
   - While something waits, the section keeps the waiting state of [Workbench changes](#workbench-changes). A live confirmation then adds "확정함" beside "반영 대기 N", its line before the list, and 확정 취소 in the off button's place.
-  - A removed diagram has no confirmation part: neither 이 그림 확정 nor 확정 취소 (SPEC-027).
+  - A removed diagram has no confirmation part: neither 이 그림 확정하고 기록 요청 nor 확정 취소 (SPEC-027).
   - A mockup lists its tokens in the section, above the button, without the note on AI proposals.
-- **이 그림 확정** (API-275, SPEC-029) asks once: the button becomes "확정할까요?" with 확정 and 취소, and Escape stops asking. 확정 sends `{ drawing }`, naming the drawing shown, with a new request key. Every button stays off until the diagram is read again, and then "이 그림" takes the focus. A 409 `waiting_reflection` or `not_drawn` reads the diagram again, which shows why (SCR-145#waiting, SCR-145#not-drawn).
+- **이 그림 확정하고 기록 요청** (API-275, SPEC-029) asks once: the button becomes "이 그림을 확정하고 AI에게 기록을 맡길까요?" with 확정하고 기록 요청 and 취소, and Escape stops asking. 확정하고 기록 요청 sends `{ drawing }`, naming the drawing shown, with a new request key. Every button stays off until the diagram is read again, and then "이 그림" takes the focus. A 409 `waiting_reflection` or `not_drawn` reads the diagram again, which shows why (SCR-145#waiting, SCR-145#not-drawn).
 - **확정 취소** (API-276, SPEC-030) sends `{}` at once, without a question.
 - **Answers** are met as in [Workbench changes](#workbench-changes):
   - `document_changed` is the stale line with 새로 고침;
@@ -1483,10 +1484,10 @@ TASK-461 (SPEC-023, SPEC-029, SPEC-030, SPEC-034) adds confirming a diagram to S
   - "반영을 기다리는 변경" with "반영 대기 N" comes first and lists every change set that waits, each direct edit with 편집 취소 on a PC (API-273).
   - "바뀐 요소" lists each element added, changed or removed since. A row has its tag, its name in the drawing now (its key once removed), and its kind. With no confirmation the page says "아직 확정하지 않아 비교할 버전이 없어요.", and with nothing changed "확정한 뒤 바뀐 곳이 없어요." (SCR-146#empty).
   - When the document does not draw, "문서를 고쳐 그려지게 한 뒤 확정하세요." shows with 그림에서 보기 (SCR-146#not-drawn).
-  - The end holds 이 그림 확정 on a PC, for a diagram not removed and not confirmed now. It is off while something waits, with "반영을 기다리는 변경을 먼저 반영하거나 취소하세요.", or while the document does not draw. 그림으로 follows.
-  - After this page's own confirm: "이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요.", "확정한 뒤 바뀐 곳이 없어요." and 그림으로 (SCR-146#confirmed).
+  - The end holds 이 그림 확정하고 기록 요청 on a PC, for a diagram not removed and not confirmed now. It is off while something waits, with "반영을 기다리는 변경을 먼저 반영하거나 취소하세요.", or while the document does not draw. 그림으로 follows.
+  - After this page's own confirm: "이 그림을 확정했어요. 이 단계의 모든 그림과 표가 기록되면 단계가 통과돼요.", "확정한 뒤 바뀐 곳이 없어요." and 그림으로 (SCR-146#confirmed).
   - While it loads: three grey rows and, on a PC, the button off.
-- **Phone** (SPEC-051). "이 그림" shows only what waits and a live confirmation with its lines, without buttons. SCR-146 shows its lists only, with "편집 취소와 확정은 PC에서 하세요.".
+- **Phone** (SPEC-051). "이 그림" shows guidance before confirmation, what waits and any live confirmation, without action buttons. SCR-146 shows its lists only, with "편집 취소와 확정은 PC에서 하세요.".
 - **State.** The question asked and the confirmation this page made live in the screen's state of the diagram shown, never in the browser's storage.
 
 The coordinator chose these rules for TASK-461, and the Korean words that the screen definitions, the mockup, the sitemap and the error registry do not give. The maintainer approved them through the delegate they named for checkpoints on 2026-11-24, each asked on its own. Two of them differed from the approved screen definitions and were asked apart:
@@ -1509,8 +1510,8 @@ TASK-469 (SPEC-029, SPEC-031, SPEC-035) gives a confirmation the pull request of
   - While one is due, it is that record's open pull request, or null before the agent reports one and after it closed without merging. Once one is recorded, it is the pull request that recorded it.
   - It is null while the project names no repository.
 - **The server.** `src/confirmations.js` reads a confirmation with the number of its record's pull request (TBL-157), and `confirmationBody` builds the link with `src/claims.js`'s `pullRequestLink`, as the diagram read builds an overlay's. It names a linked pull request only as the contract defines the field: an open one while a record is due, and once none is due, a merged one only when the record it stands for was made, the confirmation's own (`recorded_at`) or, once cancelled, the cancel's (`cancel_recorded_at`). So it gives null for the pull request that recorded the confirmation while the cancel is due; for one that merged as another confirmation's record, since one pull request can hold several, while this one's record is still due or after this one was cancelled before its own; and for the open one of a confirmation cancelled before it was recorded, whose record is withdrawn and on which API-259 takes no `opened` or `closed` report. The diagram read (API-265, `src/diagram.js`) reads the latest confirmation through the same query. Confirming (API-275) and cancelling (API-276) answer the same `Confirmation`, so both now read TBL-157 and list it. Nothing more is written, and nothing is logged.
-- **The screen** (`web/changes.js`, `web/confirm.js`). Under "이 버전으로 확정했어요. 에이전트가 기록하면 단계가 통과돼요.", in small text:
-  - until the agent records the confirmation, the mockup's "기록되면 여기에 그 PR이 나와요.", also while the record's pull request is open, which is not shown;
+- **The screen** (`web/changes.js`, `web/confirm.js`). Under "이 그림을 확정했어요. 이 단계의 모든 그림과 표가 기록되면 단계가 통과돼요.", in small text:
+  - until the agent records the confirmation, "함께 일하는 AI가 기록할 차례예요. 기록되면 여기에 결과가 나와요.", also while the record's pull request is open, which is not shown;
   - once it is recorded, "기록됨 · {how long ago} · PR #{number} ↗". "PR #{number} ↗" is a link to the pull request in a new tab, with `rel="noopener noreferrer"`, only for an https link of a pull request; the number is taken from its `/pull/{number}`. Otherwise "기록됨 · {how long ago}" stands alone.
   - In "이 그림", the lines follow the message wherever a live confirmation shows it: while something waits, when the document does not draw, and on a phone, without 확정 취소. SCR-146's note after its own confirm (SCR-146#confirmed) stays the message alone, as SCR-146 defines it.
 

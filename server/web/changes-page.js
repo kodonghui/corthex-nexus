@@ -132,6 +132,7 @@ function endRow(ctx, state, confirmedHere, waiting) {
   const offers = state !== null && !phone && !diagram.removed && liveConfirmation(diagram) === null;
   const back = h('a', { class: confirmedHere ? 'btn tertiary' : 'btn ghost', href: toDiagram(ctx) }, CONFIRM_WORDS.toDiagram);
   return [
+    offers && confirmable(state) ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,
     h('div', { class: 'btns mid' },
       offers ? (confirmable(state) ? confirmControl(state, { wide: false }) : pageOffButton()) : null,
       back,

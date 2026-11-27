@@ -4,12 +4,12 @@
 
 Goal: The owner confirms a diagram or an item table on a PC, an agent records it, and the stage passes once all are recorded.
 
-Serves: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068
+Serves: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, REQ-068, REQ-082
 
 ```mermaid
 flowchart TD
   A(["Owner opens a diagram to<br/>confirm<br/>REQ-052"])
-  B["Show what changed since<br/>the last confirmation<br/>REQ-041"]
+  B["Show changes and explain<br/>what confirmation does<br/>REQ-041, REQ-082"]
   C{"Who asks?"}
   D{"Confirm or cancel?"}
   E["Record the confirmation<br/>with the version shown<br/>REQ-035"]

@@ -11,6 +11,7 @@
   others of its screen and width. A state listed twice fails, and a response that leads to more than one state
   names a different example of the contract in each; only a read's success leads to normal or empty by what it holds.
 """
+import html
 import os
 import re
 import unittest
@@ -166,6 +167,23 @@ class ScreensTest(unittest.TestCase):
                         for w in WIDTHS}
             with self.subTest(file=name):
                 self.assertEqual(frames, expected)
+
+    def test_guidance_state_descriptions_match_their_wireframes(self):
+        affected = {"SCR-142": ("normal",), "SCR-145": ("normal", "empty", "confirmed", "not-drawn"),
+                    "SCR-146": ("normal", "confirmed")}
+        for lang in ("", ".ko"):
+            wireframes = read("docs", "08-screens", "wireframes" + lang + ".html")
+            for screen, states in affected.items():
+                definition = read("docs", "08-screens", screen + lang + ".md")
+                for state in states:
+                    name = screen + "#" + state
+                    row = next(line for line in definition.splitlines() if line.startswith("| " + name + " |"))
+                    expected = row.split("|")[2].strip()
+                    pattern = r'<div class="state"><h3>' + re.escape(name) + r'</h3><p>(.*?)</p><div class="pair">'
+                    match = re.search(pattern, wireframes, re.S)
+                    with self.subTest(language=lang, state=name):
+                        self.assertIsNotNone(match)
+                        self.assertEqual(html.unescape(match.group(1)), expected)
 
     def test_each_frame_draws_its_own_state(self):
         ids = re.compile(r'id="(SCR-\d{3}-[a-z0-9-]+-\d+)"')
