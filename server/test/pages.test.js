@@ -83,14 +83,38 @@ describe('the pages', () => {
   });
 
   test('every screen address answers the shell, with the page headers (SCR-142 to SCR-146)', async () => {
-    const shell = read('shell.html');
+    let shell;
     for (const path of [...SCREEN_ADDRESSES, `/p/${marks.name}/${marks.part}/05-erd?d=dg_000000000001&thread=nc_000000000001`]) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8', path);
       assert.equal(answer.headers['cache-control'], 'no-store', path);
       assertPageHeaders(answer, path);
-      assert.ok(answer.bytes.equals(shell), path);
+      shell ??= answer.text;
+      assert.equal(answer.text, shell, path);
+    }
+  });
+
+  test('versioned assets use one content-derived namespace and the browser may cache them', async () => {
+    const page = await server.send({ path: '/' });
+    const paths = [...page.text.matchAll(/(?:href|src)="(\/web\/v\/[a-f0-9]{64}\/[^\"]+)"/g)].map((match) => match[1]);
+    assert.equal(paths.length, 5);
+    assert.equal(new Set(paths.map((path) => path.split('/')[3])).size, 1);
+    for (const path of paths) {
+      const answer = await server.send({ path });
+      assert.equal(answer.status, 200, path);
+      assert.equal(answer.headers['cache-control'], 'private, max-age=31536000, immutable');
+      const legacy = await server.send({ path: path.replace(/^\/web\/v\/[a-f0-9]{64}\//, '/web/') });
+      assert.ok(answer.bytes.equals(legacy.bytes), path);
+      assert.equal(legacy.headers['cache-control'], 'no-store');
+    }
+    const stale = paths[0].replace(/\/v\/[a-f0-9]{64}\//, `/v/${'0'.repeat(64)}/`);
+    assert.equal((await server.send({ path: stale })).status, 404);
+    const version = paths[0].split('/')[3];
+    for (const path of ['messages.js', 'layout.js']) {
+      const answer = await server.send({ path: `/web/v/${version}/${path}` });
+      assert.equal(answer.status, 200, path);
+      assert.equal(answer.headers['cache-control'], 'private, max-age=31536000, immutable');
     }
   });
 
@@ -139,7 +163,7 @@ describe('the pages', () => {
   });
 
   test('an address that names no screen answers the shell with 404, which never holds the path or the query', async () => {
-    const shell = read('shell.html');
+    const shell = (await server.send({ path: '/' })).bytes;
     const marker = `marker${Date.now()}`;
     for (const path of [...OTHER_ADDRESSES, `/${marker}?q=${marker}`, `/p/${marker}/x/y/z?d=${marker}`]) {
       const answer = await server.send({ path });
