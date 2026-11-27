@@ -595,7 +595,7 @@ describe('SCR-145 changes', () => {
   });
 
   test('under stage 01\'s title a PC shows the mockup\'s text, F2 renaming included, and a phone its own', async () => {
-    const pcText = 'Git 문서에서 그린 그림이에요. 끌어 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.';
+    const pcText = 'Git 문서에서 그린 그림이에요. 끌거나 화살표 키로 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.';
     assert.equal(descriptionOf(diagramOf('board'), false), pcText);
     assert.equal(descriptionOf(diagramOf('board'), true), 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.');
     const page = await openStage('board');

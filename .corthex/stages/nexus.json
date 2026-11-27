@@ -155,12 +155,17 @@
           "date": "2026-11-27"
         },
         {
-          "approved": "SPEC-053 corrects the new below-100% zoom state: double-click enlarges that point; at 100% and above double-click keeps the prior rename action and F2 still renames. This measured correction follows the maintainer delegate's direction of 2026-11-27; the basis is in the project records.",
+          "approved": "SPEC-053 corrects the new below-100% zoom state: double-click enlarges that point; at 100% and above double-click keeps the prior rename action and F2 still renames. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         },
         {
-          "approved": "SPEC-053 adds a visible return to 100% from the new zoomed-out state after the goal-only task needed 11 plus presses. This measured correction follows the maintainer delegate direction of 2026-11-27; the basis is in the project records.",
+          "approved": "SPEC-053 adds a visible return to 100% from the new zoomed-out state after the goal-only task needed 11 plus presses. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-053 brings fit controls into view before measuring available height and reduces accidental low-zoom drags. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }
@@ -550,12 +555,17 @@
           "date": "2026-11-27"
         },
         {
-          "approved": "SCR-145 explains the below-100% double-click and preserves rename by F2 or double-click at 100% and above. This measured correction follows the maintainer delegate's direction of 2026-11-27; the basis is in the project records.",
+          "approved": "SCR-145 explains the below-100% double-click and preserves rename by F2 or double-click at 100% and above. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         },
         {
-          "approved": "SCR-145 adds 글자 크게 보기 below 100% after the goal-only task needed 11 plus presses. This measured correction follows the maintainer delegate direction of 2026-11-27; the basis is in the project records.",
+          "approved": "SCR-145 adds 글자 크게 보기 below 100% after the goal-only task needed 11 plus presses. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records bringing fit controls into view and the low-zoom drag threshold. The maintainer's checkpoint delegate authorized this measured correction in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }

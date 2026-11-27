@@ -58,7 +58,7 @@ export const WORKBENCH_WORDS = Object.freeze({
 // The text under the title, by the diagram's kind (TASK-458's question 7): the mockup's words where it gives them. The
 // board's on a PC is the mockup's again, F2 renaming included, since TASK-460 renames (WBS section 4).
 const DESCRIPTIONS = Object.freeze({
-  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌어 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
+  ddd_board: { pc: 'Git 문서에서 그린 그림이에요. 끌거나 화살표 키로 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.', phone: 'Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.' },
   user_flow: 'Git 문서의 Mermaid 흐름도에서 그린 그림이에요. 흐름 파일마다 그림이 하나 있어요.',
   erd: 'Git의 스키마에서 그린 ERD예요. 테이블마다 상자가 하나 있어요.',
   sitemap: 'Git의 사이트맵에서 그린 화면 트리예요.',
@@ -352,8 +352,10 @@ function zoomControls(state) {
   const fit = h('button', { class: 'btn tertiary', type: 'button', on: { click: () => {
     const { box, size } = state.view;
     // The box shrinks with the picture; use the available viewport rather than its current height when fitting again.
+    fit.scrollIntoView?.({ block: 'start', inline: 'nearest' });
+    const top = Math.max(0, box.getBoundingClientRect?.().top ?? 0);
     const metrics = boxMetrics(box);
-    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, globalThis.innerHeight ?? 674) - metrics.vertical);
+    const availableHeight = Math.max(1, Math.min(metrics.maxHeight, (globalThis.innerHeight ?? 674) - top) - metrics.vertical);
     const availableWidth = Math.max(1, box.clientWidth - metrics.horizontalPadding);
     const fitted = fitZoom(size.width, size.height, availableWidth, availableHeight);
     changeZoom(state, fitted, 0, 0);
@@ -565,7 +567,7 @@ function dragged(drag, event) {
   if (drag === undefined) return;
   const dx = event.clientX - drag.start.x;
   const dy = event.clientY - drag.start.y;
-  if (!drag.moved && Math.hypot(dx, dy) < DRAG_FROM) return;
+  if (!drag.moved && Math.hypot(dx, dy) < (drag.zoom < 0.25 ? 8 : DRAG_FROM)) return;
   drag.moved = true;
   drag.to = { x: Math.round(drag.at.x + dx / drag.zoom), y: Math.round(drag.at.y + dy / drag.zoom) };
   drag.holder.setAttribute('x', drag.to.x - PAD);

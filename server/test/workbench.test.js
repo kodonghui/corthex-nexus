@@ -189,6 +189,7 @@ describe('SCR-145 pictures', () => {
       assert.equal(controls.all('output')[0].textContent, '100%');
       // The page may be scrolled so the board starts at the bottom edge of the viewport.
       board.getBoundingClientRect = () => ({ left: 0, top: 5000 });
+      buttons[2].scrollIntoView = () => { board.getBoundingClientRect = () => ({ left: 0, top: 0 }); };
       buttons[2].click();
       assert.ok(Number.parseFloat(controls.all('output')[0].textContent) >= 1);
       board.clientWidth = 25;
@@ -242,6 +243,22 @@ describe('SCR-145 pictures', () => {
       const before = Number(svg.getAttribute('width'));
       board.dispatch('wheel', { ctrlKey: true, deltaY: -3, deltaMode: 1, clientX: 0, clientY: 0 });
       assert.ok(Number(svg.getAttribute('width')) > before * 1.09);
+    } finally { page.close(); }
+  });
+
+  test('a small pointer slip at very low zoom does not move a box', async () => {
+    const page = await openStage('sitemap');
+    try {
+      const area = pictureBox(page);
+      const board = area.all('div', 'boardbox')[0];
+      Object.assign(board, { clientWidth: 25, clientHeight: 400, scrollLeft: 0, scrollTop: 0 });
+      area.all('div', 'zoom-controls')[0].all('button')[2].click();
+      const button = buttonNamed(page, 'scr', 'Projects');
+      button.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+      button.dispatch('pointermove', { clientX: 104, clientY: 100 });
+      button.dispatch('pointerup', { clientX: 104, clientY: 100 });
+      await waitSend(page);
+      assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
