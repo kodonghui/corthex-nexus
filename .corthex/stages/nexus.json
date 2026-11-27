@@ -228,6 +228,11 @@
           "approved": "SPEC-055 uses current drawing coordinates after reset, recovers from a rejected invalid move, and serializes a retry after a lost response. The maintainer's checkpoint delegate authorized these corrections on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-055 clarifies recovery after definite rejection or uncertain refresh, retaining the marker and blocking moves until an unfinished write is reread, serializing refresh with retry, the physical Z key and history-control focus. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -706,6 +711,11 @@
         },
         {
           "approved": "SCR-145 clarifies that undo restores automatic placement when applicable, following the stage-06 reset correction. The maintainer's checkpoint delegate authorized this correction on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 clarifies recovery after definite rejection or uncertain refresh, retaining the marker and blocking moves until an unfinished write is reread, serializing refresh with retry, the physical Z key and history-control focus. The maintainer checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
         }
