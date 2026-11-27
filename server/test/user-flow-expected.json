@@ -766,23 +766,24 @@
    {
     "key": "C",
     "kind": "step",
-    "name": "Show the owner's to-do",
+    "name": "Show to-do and next action",
     "parent": null,
     "detail": {
      "id": "C",
      "lines": [
-      "Show the owner's to-do"
+      "Show to-do and next action"
      ],
      "ids": [
-      "REQ-052"
+      "REQ-052",
+      "REQ-082"
      ],
      "marks": [],
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:13",
      "box": {
-      "x": 476.5,
+      "x": 462,
       "y": 332,
-      "width": 183,
+      "width": 212,
       "height": 64
      }
     }
@@ -872,25 +873,27 @@
    {
     "key": "G",
     "kind": "step",
-    "name": "Open the item table",
+    "name": "Open the table or explain what to send if empty",
     "parent": null,
     "detail": {
      "id": "G",
      "lines": [
-      "Open the item table"
+      "Open the table or explain",
+      "what to send if empty"
      ],
      "ids": [
       "REQ-006",
-      "REQ-011"
+      "REQ-011",
+      "REQ-082"
      ],
      "marks": [],
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:17",
      "box": {
-      "x": 629.5,
-      "y": 950,
-      "width": 161,
-      "height": 64
+      "x": 618.75,
+      "y": 940,
+      "width": 204,
+      "height": 84
      }
     }
    },
@@ -1274,16 +1277,16 @@
        "y": 884
       },
       {
-       "x": 710,
+       "x": 720.75,
        "y": 884
       },
       {
-       "x": 710,
-       "y": 950
+       "x": 720.75,
+       "y": 940
       }
      ],
      "label_box": {
-      "x": 716,
+      "x": 726.75,
       "y": 896,
       "width": 23,
       "height": 20
@@ -1337,11 +1340,11 @@
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:33",
      "points": [
       {
-       "x": 710,
-       "y": 1014
+       "x": 720.75,
+       "y": 1024
       },
       {
-       "x": 710,
+       "x": 720.75,
        "y": 1060
       },
       {
@@ -3846,24 +3849,25 @@
    {
     "key": "B",
     "kind": "step",
-    "name": "Show what changed since the last confirmation",
+    "name": "Show changes and explain what confirmation does",
     "parent": null,
     "detail": {
      "id": "B",
      "lines": [
-      "Show what changed since",
-      "the last confirmation"
+      "Show changes and explain",
+      "what confirmation does"
      ],
      "ids": [
-      "REQ-041"
+      "REQ-041",
+      "REQ-082"
      ],
      "marks": [],
      "lane": null,
      "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:12",
      "box": {
-      "x": 510.25,
+      "x": 506.75,
       "y": 132,
-      "width": 190,
+      "width": 197,
       "height": 84
      }
     }

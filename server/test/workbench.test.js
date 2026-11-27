@@ -313,6 +313,32 @@ describe('SCR-145 pictures', () => {
       assert.equal(page.sent.length, 0);
     } finally { page.close(); }
   });
+  test('an empty table explains unreadable or removed material without asking to send it again', async () => {
+    const left = asElement({ key: 'unreadable', kind: 'left_out', name: '문서', status: 'left_out', detail: {} });
+    for (const [fields, expected] of [
+      [{ elements: [left] }, /문서 수정을 요청/],
+      [{ elements: [], drawing: { ...diagramOf('table').drawing, status: 'failed', failed_at: 'docs/example.md:1' } }, /문서 수정을 요청/],
+      [{ elements: [], removed: true }, null],
+    ]) {
+      const page = await openStage('table', { more: { [diagramPath('table')]: json(200, diagramOf('table', fields)) } });
+      try {
+        const body = pictureBox(page).textContent;
+        if (expected) assert.match(body, expected);
+        assert.doesNotMatch(body, /내용을 정리해 NEXUS에 보내줘/);
+      } finally { page.close(); }
+    }
+  });
+  test('an empty failed table without a failure location does not point to one', async () => {
+    const drawing = { ...diagramOf('table').drawing, status: 'failed', failed_at: null };
+    for (const phone of [false, true]) {
+      const page = await openStage('table', { phone, more: { [diagramPath('table')]: json(200, diagramOf('table', { elements: [], drawing })) } });
+      try {
+        const body = pictureBox(page).textContent;
+        assert.match(body, /문서 수정을 요청/);
+        assert.doesNotMatch(body, /위에 표시된 위치/);
+      } finally { page.close(); }
+    }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {
@@ -593,7 +619,7 @@ describe('SCR-145 pictures', () => {
     }
     const phone = await openStage('board', { phone: true });
     try {
-      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.']);
+      assert.deepEqual(texts(phone, 'p', 'sec'), ['Git 문서에서 그린 그림이에요. 눌러서 댓글을 읽고 남겨요.', '아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.']);
       assert.ok(texts(phone, 'span').includes(WORKBENCH_WORDS.phone));
     } finally {
       phone.close();

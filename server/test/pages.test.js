@@ -8,6 +8,7 @@ import { readdirSync, readFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import { after, before, describe, test } from 'node:test';
 import { createPages, isApiPath, messagesModule, PAGE_HEADERS, PAGE_POLICY } from '../src/pages.js';
 import { ERRORS } from '../src/problem.js';
@@ -83,14 +84,79 @@ describe('the pages', () => {
   });
 
   test('every screen address answers the shell, with the page headers (SCR-142 to SCR-146)', async () => {
-    const shell = read('shell.html');
+    const shell = read('shell.html').toString('utf8');
     for (const path of [...SCREEN_ADDRESSES, `/p/${marks.name}/${marks.part}/05-erd?d=dg_000000000001&thread=nc_000000000001`]) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8', path);
       assert.equal(answer.headers['cache-control'], 'no-store', path);
       assertPageHeaders(answer, path);
-      assert.ok(answer.bytes.equals(shell), path);
+      assert.equal(answer.text.replaceAll(/\/web\/v\/[a-f0-9]{64}\//g, '/web/'), shell, path);
+    }
+  });
+
+  test('versioned assets use one content-derived namespace and the browser may cache them', async () => {
+    const page = await server.send({ path: '/' });
+    const paths = [...page.text.matchAll(/(?:href|src)="(\/web\/v\/[a-f0-9]{64}\/[^\"]+\.(?:js|css))"/g)].map((match) => match[1]);
+    const expected = [...read('shell.html').toString('utf8').matchAll(/(?:href|src)="(\/web\/[^"?#]+\.(?:js|css))"/g)].map((match) => match[1]).filter((path) => path !== '/web/recovery.js');
+    assert.ok(expected.length > 0);
+    assert.match(page.text, /<script src="\/web\/recovery\.js"><\/script>/);
+    assert.deepEqual(paths.map((path) => path.replace(/^\/web\/v\/[a-f0-9]{64}\//, '/web/')), expected);
+    assert.equal(new Set(paths.map((path) => path.split('/')[3])).size, 1);
+    for (const path of paths) {
+      const answer = await server.send({ path });
+      assert.equal(answer.status, 200, path);
+      assert.equal(answer.headers['cache-control'], 'private, max-age=31536000, immutable');
+      const legacy = await server.send({ path: path.replace(/^\/web\/v\/[a-f0-9]{64}\//, '/web/') });
+      assert.ok(answer.bytes.equals(legacy.bytes), path);
+      assert.equal(legacy.headers['cache-control'], 'no-store');
+    }
+    const stale = paths[0].replace(/\/v\/[a-f0-9]{64}\//, `/v/${'0'.repeat(64)}/`);
+    assert.equal((await server.send({ path: stale })).status, 404);
+    const version = paths[0].split('/')[3];
+    for (const path of ['messages.js', 'layout.js']) {
+      const answer = await server.send({ path: `/web/v/${version}/${path}` });
+      assert.equal(answer.status, 200, path);
+      assert.equal(answer.headers['cache-control'], 'private, max-age=31536000, immutable');
+    }
+  });
+
+  test('the shell offers a reload when scripts cannot start after a release change', async () => {
+    const answer = await server.send({ path: '/p' });
+    assert.match(answer.text, /화면을 불러오고 있어요/);
+    assert.match(answer.text, /<a href="">새로고침<\/a>/);
+  });
+
+  test('a failed versioned script or stylesheet keeps a visible error and reload link', () => {
+    for (const failure of [
+      { target: { tagName: 'SCRIPT', src: 'https://example.test/web/v/old/main.js' } },
+      { target: { tagName: 'LINK', href: 'https://example.test/web/v/old/a.css' } },
+      { target: {}, filename: 'https://example.test/web/v/old/main.js' },
+    ]) {
+      const listeners = {};
+      const status = { replaceChildren: (...children) => { status.children = children; } };
+      const startup = { replaceChildren: (...children) => { startup.children = children; } };
+      let bodyReady = failure.target.tagName !== 'LINK';
+      const doc = { getElementById: (id) => !bodyReady ? null : id === 'recovery-alert' ? status : id === 'startup-status' ? startup : null, createElement: () => ({ setAttribute(name, value) { this[name] = value; } }) };
+      runInNewContext(read('recovery.js').toString('utf8'), {
+        globalThis: { addEventListener: (type, handler) => { listeners[type] = handler; } },
+        document: doc, location: { href: 'https://example.test/p' }, URL,
+      });
+      listeners.error({ target: { tagName: 'IMG', src: 'https://example.test/web/v/old/p.png' } });
+      assert.equal(status.children, undefined);
+      listeners.error(failure);
+      if (!bodyReady) {
+        assert.equal(status.children, undefined);
+        bodyReady = true;
+        listeners.DOMContentLoaded();
+      }
+      assert.match(status.children[0], /문제가 생겼어요/);
+      assert.deepEqual(startup.children, []);
+      assert.equal(status.children[1].href, '');
+      assert.equal(status.children[1].textContent, '새로고침');
+      const shown = status.children;
+      listeners.DOMContentLoaded();
+      assert.equal(status.children, shown);
     }
   });
 
@@ -116,7 +182,8 @@ describe('the pages', () => {
       assert.equal(answer.status, 200, path);
       assert.equal(answer.headers['content-type'], types[extname(path)], path);
       assert.ok(answer.bytes.equals(read(path)), path);
-      assert.equal(answer.headers['cache-control'], extname(path) === '.woff2' ? 'private, max-age=31536000, immutable' : 'no-store', path);
+      const cache = extname(path) === '.woff2' ? 'private, max-age=31536000, immutable' : path === 'recovery.js' ? 'private, max-age=60, must-revalidate' : 'no-store';
+      assert.equal(answer.headers['cache-control'], cache, path);
       assertPageHeaders(answer, path);
     }
   });
@@ -139,14 +206,14 @@ describe('the pages', () => {
   });
 
   test('an address that names no screen answers the shell with 404, which never holds the path or the query', async () => {
-    const shell = read('shell.html');
+    const shell = read('shell.html').toString('utf8');
     const marker = `marker${Date.now()}`;
     for (const path of [...OTHER_ADDRESSES, `/${marker}?q=${marker}`, `/p/${marker}/x/y/z?d=${marker}`]) {
       const answer = await server.send({ path });
       assert.equal(answer.status, 404, path);
       assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8', path);
       assertPageHeaders(answer, path);
-      assert.ok(answer.bytes.equals(shell), path);
+      assert.equal(answer.text.replaceAll(/\/web\/v\/[a-f0-9]{64}\//g, '/web/'), shell, path);
       assert.equal(answer.text.includes(marker), false, path);
     }
   });
@@ -216,7 +283,9 @@ describe('the pages', () => {
     const shell = read('shell.html').toString('utf8');
     const links = [...shell.matchAll(/\b(?:src|href)="([^"]*)"/g)].map(([, link]) => link);
     assert.ok(links.length >= 5);
-    for (const link of links) assert.match(link, /^\/web\/[A-Za-z0-9./-]+$/, link);
+    assert.equal((shell.match(/<a href="">새로고침<\/a>/g) ?? []).length, 1);
+    const onlyAssets = shell.replace('<a href="">새로고침</a>', '');
+    for (const [, link] of onlyAssets.matchAll(/\b(?:src|href)="([^"]*)"/g)) assert.match(link, /^\/web\/[A-Za-z0-9./-]+$/, link);
     assert.equal(/<style|\sstyle=|<script(?![^>]*\ssrc=)/i.test(shell), false);
     for (const path of TEXTS) {
       const text = read(path).toString('utf8');

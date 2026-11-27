@@ -10,7 +10,7 @@
 //   removed diagram the list only, in the button's place.
 // - "이 그림" otherwise (TASK-461; SPEC-029, SPEC-030, SPEC-034): the state of the latest confirmation (확정 전, 확정함,
 //   바뀐 곳 N, 그려지지 않음), up to four elements changed since it with "+N개 더" to SCR-146, the note on AI proposals,
-//   and 이 그림 확정, which asks once, "확정할까요?" with 확정 and 취소, before it is sent (API-275). A live confirmation
+//   and the record request, which asks once with confirm and cancel before it is sent (API-275). A live confirmation
 //   has 확정 취소 instead, sent at once (API-276). A removed diagram has neither (SPEC-027). A mockup lists its tokens
 //   there. confirm.js holds the words and reads the confirmation.
 // - SCR-146 (changes-page.js) draws its body through this module too (state.drawPage), with the same line, the same
@@ -47,7 +47,7 @@ export const CHANGE_WORDS = Object.freeze({
   accepted: '수락했어요. 에이전트가 문서에 넣으면 실선이 돼요.',
   askNew: '새 제안을 부탁하세요.',
   waitingWhy: '반영을 기다리는 변경을 먼저 반영하거나 취소하세요. 에이전트가 문서에 넣으면 이 표시가 사라져요.',
-  confirm: '이 그림 확정',
+  confirm: '이 그림 확정하고 기록 요청',
   cancelEdit: '편집 취소',
   acceptedProposal: 'AI 제안 수락',
   nameLabel: '이름 · F2 또는 100% 이상에서 두 번 누르기',
@@ -271,7 +271,12 @@ function diagramParts(state) {
     if (live !== null) return [heading(confirmedTag(), waitingTag()), confirmedLines(state, live), list(), cancelButton(state, live)];
     return [heading(waitingTag()), h('p', {}, CHANGE_WORDS.waitingWhy), list(), state.phone ? null : offButton()];
   }
-  if (state.phone) return live === null ? null : [heading(confirmedTag()), confirmedLines(state, live)];
+  if (state.phone) {
+    if (!isDrawn(diagram)) return [heading(...(live === null ? [] : [confirmedTag()]), h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
+      h('p', {}, CONFIRM_WORDS.phoneNotDrawn), live === null ? h('p', { class: 'small' }, CONFIRM_WORDS.phone) : confirmedLines(state, live)];
+    if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live)];
+    return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
+  }
   if (!isDrawn(diagram)) {
     // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.
     return [
@@ -285,6 +290,7 @@ function diagramParts(state) {
     sinceParts(state, heading),
     tokens,
     diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
+    h('p', {}, CONFIRM_WORDS.beforeConfirm),
     confirmControl(state),
   ];
 }
@@ -317,8 +323,8 @@ function changesFor(state) {
 const confirmedTag = () => h('span', { class: 'tag green' }, CONFIRM_WORDS.confirmed);
 
 // The live confirmation's line and, in small text under it, "기록됨 · 3분 전 · PR #12 ↗" once the agent recorded it, the
-// pull request a link only for an https link (TASK-469, choice 2), and the mockup's "기록되면 여기에 그 PR이 나와요."
-// until then, while the record's pull request is open too (choice 3). A phone shows the same lines.
+// pull request a link only for an https link (TASK-469, choice 2), and a recording explanation
+// until then, while the record's pull request is open too. A phone shows the same lines.
 function confirmedLines(state, live) {
   if (!live.recorded_at) return [h('p', {}, CONFIRM_WORDS.confirmedHere), h('p', { class: 'small' }, CONFIRM_WORDS.untilRecorded)];
   const link = recordPullRequest(live.pull_request);
@@ -338,7 +344,7 @@ export const pageOffButton = () => offButton(false);
 // The ID the question of 이 그림 확정 is asked under, apart from every change set's.
 const CONFIRMING = 'confirm';
 
-// 이 그림 확정, or the question it asks once (choice 1): "확정할까요?" with 확정 and 취소; Escape stops asking. wide is
+// The record request, or its question with confirm and cancel; Escape stops asking. wide is
 // the panel's full-width button; SCR-146 draws it at its own width.
 export function confirmControl(state, { wide = true } = {}) {
   const changes = state.changes;

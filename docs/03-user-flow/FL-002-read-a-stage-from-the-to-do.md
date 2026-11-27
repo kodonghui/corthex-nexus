@@ -4,17 +4,17 @@
 
 Goal: The owner opens NEXUS, picks a stage from the to-do and reads its diagram or item table.
 
-Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-081
+Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-081, REQ-082
 
 ```mermaid
 flowchart TD
   A(["Owner opens NEXUS"])
   B{"Signed in through the<br/>gate?<br/>REQ-062, REQ-063"}
-  C["Show the owner's to-do<br/>REQ-052"]
+  C["Show to-do and next action<br/>REQ-052, REQ-082"]
   D["Owner picks a project and<br/>a stage"]
   E{"Does the stage have a<br/>picture?<br/>REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010"}
   F["Open the diagram with<br/>names, IDs hidden<br/>REQ-004, REQ-005, REQ-011, REQ-070"]
-  G["Open the item table<br/>REQ-006, REQ-011"]
+  G["Open the table or explain<br/>what to send if empty<br/>REQ-006, REQ-011, REQ-082"]
   H["Mark what changed since<br/>the last confirmation<br/>REQ-041"]
   I{"What does the owner do?"}
   J["Store the new position in<br/>NEXUS only<br/>REQ-013, REQ-015"]
