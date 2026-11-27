@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from test_hub_project import SKILL
 from test_hub_run import HubRunFixture, PROJECT
 
+
 class SourcePathWalk(HubRunFixture):
     def test_source_paths(self):
         settings = self.project / '.corthex/project.json'
@@ -25,6 +26,9 @@ class SourcePathWalk(HubRunFixture):
             (self.project / path).write_text(original, encoding='utf8')
         self.commit = self.commit_and_publish('Synthetic multi-file source fixture')
         self.read(self.session, 'push', PROJECT, '--first')
+        status, direct = self.server.owner('POST', '/api/credentials', {'name': 'source-direct'})
+        self.assertEqual(status, 201)
+        direct_secret = direct['secret']
         diagrams = self.drawings('01-domain', '05-erd', '07-sitemap')
         expected = ({'docs/01-domain/nexus.md', 'docs/01-domain/nexus-left.md'},
                     {'db/nexus.sql', 'db/nexus-left.sql'},
@@ -51,7 +55,7 @@ class SourcePathWalk(HubRunFixture):
             data = json.dumps({'part': 'nexus', 'stage': stage, 'items': [item], 'reason': 'Synthetic reason',
                                'change': 'Synthetic change', 'source_text': proposed}).encode('utf8')
             headers = {'Content-Type': 'application/json', 'Accept': 'application/json',
-                       'CF-Access-Client-Id': self.credential, 'CF-Access-Client-Secret': self.secret,
+                       'CF-Access-Client-Id': direct['credential']['id'], 'CF-Access-Client-Secret': direct_secret,
                        'Nexus-Session': self.session['CORTHEX_NEXUS_SESSION'],
                        'Idempotency-Key': '"nw_00000000000' + str(index) + '"'}
             request = urllib.request.Request(self.server.url + '/api/spaces/' + PROJECT + '/proposals',
@@ -65,11 +69,14 @@ class SourcePathWalk(HubRunFixture):
                                  (400, 'invalid_request', 'source_path', 'source_path is needed: the drawing reads several files'))
 
         # The three 400s without paths use direct HTTP: this hub always sends a path with --source-file.
-        self.assert_calls_and_log('push', *(['propose'] * 9))
+        self.assert_calls_and_log('push', *(['propose'] * 6))
         log = '\n'.join(self.log_lines)
         for _, _, path, original, proposed, missing, _ in cases:
             for private in (path, missing, original.strip(), proposed.strip()):
-                self.assertFalse(private in log, 'the log includes source data; value withheld')
+                self.assertFalse(private in log or json.dumps(private, ensure_ascii=False)[1:-1] in log,
+                                 'the log includes source data; value withheld')
+        for private in (direct_secret, hashlib.sha256(direct_secret.encode('ascii')).hexdigest()):
+            self.assertFalse(private in log, 'the server log includes direct-API credential data; value withheld')
         for output in self.outputs:
             self.assertFalse(hashlib.sha256(self.secret.encode('ascii')).hexdigest() in output,
                              'the hub output includes the credential digest; value withheld')
@@ -92,3 +99,7 @@ class SourcePathWalk(HubRunFixture):
                            '--state', 'done', '--checkpoint', 'Synthetic approval', '--by', 'the maintainer',
                            '--date', '2026-11-27', '--nexus', 'nk_000000000000')
         self.assertEqual(result['record']['checkpoints'][-1]['where'], url + '/p/' + PROJECT + '/nexus/07-sitemap')
+        self.assert_calls_and_log()
+        for output in self.outputs:
+            self.assertFalse(hashlib.sha256(self.secret.encode('ascii')).hexdigest() in output,
+                             'the hub output includes the credential digest; value withheld')
