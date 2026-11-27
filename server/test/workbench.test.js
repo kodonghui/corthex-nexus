@@ -172,6 +172,20 @@ const waitSend = async (page) => {
 };
 
 describe('SCR-145 pictures', () => {
+  test('an empty table explains unreadable or removed material without asking to send it again', async () => {
+    const left = asElement({ key: 'unreadable', kind: 'left_out', name: '문서', status: 'left_out', detail: {} });
+    for (const [fields, expected] of [
+      [{ elements: [left] }, /문서 수정을 요청/],
+      [{ elements: [], removed: true }, null],
+    ]) {
+      const page = await openStage('table', { more: { [diagramPath('table')]: json(200, diagramOf('table', fields)) } });
+      try {
+        const body = pictureBox(page).textContent;
+        if (expected) assert.match(body, expected);
+        assert.doesNotMatch(body, /내용을 정리해 NEXUS에 보내줘/);
+      } finally { page.close(); }
+    }
+  });
   test('each kind of diagram draws by the names of its elements, never by a trace ID or a diagram ID (SPEC-010)', async () => {
     const cases = {
       board: (box) => {

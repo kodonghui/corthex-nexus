@@ -472,7 +472,13 @@ function statePanels(view) {
 // as drawn. Each row's name is the button that chooses it; a row has no box, so it never moves.
 function itemTable(view) {
   const rows = (view.diagram.elements ?? []).filter((element) => element.kind === 'row');
-  if (rows.length === 0) return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems), h('p', {}, emptyStageGuidance(view.diagram.stage)));
+  if (rows.length === 0) {
+    const leftOut = (view.diagram.elements ?? []).some((element) => element.status === 'left_out');
+    const advice = view.diagram.removed ? null : leftOut
+      ? '읽지 못한 항목이 있어요. 아래 위치를 확인하고 함께 일하는 AI에게 문서 수정을 요청해 주세요.'
+      : emptyStageGuidance(view.diagram.stage);
+    return h('div', { class: 'empty' }, h('h2', {}, WORDS.noItems), advice === null ? null : h('p', {}, advice));
+  }
   return h('table', { class: 'tb items', 'aria-label': view.diagram.name },
     h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, '이름'), h('th', { scope: 'col' }, '상태'), h('th', { scope: 'col' }, '링크'))),
     h('tbody', {}, rows.map((element) => {

@@ -337,7 +337,7 @@ describe('SCR-145 "이 그림"', () => {
     try {
       const section = diagramSection(phone);
       assert.deepEqual(tagsIn(section), ['그려지지 않음']);
-      assert.deepEqual(shownTexts(section, 'p'), ['문서가 그려지지 않았어요.', CONFIRM_WORDS.phone]);
+      assert.deepEqual(shownTexts(section, 'p'), [CONFIRM_WORDS.phoneNotDrawn, CONFIRM_WORDS.phone]);
       assert.equal(section.all('button').length, 0);
     } finally { phone.close(); }
   });
@@ -581,6 +581,7 @@ describe('SCR-146', () => {
   test('waiting (SCR-146#waiting): every change set that waits comes first under "반영을 기다리는 변경", a direct edit with 편집 취소; the button is off with why', async () => {
     const page = await openAt('erd', { screen: 'changes', diagram: { ...confirmedWith('erd', 'invalidated'), overlays: [RENAMED, ACCEPTED] } });
     try {
+      assert.ok(!shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.beforeConfirm));
       const groups = mainOf(page).all('section', 'group');
       assert.deepEqual(groups.map((group) => group.all('h2')[0].textContent), ['반영을 기다리는 변경', '바뀐 요소']);
       assert.deepEqual(tagsIn(groups[0].all('div', 'gh')[0]), [waitingCount(2)]);
@@ -703,6 +704,7 @@ describe('SCR-146', () => {
     const failed = { id: 'dw_0000000000c7', revision: 4, version: 'c'.repeat(40), status: 'failed', failed_at: 'db/nexus.sql:12', drawn_at: TIME };
     const page = await openAt('erd', { screen: 'changes', diagram: { ...confirmedWith('erd', 'invalidated'), drawing: failed, last_drawn: diagramOf('erd').drawing } });
     try {
+      assert.ok(!shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.beforeConfirm));
       const note = mainOf(page).all('div', 'err')[0];
       assert.deepEqual([shownTexts(note, 'b'), note.all('a').map((link) => [link.textContent, link.getAttribute('href')])], [
         [CONFIRM_WORDS.fixFirst], [['그림에서 보기', `/p/${P}/_/05-erd?d=${ID.erd}`]],

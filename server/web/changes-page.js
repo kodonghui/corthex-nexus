@@ -16,7 +16,7 @@
 // (state.drawPage); confirm.js holds the words. The page keeps, for the shell it runs in, only what changes.js keeps.
 
 import { stageHref } from './address.js';
-import { changesOf, confirmable, confirmControl, drawChanges, own, pageOffButton, waitingCount, waitingParts } from './changes.js';
+import { changesOf, confirmable, confirmControl, CONFIRMING, drawChanges, own, pageOffButton, waitingCount, waitingParts } from './changes.js';
 import { changedSince, CONFIRM_WORDS, confirmedVersion, countTag, isDrawn, liveConfirmation, pageRow } from './confirm.js';
 import { fill, h } from './dom.js';
 import { MARK_WORDS, overlayModel, waitingOf } from './overlays.js';
@@ -132,7 +132,7 @@ function endRow(ctx, state, confirmedHere, waiting) {
   const offers = state !== null && !phone && !diagram.removed && liveConfirmation(diagram) === null;
   const back = h('a', { class: confirmedHere ? 'btn tertiary' : 'btn ghost', href: toDiagram(ctx) }, CONFIRM_WORDS.toDiagram);
   return [
-    offers && state.changes.asking?.id !== 'confirm' ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,
+    offers && confirmable(state) && state.changes.asking?.id !== CONFIRMING ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,
     h('div', { class: 'btns mid' },
       offers ? (confirmable(state) ? confirmControl(state, { wide: false }) : pageOffButton()) : null,
       back,

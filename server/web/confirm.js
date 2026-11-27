@@ -14,6 +14,7 @@ export const CONFIRM_WORDS = Object.freeze({
   notConfirmed: '확정 전',
   confirmed: '확정함',
   notDrawn: '그려지지 않음',
+  phoneNotDrawn: '문서가 그려지지 않았어요. 함께 일하는 AI에게 문서 수정을 요청해 주세요.',
   neverConfirmed: '아직 확정한 적이 없어서 바뀐 곳 표시가 없어요.',
   confirmedHere: '이 그림을 확정했어요. 이 단계의 모든 그림과 표가 기록되면 단계가 통과돼요.',
   cancelled: '확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.',

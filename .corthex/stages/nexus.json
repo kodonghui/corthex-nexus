@@ -533,6 +533,11 @@
           "approved": "The same confirmation explanation and corrected stage-pass wording also apply to SCR-146, which shares that action; SCR-145 omits the old suggestion that the next push arrives by itself, since it conflicts with the new request guidance. These small corrections to the approved guidance were made under the checkpoint delegate's 2026-11-27 authorization; their basis is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 advises fixing unreadable source rather than resending and does not solicit material for a removed diagram; SCR-146 gives the confirm explanation only when confirmation is available. The maintainer's checkpoint delegate authorized these small corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "the maintainer",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",

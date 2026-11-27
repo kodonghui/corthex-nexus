@@ -522,7 +522,7 @@
      "name": "SCR-145#empty",
      "status": null,
      "detail": {
-      "description": "Nothing sent for this stage: \"Nothing sent yet.\" The stage names the material needed and gives the owner words to request it in the AI conversation they use (SPEC-054). An item table with no items: \"This stage has no items yet\" and the same next-action guidance (SPEC-005, SPEC-054).",
+      "description": "Nothing sent for this stage: \"Nothing sent yet.\" The stage names the material needed and gives the owner words to request it in the AI conversation they use (SPEC-054). An item table with no items: \"This stage has no items yet\" and the same next-action guidance; if rows were left out, explain the source needs fixing instead; a removed diagram does not ask to send material (SPEC-005, SPEC-054).",
       "responses": [
        "API-265#200"
       ],
@@ -870,7 +870,7 @@
      "name": "SCR-146#normal",
      "status": null,
      "detail": {
-      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, an explanation to answer questions, review changes and request AI recording before the confirm button. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: the list read-only; Cancel edit and Confirm are not offered, with \"Do this on a PC\".",
+      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, when confirmation is available, an explanation to answer questions, review changes and request AI recording before the confirm button. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: the list read-only; Cancel edit and Confirm are not offered, with \"Do this on a PC\".",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -883,7 +883,7 @@
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 420
+       "height": 440
       }
      }
     },
@@ -900,7 +900,7 @@
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 420
+       "height": 440
       }
      }
     },
@@ -919,7 +919,7 @@
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 420
+       "height": 440
       }
      }
     },
@@ -953,7 +953,7 @@
       "where": "docs/08-screens/SCR-146.md:33",
       "box": {
        "x": 0,
-       "y": 432,
+       "y": 452,
        "width": 328,
        "height": 380
       }
@@ -983,7 +983,7 @@
       "where": "docs/08-screens/SCR-146.md:34",
       "box": {
        "x": 340,
-       "y": 432,
+       "y": 452,
        "width": 328,
        "height": 380
       }
@@ -1003,7 +1003,7 @@
       "where": "docs/08-screens/SCR-146.md:35",
       "box": {
        "x": 680,
-       "y": 432,
+       "y": 452,
        "width": 328,
        "height": 380
       }
@@ -1022,7 +1022,7 @@
       "where": "docs/08-screens/SCR-146.md:36",
       "box": {
        "x": 0,
-       "y": 824,
+       "y": 844,
        "width": 328,
        "height": 200
       }
@@ -1041,7 +1041,7 @@
       "where": "docs/08-screens/SCR-146.md:37",
       "box": {
        "x": 340,
-       "y": 824,
+       "y": 844,
        "width": 328,
        "height": 200
       }
@@ -1061,7 +1061,7 @@
       "where": "docs/08-screens/SCR-146.md:38",
       "box": {
        "x": 680,
-       "y": 824,
+       "y": 844,
        "width": 328,
        "height": 200
       }
