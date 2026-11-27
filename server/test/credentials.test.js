@@ -290,6 +290,38 @@ describe('agent credentials', () => {
     assert.equal(both.line.sender, 'ci-runner');
   });
 
+  test('BUG-006: accepts either complete agent header pair and refuses ambiguous pairs', async () => {
+    const { credential, secret } = await issued('alternate-headers');
+    const modern = { 'Nexus-Agent-Client-Id': credential.id, 'Nexus-Agent-Client-Secret': secret };
+    const legacy = pair(credential, secret);
+    for (const headers of [legacy, modern]) {
+      const { answer } = await agentRead(headers);
+      assert.equal(answer.status, 200);
+    }
+    for (const headers of [
+      { 'Nexus-Agent-Client-Id': credential.id },
+      { 'Nexus-Agent-Client-Secret': secret },
+      { 'Nexus-Agent-Client-Id': credential.id, 'CF-Access-Client-Secret': secret },
+      { ...legacy, ...modern },
+      { ...modern, 'CF-Access-Client-Id': credential.id },
+      { ...modern, 'Nexus-Agent-Client-Id': [credential.id, credential.id] },
+      { ...modern, 'Nexus-Agent-Client-Secret': `${secret}, ${secret}` },
+      { ...modern, 'Nexus-Agent-Client-Secret': 'invalid' },
+    ]) {
+      const { answer, line } = await agentRead(headers);
+      assert.equal(answer.status, 401);
+      assert.equal(answer.json.code, 'access_missing');
+      assert.equal(line.reason, 'malformed');
+    }
+    const ownerAttempt = await sent({ method: 'GET', path: '/api/credentials', headers: modern });
+    assert.equal(ownerAttempt.answer.status, 403);
+    assert.equal(ownerAttempt.answer.json.code, 'owner_only');
+    await revoke(credential.id);
+    const revoked = await agentRead(modern);
+    assert.equal(revoked.answer.status, 401);
+    assert.equal(revoked.line.reason, 'revoked');
+  });
+
   test('marks a credential used, at most once a minute, and shows it in the list', async () => {
     const { credential, secret } = await issued('marked');
     assert.equal(row(credential.id).last_used_at, null);

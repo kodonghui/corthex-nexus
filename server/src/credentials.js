@@ -2,8 +2,8 @@
 // API-281), and admission checks the pair an agent sends on every agent request (see admission.js).
 //
 // A credential is a row of TBL-146 agent_credentials. Its ID, ac_ and 12 characters, is its row's key (see ids.js),
-// and the agent sends it as CF-Access-Client-Id. Its secret is 32 random bytes in base64url, 43 characters, which the
-// agent sends as CF-Access-Client-Secret. The secret is in API-280's first answer only: the store keeps its SHA-256 in
+// and the agent sends it as Nexus-Agent-Client-Id or CF-Access-Client-Id. Its secret is 32 random bytes in base64url, 43 characters, which the
+// agent sends as Nexus-Agent-Client-Secret or CF-Access-Client-Secret, paired with its ID. The secret is in API-280's first answer only: the store keeps its SHA-256 in
 // hex as secret_digest (REQ-078), and a repeat of the request answers secret null. 32 random bytes cannot be guessed
 // back from their digest, so a plain digest is enough, and a slow one such as scrypt would only slow every agent
 // request. No answer and no log line holds a secret or a digest (rule 5).
@@ -77,15 +77,22 @@ function shown(row) {
 
 const timeOf = (now) => new Date(now()).toISOString();
 
-// The credential the request's CF-Access-Client-Id and CF-Access-Client-Secret name: { credential } with its id, key
+// The credential named by exactly one complete NEXUS or legacy header pair: { credential } with its id, key
 // and name when the pair is a live credential's, or { reason } when it is not. The reason goes to the log only: the
 // answer is access_missing whatever it is, so a caller learns nothing about which (rule 8, the contract's
 // access_missing). no_credential: neither header; malformed: a header missing or not in its form; unknown_credential:
 // no credential has the ID; wrong_secret; revoked.
 export function checkCredential(store, headers) {
-  const id = headers['cf-access-client-id'];
-  const secret = headers['cf-access-client-secret'];
-  if (id === undefined && secret === undefined) return { reason: 'no_credential' };
+  const legacyId = headers['cf-access-client-id'];
+  const legacySecret = headers['cf-access-client-secret'];
+  const nexusId = headers['nexus-agent-client-id'];
+  const nexusSecret = headers['nexus-agent-client-secret'];
+  const hasLegacy = legacyId !== undefined || legacySecret !== undefined;
+  const hasNexus = nexusId !== undefined || nexusSecret !== undefined;
+  if (!hasLegacy && !hasNexus) return { reason: 'no_credential' };
+  if (hasLegacy && hasNexus) return { reason: 'malformed' };
+  const id = hasLegacy ? legacyId : nexusId;
+  const secret = hasLegacy ? legacySecret : nexusSecret;
   // A header sent twice reaches Node as one value joined by a comma, which is in no form.
   if (typeof id !== 'string' || !ID.test(id) || typeof secret !== 'string' || !SECRET.test(secret)) {
     return { reason: 'malformed' };
