@@ -599,7 +599,8 @@ function startOf(state, place, text) {
 
 // API-268: the owner's reply, added at the end; the thread then waits on the agent.
 function replyOf(state, id, text) {
-  const project = state.ctx.data.diagram.project;
+  const diagram = state.ctx.data.diagram;
+  const project = diagram.project;
   return {
     path: `${projectApi(project)}/threads/${encodeURIComponent(id)}/comments`,
     body: { text },
@@ -619,13 +620,13 @@ function replyOf(state, id, text) {
         }
         if (!newer) Object.assign(t.thread, summaryOf(answer.thread));
         else summary = t.thread;
-      } else if (listed && (t.readSequences?.get(id) ?? 0) >= answer.entry.seq) {
+      } else if (listed && (listed.entries > answer.entry.seq || (t.readSequences?.get(id) ?? 0) >= answer.entry.seq)) {
         summary = listed;
       }
       const added = listed ? Math.max(0, answer.entry.seq - listed.entries) : 0;
       brief(state, id, summary, added);
       if (t.shown === id && (t.thread === null || pendingRead || gap)) readThread(state, id);
-      else if (pendingRead) refreshAfterClose(state, id);
+      else if (pendingRead || diagram !== state.ctx.data.diagram || (listed && added > 1)) refreshAfterClose(state, id);
       keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
@@ -646,7 +647,7 @@ function closeOf(state, id, reopen = false) {
       const t = state.threads;
       const pendingRead = t.reads?.has(id) === true;
       const readSinceWrite = (t.readResults?.get(id) ?? 0) > startedAt;
-      const listed = (diagram.threads ?? []).find((entry) => entry.id === id);
+      const listed = (state.ctx.data.diagram.threads ?? []).find((entry) => entry.id === id);
       const resolved = readSinceWrite && (t.thread?.id === id ? t.thread.resolved === true : listed?.resolved === true);
       if (t.thread?.id === id && !resolved) {
         Object.assign(t.thread, summaryOf(answer.thread));
@@ -659,7 +660,7 @@ function closeOf(state, id, reopen = false) {
       const now = state.ctx.data.diagram;
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
       else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
-      else if (readSinceWrite) refreshAfterClose(state, id);
+      else if (readSinceWrite || diagram !== state.ctx.data.diagram) refreshAfterClose(state, id);
       else if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
       else if (pendingRead) refreshAfterClose(state, id);
     },
