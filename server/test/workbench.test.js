@@ -233,6 +233,60 @@ describe('SCR-145 pictures', () => {
     } finally { release(); page.close(); }
   });
 
+  test('a rejected keyboard move keeps focus on the box', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: () => held.then(() => problem(409, 'request_key_reused')()) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      const box = buttonNamed(page, 'tbl', table.name);
+      box.focus();
+      box.dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      release();
+      await page.settle();
+      assert.ok(page.document.activeElement === buttonNamed(page, 'tbl', table.name), 'the moved box retains focus');
+    } finally { release(); page.close(); }
+  });
+
+  test('a rejected keyboard move does not steal focus the owner moved elsewhere', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: () => held.then(() => problem(409, 'request_key_reused')()) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      const input = page.document.createElement('input');
+      page.app.append(input); input.focus();
+      release();
+      await page.settle();
+      assert.ok(page.document.activeElement === input, 'the chosen input retains focus');
+    } finally { release(); page.close(); }
+  });
+
+  test('switching during the reread after a confirmed reset keeps redo', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('flow');
+    try {
+      pictureBox(page).all('button', 'fbox')[0].dispatch('keydown', { key: 'ArrowRight' });
+      await waitSend(page);
+      const reload = page.shell.reload.bind(page.shell);
+      page.shell.reload = async (...args) => { await held; return reload(...args); };
+      pictureBox(page).all('div', 'move-history')[0].all('button')[0].click();
+      await delay(50);
+      page.app.all('nav', 'steps')[0].all('a')[1].click();
+      await delay(80);
+      page.pop(pathOf('flow'));
+      await delay(80);
+      release();
+      await page.settle();
+      assert.equal(pictureBox(page).all('div', 'move-history')[0].all('button')[1].disabled, false);
+      assert.doesNotMatch(page.app.textContent, /저장 결과를 확인하지 못해 이동 기록을 지웠어요/);
+    } finally { release(); page.close(); }
+  });
+
   test('refreshing an uncertain undo restores move targets when fresh data redraws the picture', async () => {
     let changed = false;
     const fresh = diagramOf('erd');
@@ -469,6 +523,25 @@ describe('SCR-145 pictures', () => {
       await page.settle();
       assert.equal(page.sent[1].body.reset, true);
     } finally { page.close(); }
+  });
+
+  test('an arrow during a pending save does not scroll and explains the wait', async () => {
+    let release;
+    const held = new Promise((resolve) => { release = resolve; });
+    const page = await openStage('erd', { moved: (body) => held.then(() => movedAnswer('erd')(body)) });
+    try {
+      const table = ELEMENTS.erd.find((element) => element.kind === 'table');
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight' });
+      await delay(SEND_AFTER_MS + 80);
+      let prevented = false;
+      buttonNamed(page, 'tbl', table.name).dispatch('keydown', { key: 'ArrowRight', preventDefault() { prevented = true; } });
+      assert.equal(prevented, true);
+      assert.match(page.app.textContent, /저장이 끝날 때까지 기다려 주세요/);
+      release();
+      await page.settle();
+      assert.equal(page.sent.length, 1);
+      assert.doesNotMatch(page.app.textContent, /저장이 끝날 때까지 기다려 주세요/);
+    } finally { release(); page.close(); }
   });
 
   test('a canceled second drag still sends the earlier queued move', async () => {

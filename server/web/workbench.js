@@ -41,6 +41,8 @@ export const SEND_AFTER_MS = 400;
 const DRAG_FROM = 3;
 const ZOOM_WAIT_DRAG = '옮기기를 마친 뒤 그림 크기를 바꿔 주세요.';
 const MOVED_KINDS = new Set(['ddd_board', 'erd', 'sitemap', 'user_flow']);
+const MOVE_WAIT = '저장이 끝날 때까지 기다려 주세요.';
+const MOVE_ISSUE = '저장 문제를 확인한 뒤 다시 옮겨 주세요.';
 
 export const WORKBENCH_WORDS = Object.freeze({
   phone: '옮기기, 이름 바꾸기, 잇기, 제안 답하기, 확정은 PC에서 하세요.',
@@ -134,8 +136,14 @@ function stateOf(ctx) {
     if (state && (state.history.busy || state.moves.size > 0 || state.sending.size > 0)) {
       clearTimeout(state.timer);
       for (const key of [...state.pending]) { state.pending.delete(key); send(state, key, null); }
-      state.history.undo.length = 0; state.history.redo.length = 0;
-      state.history.busy = false; state.history.inFlight = null; state.history.epoch += 1; state.history.invalidated = true;
+      if (state.history.confirmedRead && state.history.pendingWrites === 0 && state.moves.size === 0 && state.sending.size === 0) {
+        // The reset already succeeded; retain redo but require an authoritative read when this diagram returns.
+        state.history.needsRefresh = true;
+        state.history.busy = false;
+      } else {
+        state.history.undo.length = 0; state.history.redo.length = 0;
+        state.history.busy = false; state.history.inFlight = null; state.history.epoch += 1; state.history.invalidated = true;
+      }
     }
     let byDiagram = histories.get(ctx.shell);
     if (byDiagram === undefined) { byDiagram = new Map(); histories.set(ctx.shell, byDiagram); }
@@ -716,7 +724,9 @@ async function runHistory(state, redo, retryKey = null) {
       if (reset && element.detail?.box) Object.assign(element.detail.box, entry.drawn);
     }
     if (reset) {
-      await state.ctx.shell.reload();
+      history.confirmedRead = true;
+      history.interruptedOutcome = outcome;
+      try { await state.ctx.shell.reload(); } finally { history.confirmedRead = false; }
       if (!state.live()) { history.busy = false; return; }
       if (state.ctx.shell.fresh('diagram')?.id !== state.diagram) {
         history.busy = false;
@@ -734,6 +744,7 @@ async function runHistory(state, redo, retryKey = null) {
     if (changedFocus) { state.historyFocus = null; state.historyFocusNode = null; }
     else state.focus = entry.key;
     drawPicture(state);
+    updateMoveTargets(state);
     return;
   }
   if (!state.live()) { history.busy = false; return; }
@@ -815,11 +826,23 @@ async function recoverInterrupted(state, outcome) {
 }
 
 // Whether element moves: a box not drawn round others, on a picture that moves, of a diagram not removed, on a PC.
-function movable(state, element) {
+function supportsMove(state, element) {
   const diagram = state.ctx.data.diagram;
-  return !state.phone && !state.history.busy && state.history.pendingWrites === 0 && !state.history.needsRefresh && state.failed.size === 0 && state.sending.size === 0
-    && (state.pending.size === 0 || state.pending.has(element.key)) && !diagram.removed
-    && MOVED_KINDS.has(diagram.kind) && !CONTAINERS.has(element.kind) && state.view.place.boxes.has(element.key);
+  return !state.phone && !diagram.removed && MOVED_KINDS.has(diagram.kind)
+    && !CONTAINERS.has(element.kind) && state.view.place.boxes.has(element.key);
+}
+
+function movable(state, element) {
+  return supportsMove(state, element) && !state.history.busy && state.history.pendingWrites === 0 && !state.history.needsRefresh
+    && state.failed.size === 0 && state.sending.size === 0 && (state.pending.size === 0 || state.pending.has(element.key));
+}
+
+function explainMoveWait(state, element) {
+  if (!supportsMove(state, element)) return false;
+  const text = state.failed.size > 0 || state.history.needsRefresh || (state.history.busy && state.history.inFlight === null && !state.history.confirmedRead)
+    ? MOVE_ISSUE : MOVE_WAIT;
+  fill(state.dragNotice, h('div', { class: 'nt info', role: 'status' }, text));
+  return true;
 }
 
 // Update the existing targets without rebuilding the picture or moving keyboard focus.
@@ -829,6 +852,13 @@ function updateMoveTargets(state) {
     if (movable(state, element)) node?.setAttribute('data-diagram-movable', '');
     else node?.removeAttribute('data-diagram-movable');
   }
+  if (!historyPending(state) && [MOVE_WAIT, MOVE_ISSUE].includes(state.dragNotice?.textContent)) fill(state.dragNotice);
+}
+
+// Restore focus only when it still belonged to the moved box before it is rebuilt.
+function redrawMovedBox(state, key) {
+  if (document.activeElement === state.view?.nodes.get(key)) state.focus = key;
+  drawPicture(state);
 }
 
 const ARROWS = Object.freeze({ ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] });
@@ -837,7 +867,11 @@ const positionBound = (value) => Math.max(-1_000_000, Math.min(1_000_000, Math.r
 function keydown(state, element, event) {
   if (changeKey(state, element, event, () => select(state, element.key))) return;
   const way = ARROWS[event.key];
-  if (way === undefined || !movable(state, element)) return;
+  if (way === undefined) return;
+  if (!movable(state, element)) {
+    if (explainMoveWait(state, element)) event.preventDefault();
+    return;
+  }
   event.preventDefault();
   fill(state.dragNotice);
   // Keep arrow movement visible in screen pixels at every zoom level, as a drag is.
@@ -853,7 +887,8 @@ function keydown(state, element, event) {
 
 // A drag follows the pointer; below 25% it needs an eight-pixel gesture, otherwise DRAG_FROM pixels.
 function pointerdown(state, element, event) {
-  if ((event.pointerType === 'touch' && event.isPrimary === false) || (event.button !== undefined && event.button !== 0) || !movable(state, element)) return;
+  if ((event.pointerType === 'touch' && event.isPrimary === false) || (event.button !== undefined && event.button !== 0)) return;
+  if (!movable(state, element)) { explainMoveWait(state, element); return; }
   const node = state.view.nodes.get(element.key);
   const holder = node?.parentNode?.parentNode;
   if (!node || !holder) return;
@@ -1022,7 +1057,7 @@ async function send(state, key, kept) {
     state.again.delete(key);
     fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, WORKBENCH_WORDS.moveGone)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => state.ctx.shell.reload() } }, '새로 고침')));
-    drawPicture(state);
+    redrawMovedBox(state, key);
     return;
   } else if (outcome.status === 404 && (outcome.code === 'diagram_not_found' || outcome.code === 'project_not_found')) {
     // SCR-145#error: after a write, the diagram is read again first. A removed one still listed opens for what waits on
@@ -1031,7 +1066,7 @@ async function send(state, key, kept) {
     state.before.delete(key);
     state.again.delete(key);
     fill(state.moveNotice);
-    drawPicture(state);
+    redrawMovedBox(state, key);
     state.ctx.shell.reload();
     return;
   } else if (outcome.status >= 400 && outcome.status < 500) {
@@ -1042,7 +1077,7 @@ async function send(state, key, kept) {
       : '이동을 저장하지 못해 취소했어요. 그림을 확인하고 다시 옮겨 주세요.';
     const reason = outcome.status === 400 && outcome.code === 'invalid_request' ? null : h('b', {}, state.ctx.shell.message(outcome.code ?? 'internal'));
     fill(state.moveNotice, h('div', { class: 'nt warn', role: 'alert' }, reason, h('div', {}, notice)));
-    drawPicture(state);
+    redrawMovedBox(state, key);
     updateHistoryControls(state);
     return;
   } else {

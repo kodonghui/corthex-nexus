@@ -258,6 +258,11 @@
           "approved": "SPEC-055 records the measured correction that a definite non-permission move rejection cancels that move and explains the reason; the checkpoint delegate authorized measured corrections in advance on 2026-11-27, with the basis in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SPEC-055 records the measured correction that a confirmed reset keeps redo when its reread is interrupted, and a blocked move explains the wait without arrow-key scrolling. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -766,6 +771,11 @@
         },
         {
           "approved": "SCR-145 records the measured correction that a definite non-permission move rejection cancels that move and explains the reason; the checkpoint delegate authorized measured corrections in advance on 2026-11-27, with the basis in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-145 records the measured correction that a confirmed reset keeps redo when its reread is interrupted, and a blocked move explains the wait without arrow-key scrolling. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }
