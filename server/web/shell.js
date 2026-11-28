@@ -42,6 +42,8 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   const leaving = [];
   const pendingArea = h('div', { role: 'status' });
   const noticeArea = h('div', { role: 'status' });
+  const morningDrafts = new Map();
+  const openAnswers = new Map();
   let pending = null;
   try {
     pending = pendingActions({ ...pendingOptions, send: (method, path, body, key, options) => writeOf(method, path, body, key, options), onChange: (result, handled, viewFailed, item) => {
@@ -51,6 +53,11 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
         const threadDraft = item.draft.startsWith(`/p/${project} `) && item.draft.endsWith(` reply ${thread}`) && draftOf(item.draft) === item.body.text;
         const todoDraft = item.draft.startsWith(`todo:${project}:${thread}:`) && typeof item.draftText === 'string'
           && item.draftText.trim() === item.body.text && draftOf(item.draft) === item.draftText;
+        if (item.draft.startsWith(`todo:${project}:${thread}:`) && typeof item.draftText === 'string'
+          && item.draftText.trim() === item.body.text && morningDrafts.get(item.draft) === item.draftText) {
+          morningDrafts.delete(item.draft);
+          openAnswers.delete(item.draft);
+        }
         if (threadDraft || todoDraft) keepDraft(item.draft, '');
       }
       drawPending();
@@ -96,6 +103,9 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   let misses = {};
   // A normal refresh waits until an active Korean IME composition has committed its final input.
   let afterComposition = null;
+  let pointerDown = false;
+  let finishAfterPointer = false;
+  let pointerTimer = null;
   // Whether a part's read again failed and the part kept what it showed, so the read time shows (states.js readTag).
   let partStale = false;
   // How the address was last reached: 'open' (the page opened, or the browser went back or forward to it), 'switch'
@@ -118,11 +128,16 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
     reload,
     write: writeOf,
     redraw,
-    finishComposition: () => setTimeout(() => {
-      const draw = afterComposition;
-      afterComposition = null;
-      if (draw && !ended) again(draw);
-    }, 0),
+    finishComposition: () => {
+      if (pointerDown) { finishAfterPointer = true; return; }
+      setTimeout(() => {
+        const draw = afterComposition;
+        afterComposition = null;
+        if (draw && !ended) again(draw);
+      }, 0);
+    },
+    morningDrafts,
+    openAnswers,
     missed: (name) => misses[name] ?? null,
     // A refresh is authoritative only when the whole screen read succeeded, including its dependent reads.
     fresh: (name) => !ended && reread === null && !partStale && !misses[name] ? data?.[name] ?? null : null,
@@ -146,6 +161,23 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   const view = h('div', { class: 'view' });
   fill(root, header.element, tabs, pendingArea, noticeArea, view);
   drawPending();
+
+  // Let a pointer's click finish before replacing its target with a deferred redraw.
+  document.addEventListener('pointerdown', (event) => {
+    if (event.button != null && event.button !== 0) return;
+    clearTimeout(pointerTimer);
+    pointerDown = true;
+  }, true);
+  const finishPointer = () => {
+    clearTimeout(pointerTimer);
+    pointerDown = false;
+    if (finishAfterPointer) { finishAfterPointer = false; shell.finishComposition(); }
+  };
+  document.addEventListener('pointerup', () => { pointerTimer = setTimeout(finishPointer, 500); }, true);
+  document.addEventListener('pointercancel', finishPointer, true);
+  document.addEventListener('contextmenu', finishPointer, true);
+  document.addEventListener('click', finishPointer, true);
+  globalThis.addEventListener?.('blur', finishPointer);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && data !== null) load(true);
@@ -346,6 +378,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
     const y = globalThis.scrollY ?? 0;
     const focused = document.activeElement;
     const keep = focused?.getAttribute?.('data-preserve-focus') === 'true' && view.contains(focused);
+    if (pointerDown && address.screen === 'SCR-142') { afterComposition = draw; finishAfterPointer = true; showTimes(); return; }
     if (keep && focused.getAttribute('data-composing') === 'true') { afterComposition = draw; showTimes(); return; }
     const focusId = keep ? focused.getAttribute('id') : null;
     const selection = keep ? [focused.selectionStart, focused.selectionEnd] : null;
@@ -422,6 +455,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
 
   // Draws the view: the loading state, a failed read, a gone thing, or the screen's data.
   function render({ loading = false, failure = null, gone = null, ctx = null }) {
+    if (loading || failure !== null || gone !== null) afterComposition = null;
     clocks = [];
     if (gone !== null) {
       if (tabs !== null) tabs.hidden = gone.tabs === false;
@@ -477,7 +511,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
       if (element.textContent !== text) element.textContent = text;
     }
     if (tag === null) return;
-    const text = afterComposition ? '입력을 마치면 새 내용을 보여드려요.' : readTag(readAt, now, reread !== null || partStale);
+    const text = afterComposition ? (pointerDown ? '누르기를 마치면 새 내용을 보여드려요.' : '입력을 마치면 새 내용을 보여드려요.') : readTag(readAt, now, reread !== null || partStale);
     tag.hidden = text === null;
     tag.textContent = text ?? '';
   }

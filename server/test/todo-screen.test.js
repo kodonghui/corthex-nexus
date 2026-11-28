@@ -423,6 +423,48 @@ describe('SCR-142', () => {
     } finally { page.close(); }
   });
 
+  test('a pointer click completes before a deferred composition redraw replaces its target', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '처음 질문이에요.', question_choices: ['네'] };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      mainOf(page).all('button').find((button) => button.textContent === '직접 쓰기').click();
+      const field = mainOf(page).all('textarea')[0];
+      field.dispatch('compositionstart');
+      const clarified = { ...question, question_text: '설명을 더한 질문이에요.' };
+      answers['/api/todo'] = json(200, { entries: [clarified], morning: [clarified], backup: null });
+      await page.shell.reload(); await page.settle();
+      const choice = mainOf(page).all('button').find((button) => button.textContent === '네');
+      choice.dispatch('pointerdown'); field.dispatch('compositionend'); field.dispatch('blur');
+      await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0], field);
+      choice.dispatch('pointerup');
+      await page.settle(); // Some touch browsers dispatch the click in a later task.
+      assert.equal(mainOf(page).all('textarea')[0], field);
+      choice.click();
+      assert.match(page.app.textContent, /10초 뒤 보내요/);
+      await page.settle();
+      assert.notEqual(mainOf(page).all('textarea')[0], field);
+    } finally { page.close(); }
+  });
+
+  test('keyboard focus reaches the submit button across a deferred composition redraw', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '처음 질문이에요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      mainOf(page).all('button').find((button) => button.textContent === '직접 쓰기').click();
+      const field = mainOf(page).all('textarea')[0]; field.dispatch('compositionstart');
+      const clarified = { ...question, question_text: '설명을 더한 질문이에요.' };
+      answers['/api/todo'] = json(200, { entries: [clarified], morning: [clarified], backup: null });
+      await page.shell.reload(); await page.settle();
+      field.dispatch('compositionend');
+      const submit = mainOf(page).all('button').find((button) => button.textContent === '답변 보내기');
+      submit.focus(); await page.settle();
+      assert.equal(page.document.activeElement, mainOf(page).all('button').find((button) => button.textContent === '답변 보내기'));
+    } finally { page.close(); }
+  });
+
   test('an answer survives redraw when session storage is blocked', async () => {
     const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '처음 질문이에요.' };
     const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
@@ -521,6 +563,22 @@ describe('SCR-142', () => {
       await next.shell.pending.retry(next.shell.pending.recovered()[0]); await next.settle();
       assert.equal(mainOf(next).all('textarea')[0].value, '');
     } finally { next.close(); }
+  });
+
+  test('retrying a failed morning answer clears its matching in-memory draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    let fail = true;
+    const page = await openPage('/', { answers: (url, init) => init?.method === 'POST'
+      ? (fail ? new Error('lost') : json(201, {})()) : answers[url](url, init) });
+    try {
+      const field = mainOf(page).all('textarea')[0]; field.value = '답변'; field.dispatch('input');
+      mainOf(page).all('form')[0].dispatch('submit'); await page.settle();
+      assert.equal(page.shell.pending.recovered().length, 1);
+      fail = false;
+      await page.shell.pending.retry(page.shell.pending.recovered()[0]); await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '');
+    } finally { page.close(); }
   });
 
   test('a later question in the same thread does not reuse an earlier draft', async () => {

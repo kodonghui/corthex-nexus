@@ -212,7 +212,7 @@ function morningCard(entry, shell, titles = new Map(), number = 1) {
   } }) : null;
   if (field) field.value = getDraft();
   const choices = entry.kind === 'question' && path ? (entry.question_choices ?? []).map((choice, index) =>
-    h('button', { id: `${formId}-choice-${index}-${encodeURIComponent(choice.toWellFormed())}`, 'data-preserve-focus': 'true', type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
+    h('button', { id: `${formId}-choice-${index}-${Array.from(choice, (character) => character.codePointAt(0).toString(16)).join('_')}`, 'data-preserve-focus': 'true', type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
   const expanded = openAnswers.has(draftKey) ? openAnswers.get(draftKey) : Boolean(field?.value);
   if (expanded && !openAnswers.has(draftKey)) {
     if (openAnswers.size >= 5000) openAnswers.delete(openAnswers.keys().next().value);
@@ -224,7 +224,7 @@ function morningCard(entry, shell, titles = new Map(), number = 1) {
     if (!text) { notice.textContent = '답변을 적어 주세요.'; return; }
     if ([...text].length > 4000) { notice.textContent = '답변은 4,000자까지 쓸 수 있어요.'; return; }
     queue(path, { text }, field.value);
-  } } }, field, h('button', { type: 'submit', class: 'btn primary' }, '답변 보내기')) : null;
+  } } }, field, h('button', { id: `${formId}-submit`, 'data-preserve-focus': 'true', type: 'submit', class: 'btn primary' }, '답변 보내기')) : null;
   const writeOwn = form ? h('button', { id: `${formId}-toggle`, 'data-preserve-focus': 'true', type: 'button', class: 'btn tertiary', 'aria-expanded': expanded ? 'true' : 'false', 'aria-controls': formId, on: { click: () => {
     form.hidden = !form.hidden;
     if (!openAnswers.has(draftKey) && openAnswers.size >= 5000) openAnswers.delete(openAnswers.keys().next().value);
