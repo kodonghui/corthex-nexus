@@ -3,7 +3,7 @@
 // its work panel, its Selected panel and its keys meet a change; overlays.js reads what lies over the picture (API-265).
 //
 // - "AI 제안" (PC and phone): each proposal still proposed, with its kind, its text and its reason, and 수락 and 거절. Each asks
-//   once, "수락할까요?" or "거절할까요?" with 취소, before it is sent (API-270, API-271). A removed diagram's proposals
+//   once, then gives a ten-second Undo before sending (API-270, API-271). A removed diagram's proposals
 //   show 거절 only (SPEC-027). An accepted proposal stays there, "수락했어요. …" with 반영 대기, until it is reflected.
 // - "이 그림" while anything waits (SCR-145#waiting): 반영 대기 N, why confirming waits, the list of what waits (newest
 //   accepted first, as API-265 gives it), each direct edit with 편집 취소 (API-273), and the confirm button off. On a
@@ -25,7 +25,7 @@
 // What this module keeps is in the workbench's state of the diagram (state.changes), never in the browser's storage.
 
 import { changesHref, diagramApi, projectApi } from './address.js';
-import { newRequestKey } from './api.js';
+import { isRetryableOutcome, newRequestKey } from './api.js';
 import {
   changedSentence, changedSince, changedTag, CONFIRM_WORDS, isDrawn, liveConfirmation, moreChanges, panelRow, recordPullRequest,
   SHOWN_CHANGES,
@@ -50,7 +50,7 @@ export const CHANGE_WORDS = Object.freeze({
   confirm: '이 그림 확정하고 기록 요청',
   cancelEdit: '편집 취소',
   acceptedProposal: 'AI 제안 수락',
-  nameLabel: '이름 · F2 또는 100% 이상에서 두 번 누르기',
+  nameLabel: '이름',
   connect: '잇기',
   pick: '이을 요소를 고르세요.',
   connected: '이미 이어져 있어요.',
@@ -222,6 +222,13 @@ function drawLine(state) {
     fill(changes.line, h('div', { class: 'nt warn', role: 'alert' },
       h('div', { class: 'b' }, h('b', {}, shell.message(said.code)), kept === null ? null : h('span', {}, kept)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => readAgain(state) } }, CHANGE_WORDS.reload)));
+  } else if (said.kind === 'pending') {
+    fill(changes.line, h('div', { class: 'nt warn', role: 'status' }, '이 제안의 결정이 처리 중이에요. 위 안내를 확인해 주세요.'));
+  } else if (said.kind === 'storage') {
+    fill(changes.line, h('div', { class: 'nt warn', role: 'alert' }, '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.'));
+  } else if (said.kind === 'expired') {
+    fill(changes.line, h('div', { class: 'nt warn', role: 'alert' }, '오래된 결정은 다시 보내기 전에 그림의 현재 상태를 확인해 주세요.',
+      h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => readAgain(state) } }, CHANGE_WORDS.reload)));
   } else if (said.kind === 'refused') {
     // A request the server refuses as it is (400, 413): its message, and no 다시 시도, which would send it again.
     fill(changes.line,
@@ -306,7 +313,15 @@ function sinceParts(state, heading) {
   const before = () => h('span', { class: 'tag gray' }, CONFIRM_WORDS.notConfirmed);
   if (since === null) return [heading(before()), h('p', { class: 'sec' }, CONFIRM_WORDS.neverConfirmed)];
   const count = since.rows.length;
+  const visitable = since.rows.filter((row) => row.mark !== 'del');
+  const tour = visitable.length && state.selectChanged ? h('button', { type: 'button', class: 'btn tertiary', on: { click: () => {
+    const index = (state.changeTourIndex ?? -1) + 1;
+    state.changeTourIndex = index % visitable.length;
+    state.selectChanged(visitable[state.changeTourIndex].key);
+    drawChanges(state);
+  } } }, state.changeTourIndex === undefined ? '바뀐 곳 둘러보기' : `다음 바뀐 곳 (${state.changeTourIndex + 1}/${visitable.length})`) : null;
   const rows = count === 0 ? null : [
+    tour,
     h('ul', { class: 'chg' }, since.rows.slice(0, SHOWN_CHANGES).map(panelRow)),
     count > SHOWN_CHANGES ? h('a', { class: 'small', href: changesFor(state) }, moreChanges(count - SHOWN_CHANGES)) : null,
   ];
@@ -494,6 +509,8 @@ function answers(state, set) {
   const changes = state.changes;
   const id = `p-${set.id}`;
   const titled = set.change ? ` ${id}-title` : '';
+  const actionPath = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/accept`;
+  if (state.ctx.shell.pending?.hasTarget(actionPath)) return h('p', { role: 'status' }, '이 제안은 처리 중이에요. 위 안내를 확인해 주세요.');
   if (changes.asking?.id === set.id) {
     const { verb } = changes.asking;
     const yes = own(state, `${id}-yes`, h('button', {
@@ -521,10 +538,42 @@ function answers(state, set) {
 
 function ask(state, set, verb) {
   const changes = state.changes;
-  if (changes.busy !== null) return;
-  if (verb === 'accept' && state.ctx.data.diagram.removed) return;
-  changes.asking = { id: set.id, verb };
-  changes.focus = `p-${set.id}-stop`;
+  if (changes.busy !== null || (verb === 'accept' && state.ctx.data.diagram.removed)) return;
+  const path = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/${verb}`;
+  try {
+    if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+    let pendingKey = null;
+    const createdAt = Date.now();
+    const retry = async () => {
+      if (!state.live()) return;
+      if (state.ctx.shell.pending.hasOtherTarget(path, pendingKey)) {
+        changes.said = { kind: 'pending' }; drawLine(state); return;
+      }
+      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey)
+        ?? { key: pendingKey, path, body: {}, created_at: createdAt, state: 'unconfirmed' };
+      changes.said = { kind: 'pending' }; drawLine(state);
+      const result = await state.ctx.shell.pending.retry(item, hooks);
+      if (result?.failure === 'pending' && state.live()) { changes.said = { kind: 'pending' }; drawLine(state); }
+      if (result?.failure === 'expired' && state.live()) { changes.said = { kind: 'expired' }; drawLine(state); }
+    };
+    const hooks = {
+      active: () => state.live(),
+      done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
+      failed: (outcome) => {
+        if (!state.live()) return;
+        if (outcome.failure === 'expired') { changes.said = { kind: 'expired' }; drawLine(state); return; }
+        const again = isRetryableOutcome(outcome) ? retry : () => ask(state, set, verb);
+        met(state, outcome, { verb, retry: again, focus: 'proposals-heading' });
+      },
+      undone: () => { if (state.live()) drawChanges(state); },
+    };
+    pendingKey = state.ctx.shell.pending.enqueue(path, {}, hooks);
+  } catch (error) {
+    if (error.message === 'already pending') { drawChanges(state); return; }
+    changes.said = error.message === 'storage unavailable' ? { kind: 'storage' } : { kind: 'error', outcome: { failure: 'network' }, retry: () => ask(state, set, verb) };
+    drawChanges(state);
+    return;
+  }
   drawChanges(state);
 }
 
@@ -689,7 +738,7 @@ function drawName(state, element) {
     on: {
       input: () => typed(state, element, field),
       keydown: (event) => nameKey(state, element, field, event),
-      blur: () => left(state, element, field),
+      blur: (event) => { if (event.relatedTarget?.id !== 'save-element-name') left(state, element, field); },
     },
   });
   field.value = draft?.name ?? shown;
@@ -697,6 +746,10 @@ function drawName(state, element) {
   fill(changes.nameBox,
     h('label', { class: 'l', for: 'element-name' }, CHANGE_WORDS.nameLabel),
     field,
+    own(state, 'save-element-name', h('button', { type: 'button', class: 'btn tertiary', id: 'save-element-name',
+      'aria-disabled': off(state), on: { pointerdown: (event) => event.preventDefault(),
+        blur: () => left(state, element, field),
+        click: () => nameKey(state, element, field, { key: 'Enter', preventDefault() {} }) } }, '이름 고치기')),
     refused === null ? null : [
       // A div, not a p: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
       h('div', { class: 'err-text', id: 'element-name-err', role: 'alert' }, state.ctx.shell.message(refused.code)),

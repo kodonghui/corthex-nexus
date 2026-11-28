@@ -13,7 +13,7 @@ import { after, before, describe, test } from 'node:test';
 import { backupWarning } from '../src/backups.js';
 import { changeSetsChanged, confirmationsChanged, threadChanged } from '../src/entries.js';
 import { idOf } from '../src/ids.js';
-import { confirmReason } from '../src/owner.js';
+import { confirmReason, ownerTodo, questionChoices } from '../src/owner.js';
 import { ROUTES } from '../src/routes.js';
 import { openStore } from '../src/store.js';
 import { responseRecord } from './responses.js';
@@ -72,7 +72,7 @@ describe('the owner\'s projects and to-do', () => {
     assert.deepEqual(projects.json, { projects: [], backup: null });
     const entries = await todo();
     assert.equal(entries.status, 200);
-    assert.deepEqual(entries.json, { entries: [], backup: null });
+    assert.deepEqual(entries.json, { entries: [], morning: [], backup: null });
   });
 
   test('lists the projects newest send first, each with its head, what waits on the owner and its stages passed (SCR-143)', async () => {
@@ -97,25 +97,32 @@ describe('the owner\'s projects and to-do', () => {
     });
   });
 
-  test('lists the diagrams to confirm, the proposals to answer and the questions, newest first, per project (SPEC-042)', async () => {
+  test('returns oldest first and selects morning priorities before the list cap', async () => {
     const answer = await todo();
     assert.equal(answer.status, 200);
-    const { ids } = fixture;
-    const entry = (fields) => ({ thread: null, change_set: null, reason: null, ...fields });
-    assert.deepEqual(answer.json, {
-      entries: [
-        // alpha holds the newest entry, so it comes first, its entries newest first.
-        entry({ kind: 'question', project: 'alpha', part: 'nexus', stage: '03-user-flow', diagram: ids.flow, diagram_name: 'FL-001', thread: ids.question, since: at(50) }),
-        entry({ kind: 'proposal', project: 'alpha', part: 'nexus', stage: '05-erd', diagram: ids.erd, diagram_name: 'ERD', thread: ids.proposalThread, change_set: ids.proposal, since: at(40) }),
-        entry({ kind: 'confirm', project: 'alpha', part: 'nexus', stage: '03-user-flow', diagram: ids.flow, diagram_name: 'FL-001', reason: 'cancelled', since: at(30) }),
-        entry({ kind: 'confirm', project: 'alpha', part: 'nexus', stage: '05-erd', diagram: ids.erd, diagram_name: 'ERD', reason: 'invalidated', since: at(20) }),
-        entry({ kind: 'confirm', project: 'alpha', part: '', stage: '02-prd', diagram: ids.table, diagram_name: '02-prd', reason: 'new', since: at(10) }),
-        // Then bravo, whose newest entry is older than alpha's, though newer than most of them.
-        entry({ kind: 'question', project: 'bravo', part: '', stage: '05-erd', diagram: ids.bravoErd, diagram_name: 'ERD', thread: ids.bravoQuestion, since: at(45) }),
-        entry({ kind: 'confirm', project: 'bravo', part: '', stage: '05-erd', diagram: ids.bravoErd, diagram_name: 'ERD', reason: 'new', since: at(5) }),
-      ],
-      backup: null,
-    });
+    const { entries, morning } = answer.json;
+    assert.equal(entries.length, 7);
+    assert.deepEqual(entries.map((entry) => entry.since), [at(5), at(10), at(20), at(30), at(40), at(45), at(50)]);
+    assert.deepEqual(morning.map((entry) => entry.kind), ['proposal', 'question', 'question', 'confirm', 'confirm']);
+    assert.equal(morning[0].change_set, fixture.ids.proposal);
+    assert.equal(morning[1].question_text, 'Should this table keep its last use?');
+  });
+
+  test('only explicit unchecked choices are exposed as answer buttons', () => {
+    assert.deepEqual(questionChoices('Choose one\n- [ ] Three days\n- [ ] Seven days'), ['Three days', 'Seven days']);
+    assert.deepEqual(questionChoices('Steps\n1. Gather items\n2. Review'), []);
+    assert.deepEqual(questionChoices('- [ ] Just one'), []);
+    assert.deepEqual(questionChoices('Choose one\n- [ ] Short\n- [ ] Another\n- [ ] ' + 'x'.repeat(201)), []);
+  });
+
+  test('an unrecognized stage cannot consume a morning slot or the inbox cap', () => {
+    const project = s.project('unknown-stage');
+    const diagram = s.diagram(project, { stage: '14-other' });
+    sync(confirmationsChanged, project, { diagram: diagram.id }, at(1));
+    const result = ownerTodo(db);
+    assert.ok(result.morning.every((entry) => entry.stage !== '14-other'));
+    assert.ok(result.entries.every((entry) => entry.stage !== '14-other'));
+    db.prepare('DELETE FROM project_spaces WHERE id = ?').run(project.id);
   });
 
   test('a confirm entry says why the diagram waits: never confirmed, invalidated or cancelled', () => {
@@ -134,11 +141,11 @@ describe('the owner\'s projects and to-do', () => {
     const proposal = s.changeSet(space, erd, { origin: 'proposal', threadId: proposalThread });
     sync(changeSetsChanged, space, { diagram: erd.id }, at(102));
     const kinds = async () => (await todo()).json.entries.filter((each) => each.project === 'foxtrot').map((each) => each.kind);
-    assert.deepEqual(await kinds(), ['proposal', 'question', 'confirm']);
+    assert.deepEqual(await kinds(), ['confirm', 'question', 'proposal']);
 
     s.removeDiagram(erd.id);
     sync(confirmationsChanged, space, { diagram: erd.id }, at(103));
-    assert.deepEqual(await kinds(), ['proposal', 'question']);
+    assert.deepEqual(await kinds(), ['question', 'proposal']);
     const listed = (await list()).json.projects.find((project) => project.name === 'foxtrot');
     assert.equal(listed.owner_todo, 2);
     assert.ok((await todo()).json.entries.some((each) => each.change_set === idOf('np', proposal)));
@@ -180,7 +187,7 @@ describe('the owner\'s projects and to-do', () => {
     assert.deepEqual(backupWarning(store), { failed_at: '2026-11-22T00:30:00.000Z', last_succeeded_at: null });
   });
 
-  test('lists at most 1000 projects and the newest 5000 entries', async () => {
+  test('lists at most 1000 projects and the oldest 5000 entries', async () => {
     const space = s.project('golf');
     const erd = s.diagram(space);
     const insert = db.prepare(
@@ -190,16 +197,18 @@ describe('the owner\'s projects and to-do', () => {
       "INSERT INTO project_spaces (name, created_at, created_by_credential) VALUES (?, '2026-11-23T00:00:00.000Z', ?)",
     );
     db.exec('BEGIN');
-    // Newer than every other entry, the oldest of them first.
-    for (let i = 0; i < 5001; i += 1) insert.run(space.id, erd.id, new Date(Date.parse('2026-12-01T00:00:00.000Z') + i * 1000).toISOString());
+    // Older than existing questions, so priority selection must look beyond the full-list cap.
+    for (let i = 0; i < 5001; i += 1) insert.run(space.id, erd.id, new Date(Date.parse('2026-01-01T00:00:00.000Z') + i * 1000).toISOString());
     for (let i = 0; i < 1000; i += 1) spaces.run(`unsent-${String(i).padStart(4, '0')}`, s.agent.key);
     db.exec('COMMIT');
     try {
-      const entries = (await todo()).json.entries;
+      const answer = (await todo()).json;
+      const entries = answer.entries;
       assert.equal(entries.length, 5000);
       assert.ok(entries.every((each) => each.project === 'golf'));
-      assert.equal(entries[0].since, new Date(Date.parse('2026-12-01T00:00:00.000Z') + 5000 * 1000).toISOString());
-      assert.equal(entries.at(-1).since, new Date(Date.parse('2026-12-01T00:00:00.000Z') + 1000).toISOString());
+      assert.equal(entries[0].since, '2026-01-01T00:00:00.000Z');
+      assert.ok(answer.morning.some((each) => each.project === 'alpha' && each.kind === 'proposal'));
+      assert.deepEqual(entries.map((each) => each.since), entries.map((each) => each.since).sort());
       const projects = (await list()).json.projects;
       assert.equal(projects.length, 1000);
       assert.equal(projects.find((project) => project.name === 'golf').owner_todo, 5001);

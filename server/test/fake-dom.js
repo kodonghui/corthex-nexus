@@ -141,6 +141,10 @@ class FakeStorage {
     this.entries = new Map(Object.entries(entries));
   }
 
+  get length() { return this.entries.size; }
+
+  key(index) { return [...this.entries.keys()][index] ?? null; }
+
   getItem(key) {
     return this.entries.has(key) ? this.entries.get(key) : null;
   }

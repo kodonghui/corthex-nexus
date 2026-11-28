@@ -204,3 +204,7 @@ A removed diagram keeps what waits on it: it stays listed and opens while it has
 ### Item 242: attribution in existing detail objects (2026-11-28)
 
 TBL-156 keeps the authenticated external-evidence submitter's credential ID and name in `evidence_reported_by`; on threads with external evidence, TBL-172 resolution detail can keep the authenticated resolving credential in `resolved_by` and the server-generated `request_id`. These are members of existing JSON objects, with no table, column, constraint or migration change. The source comments now describe these members; TBL-172 retains the rule that a link alone does not prove a decision was recorded. The pinned ERD picture was regenerated from the source. The checkpoint delegate conveyed this item 242 clarification on 2026-11-28.
+
+## Item 240
+
+Item 240 makes no schema change. The ten-second undo is held by the client; confirmation blocking remains unchanged. The checkpoint delegate approved this stage difference on 2026-11-28; the answer is in the project records.

@@ -19,8 +19,9 @@
 //   and an element's key only as a hash, so no text of a document is kept.
 
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
-import { newRequestKey, read } from './api.js';
+import { isRetryableOutcome, newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
+import { UNDO_MS } from './pending-actions.js';
 import { exactExternalAnswer, sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
@@ -475,7 +476,8 @@ function textForm(state, { id, what, label, placeholder, action }) {
     event?.preventDefault?.();
     const text = field.value ?? '';
     keepText(state, what, text);
-    write(state, what, text, action);
+    // A main-button submission after an uncertain reply must also reuse its saved key.
+    write(state, what, text, action, what.startsWith('reply ') ? error?.kept ?? null : null);
   };
   return h('form', { class: 'th-form', novalidate: true, on: { submit } },
     h('label', { class: 'l', for: id }, label),
@@ -521,7 +523,8 @@ function errorOf(state, what, error, id) {
   const { shell } = state.ctx;
   if (error.by === 'field') {
     // A div, not a p, as in projects.js: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
-    return h('div', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null);
+    return h('div', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null,
+      error.kept ? h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => write(state, what, textOf(state, what), error.action, error.kept) } }, '다시 시도') : null);
   }
   if (error.by === 'gone') {
     return h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, shell.message(error.code))),
@@ -547,6 +550,69 @@ async function write(state, what, text, action, kept = null) {
     return;
   }
   const { path, body, done } = action(text);
+  if (what.startsWith('reply ') && kept !== null) {
+    const pending = state.ctx.shell.pending;
+    const conflict = pending?.hasOtherTarget(path, kept.key);
+    // Dismissing the recovery notice permits a different answer to enter a fresh undo window.
+    if (pending && text !== kept.text && !conflict && pending.wasDiscarded(kept.key)) {
+      t.errors.delete(what);
+      return write(state, what, text, action);
+    }
+    if (!pending || text !== kept.text || conflict) {
+      const message = !pending ? '전송 준비를 할 수 없어요. 화면을 다시 열고 대화를 확인해 주세요.'
+        : conflict ? '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.'
+          : '이전 답변의 전송 결과가 확인되지 않았어요. 대화를 확인하고 이전 답변으로 되돌린 뒤 다시 시도해 주세요.';
+      t.errors.set(what, { by: 'field', text: message, action, kept: pending ? kept : null });
+      redraw(state, what);
+      return;
+    }
+    const item = pending.recovered().find((candidate) => candidate.key === kept.key)
+      ?? { key: kept.key, path, body, draft: draftKey(state.ctx.data.diagram, what), created_at: kept.created_at, state: 'unconfirmed' };
+    t.errors.delete(what);
+    t.sending.add(what);
+    redraw(state, what);
+    const result = await pending.retry(item, {
+      active: () => t.host.live(),
+      done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
+      failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome, kept.created_at); },
+    });
+    if (result?.failure === 'pending') {
+      t.sending.delete(what);
+      if (t.host.live()) { t.errors.set(what, { by: 'field', text: '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.', action, kept }); redraw(state, what); }
+    }
+    if (result?.failure === 'expired') {
+      t.sending.delete(what);
+      if (t.host.live()) { t.errors.set(what, { by: 'field', text: '오래된 답변은 다시 보내기 전에 대화의 현재 내용을 확인해 주세요.' }); redraw(state, what); }
+    }
+    return;
+  }
+  if (what.startsWith('reply ') && kept === null) {
+    try {
+      if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+      t.errors.delete(what);
+      t.sending.add(what);
+      const createdAt = Date.now();
+      const clear = () => { t.sending.delete(what); if (t.host.live()) redraw(state, what); };
+      state.ctx.shell.pending.enqueue(path, body, {
+        draft: draftKey(state.ctx.data.diagram, what),
+        active: () => t.host.live(),
+        done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
+        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome, createdAt); },
+        undone: clear,
+      });
+      redraw(state, what);
+    } catch (error) {
+      t.sending.delete(what);
+      if (error.message === 'already pending') {
+        t.errors.set(what, { by: 'field', text: '이 답변은 처리 중이에요. 위 안내를 확인해 주세요.' });
+        redraw(state, what);
+        return;
+      }
+      t.errors.set(what, { by: 'field', text: error.message === 'storage unavailable' ? '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.' });
+      redraw(state, what);
+    }
+    return;
+  }
   const key = kept !== null && kept.text === text ? kept.key : newRequestKey();
   t.errors.delete(what);
   t.sending.add(what);
@@ -554,9 +620,19 @@ async function write(state, what, text, action, kept = null) {
   const outcome = await state.ctx.shell.write('POST', path, body, key);
   t.sending.delete(what);
   if (!t.host.live()) return;
+  finishWrite(state, what, text, action, done, key, outcome);
+}
+
+function finishWrite(state, what, text, action, done, key, outcome, createdAt = null) {
+  const t = state.threads;
   const { status, code = null, failure } = outcome;
   if (status === 200 || status === 201) {
     done(outcome.body);
+    return;
+  }
+  if (failure === 'expired') {
+    t.errors.set(what, { by: 'field', text: '오래된 답변은 다시 보내기 전에 대화의 현재 내용을 확인해 주세요.' });
+    redraw(state, what);
     return;
   }
   // A 401 or a 403 went through the permission rule, which took the page; the text stays kept in this tab.
@@ -576,7 +652,11 @@ async function write(state, what, text, action, kept = null) {
   else if (!closing(what) && (status === 400 || status === 413 || (status === 409 && code === 'request_key_reused'))) {
     t.errors.set(what, { by: 'field', text: shell.message(code), limit: code === 'text_too_long' || code === 'body_too_large' });
   } else {
-    const retry = failure === 'timeout' || failure === 'network' ? { key, text } : null;
+    let stored = null;
+    if (what.startsWith('reply ')) {
+      try { stored = state.ctx.shell.pending?.recovered().find((item) => item.key === key) ?? null; } catch { /* The draft and error remain available. */ }
+    }
+    const retry = isRetryableOutcome(outcome) ? { key, text, created_at: stored?.created_at ?? (Number.isFinite(stored?.expires_at) ? stored.expires_at - UNDO_MS : createdAt) } : null;
     t.errors.set(what, { by: 'notice', outcome, action, kept: retry });
   }
   redraw(state, what);
@@ -653,7 +733,7 @@ function replyOf(state, id, text) {
       brief(state, id, summary, added);
       if (t.shown === id && (t.thread === null || pendingRead || gap)) readThread(state, id);
       else if (pendingRead || diagram !== state.ctx.data.diagram || (listed && added > 1)) refreshAfterClose(state, id);
-      keepText(state, `reply ${id}`, '');
+      if (textOf(state, `reply ${id}`) === text) keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
     },

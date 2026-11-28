@@ -178,6 +178,52 @@ Resolved conversations could not be reopened → added the result, record link a
 - A local synthetic v3 browser walk at 360 × 800 showed the source, timestamp and both original-text lines; reopening changed the conversation to waiting on the agent and kept the evidence visible. It used a test issuer and simulated data; a real person's comprehension and production outcome remain to be checked.
 - Safety review found that a rejection could be mistaken for an approval → only an external answer matching the decision, allowing whitespace runs and final sentence punctuation differences, supports automatic resolution; otherwise show a bot summary request with the unchanged original and offer the owner one-click confirmation and close → focused tests cover a rejection, a short affirmative and the phone button → the tests do not establish a human comprehension pass → test with a real owner after release.
 
+## Item 240 — local comparison (2026-11-28)
+
+A synthetic single-project fixture was opened locally in headless Chromium at 1440 pixels. From the first screen, confirming the same drawn diagram took three clicks on the baseline (open the newest question's diagram, choose confirm, confirm again) and two on the working tree (open the card's preview, confirm again). The local API showed the confirmation as confirmed after the working-tree attempt; its first render did not provide a success message, so the working tree was amended to show one and needs a repeat check. Answering the fixture question took three clicks on the baseline (open its thread, focus the reply, send) and one on the working tree (choose an explicit option); the latter was queued for ten seconds, not yet sent, at the measured endpoint. Typing itself is not a click. The fixture is not a usability study.
+
+A first 360-pixel render had no page-level horizontal overflow; the 13-step line is horizontally scrollable. A question pin on a synthetic positioned element opened its thread. At that point the changed-place edit task, complete phone walk, contrast and target-size checks had not yet been measured; subsequent checks are recorded below. Every screen state and a complete phone walk remain unmeasured.
+
+For the project progress summary in the same local fixture, the baseline took one click from home to the project, while the working tree showed the 13-step line on home with zero clicks. The baseline's individual stage groups were collapsed, so this is a comparison of reaching the summary, not a measurement of opening every stage. The working-tree line requires horizontal scrolling to reach its far end at narrower widths.
+
+A separate local browser check selected an answer, closed the tab during the undo window and then read the local API; the question had left the owner to-do. This covers that one normal tab-close path. A browser process terminated without a pagehide instead left an unconfirmed-action notice on the next visit; that case does not establish whether the server received the request.
+
+Stage 01 difference: no domain rule changes. The morning priority only orders existing owner work; questions and proposals do not gain a new confirmation-blocking effect, and SPEC-029 remains the confirmation gate.
+
+A later synthetic changed-diagram fixture exercised editing an added element. The baseline took three clicks: open the question's diagram, select the marked element, and focus its name; pressing Enter saved the typed edit. The working tree took four: open the diagram, start the change tour, focus the selected name, and click “Edit name”; the local API showed the direct edit waiting for reflection. This measures one known element and excludes typing and the baseline Enter key. The tour adds a click here, while the explicit save button makes the action visible; neither result establishes whether a first-time user can complete it unaided.
+
+The CORTHEX page checker on the local morning report's normal state reported zero errors, warnings and informational findings at both 1440 and 360 pixels after the mobile theme control was widened. This is a measurement of that state only; it does not cover the other screens or states.
+
+After adding the success message, the local confirmation path was repeated: two clicks produced the visible confirmed message. The one-click answer reached the queued state in the same repeat; delivery was not the endpoint of that count.
+
+The extra click came from focusing the selected name after starting the tour. The tour now focuses and selects that field on a PC. Repeating the same local edit took three clicks and the API showed the direct edit waiting for reflection: open the diagram, start the tour, then save the typed name. This matches the baseline's three mouse clicks while keeping an explicit save button; typing and the baseline Enter key are excluded in both counts.
+
+The workbench's selected-thread state initially reported two placeholder contrast errors at both widths and small controls. The placeholder now uses the secondary text token; the numbered pin, small buttons, zoom controls and breadcrumb link have larger targets. Rechecking the same local state with desktop and touch emulation reported zero errors, warnings and informational findings at 1440 and 360 pixels. This is not a check of every workbench state.
+
 ## Item 240 — selected mockup (2026-11-28)
 
 The selected combination brings the morning report, inbox, numbered question pins, changes tour and 13-step timeline together. The normal home state was checked locally at desktop and phone widths; this does not establish that every state or a first-time person’s tasks have been checked.
+
+The implementation review found recovery and redraw gaps: definite refusals now remain visible without blocking a new attempt, uncertain replies retry with their original request key, drafts survive a redraw, the confirmation preview can be retried and reread, and the inbox renders in batches. The same review noted that API-263's independent morning selection and comment lookups may be expensive on a large backlog. Measure this with representative data and consider an equivalent query as a next candidate; selecting from only the first 5,000 oldest entries would miss a higher-priority item beyond that cap.
+
+The selected mockup keeps the existing stage-09 diagram key, so its diagram conversations keep their target. Its token list differs from the earlier 39-state page; conversations attached to token keys the selected page no longer reads may be shown as attached to removed elements. Check that history during a later authorized rollout; the local synthetic fixture does not establish what exists in production.
+
+A later mockup review also noted duplicated supplied reference fonts and the copied standalone combination page. Measure whether the reference assets can share one copy without breaking the archived HTML, and whether a single source can produce both the stage page and the stage-09 review page; keep the standalone sandbox constraint in that evaluation.
+
+A further mockup review raised a possible double announcement when a live status is also focused. This has not been reproduced with a screen reader; check it, the new direction's remaining states, and real first-time users as follow-up work.
+
+The next implementation review also raised possible cost from rereading browser storage for each proposal and maintenance drift between the timeline's plain-language names and the stage registry. Measure the former with many proposals and consider a shared stage-label source in a later change; neither was measured as a current user-visible failure.
+
+The mockup review also raised unverified focus and announcement ordering when the preview changes to a restricted state during a pending timer, and a possible duplicate announcement when the last decision finishes after confirmation. Check these sequences with assistive technology in the later full-state mockup pass.
+
+The final mockup follow-up review found no defect in hiding an answered pin or keeping the pending confirmation in the inbox. It raised unverified demo focus behavior when a mouse or keyboard user reaches confirmation from the inbox, and the lack of a repeatable browser test for those mockup interactions; the local Chromium checks were manual. Include these in the later full-state and assistive-technology pass.
+
+A review also noted that failed action notices can accumulate until the owner dismisses them. They are retained to avoid silently losing an unsent answer; consider a clearer way to manage many notices without discarding their contents.
+
+The final recovery review found that overlapping retries could leave a reply marked busy or race an opposite proposal decision. The queue now reports the existing in-flight action, blocks a different decision on the same target, and never bypasses the ten-second queue for a changed reply. The new focused checks simulate these races; they are not a substitute for a real person's use.
+
+If browser storage is blocked or full, the ten-second queue cannot keep its recovery promise and does not send the action; the screen explains why. An accessible recovery path for that case is a candidate for the next pass. The same review also flagged repeated storage scans, a possible large-inbox payload cost, and duplicated confirmation eligibility logic as follow-up work.
+
+The cross-tab recovery tests cover stale notices and a second tab sending during the undo window. They do not establish atomic behavior when two tabs act at exactly the same instant or when the system clock changes abruptly; stronger cross-tab coordination is a follow-up candidate.
+
+The six-day recovery limit protects the new queued answers and proposal decisions and the morning confirmation retry. A review also found that older direct-edit and other thread retry paths can retain keys past the server's seven-day window; bringing those existing paths under the same limit is a separate follow-up.

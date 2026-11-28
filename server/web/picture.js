@@ -15,6 +15,7 @@
 // of element key to the name it is shown by), nodes (a Map that each chosen thing's node goes into, by key) }.
 
 import { h, s } from './dom.js';
+import { stageHref } from './address.js';
 import { emptyStageGuidance } from './guidance.js';
 import { aiBadge, ghostCap, KIND_WORDS, markChips, nameWith, overClasses } from './overlays.js';
 import { endsOf, straight } from './relayout.js';
@@ -147,6 +148,16 @@ function svgPicture(view) {
     const points = straight(from, to);
     layers.over.push(s('path', { class: link.waiting ? 'ov-link wait' : 'ov-link', d: pathOf(points) }), s('path', { class: 'ov-head', d: headOf(points) }));
   }
+  const questions = (diagram.threads ?? []).filter((thread) => thread.state === 'open' && thread.waits_on === 'owner' && place.boxes.has(thread.element));
+  const used = new Map();
+  questions.forEach((thread, index) => {
+    const box = place.boxes.get(thread.element);
+    const offset = used.get(thread.element) ?? 0;
+    used.set(thread.element, offset + 1);
+    layers.over.push(s('foreignObject', { x: box.x + box.width - 40 - offset * 48, y: box.y - 16, width: 48, height: 48 },
+      h('a', { class: 'question-pin', href: stageHref(diagram.project, diagram.part ?? '', diagram.stage, { diagram: diagram.id, thread: thread.id }),
+        'aria-label': `질문 ${index + 1} 열기` }, String(index + 1))));
+  });
   const svg = s('svg', {
     class: `pic k-${diagram.kind}`, width: width * (view.zoom ?? 1), height: height * (view.zoom ?? 1), viewBox: `${x} ${y} ${width} ${height}`,
   }, layers.back, layers.lines, layers.boxes, layers.moved, layers.over);

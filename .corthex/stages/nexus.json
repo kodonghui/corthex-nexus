@@ -107,6 +107,11 @@
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: morning report and the ten-second undo for proposal decisions on PC and phone; confirmation retains a second question. Each affected approved item was answered separately, 2026-11-28. The answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
@@ -157,6 +162,11 @@
         },
         {
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: morning report entry, proposal undo and confirmation preview; each affected approved item was answered separately, 2026-11-28. The answer is in the project records. FL-008 wording follows the previously approved phone decision; the correction was confirmed through the checkpoint delegate on 2026-11-28.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }
@@ -328,6 +338,11 @@
           "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule. The delegate confirmed the choice-mismatch follow-up in an Orca reply; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: morning cards, oldest-first inbox and proposal undo; confirmation blocking stays as SPEC-029. Each affected approved item was answered separately, 2026-11-28. The answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -428,6 +443,11 @@
         },
         {
           "approved": "Item 242 audit clarification: existing comment and resolution-event detail objects retain the authenticated evidence submitter, resolving credential and server-generated request ID. No schema or migration changes. The checkpoint delegate conveyed the maintainer’s decision in an Orca reply.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: no schema change for the client-side undo. Approval through the checkpoint delegate, 2026-11-28. The answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }
@@ -654,6 +674,11 @@
           "approved": "Item 242 known-risk decision: retain automatic conversation resolution from agent-attested external answers, record the triggering credential and server-generated request ID in the existing audit history, and expose the submitting and resolving credentials. Resolution does not approve a drawing, proposal or stage; reopening remains available. The checkpoint delegate conveyed the maintainer’s risk acceptance in an Orca reply.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: API-263 provides a separately prioritized morning selection, oldest-first to-do, question and proposal content; API-270 and API-271 remain unchanged. Approved through the checkpoint delegate, 2026-11-28. The answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -724,6 +749,11 @@
         },
         {
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: the morning report opens at SCR-142; the full to-do and project list remain available. Approved through the checkpoint delegate, 2026-11-28. The answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }
@@ -923,6 +953,11 @@
           "approved": "Item 242 known-risk decision: show the credential that supplied external evidence and the credential that resolved the conversation, retaining the latter after reopening. The checkpoint delegate conveyed the maintainer’s decision in an Orca reply.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 240: morning cards, ten-second client-side undo with send on leaving, confirmation preview and second question, and the phone edit restriction. Approved through the checkpoint delegate, 2026-11-28. The answer is in the project records. The SCR-145 proposal and phone wording follows the previously approved decision; the correction was confirmed through the checkpoint delegate on 2026-11-28.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
@@ -1082,6 +1117,11 @@
           "approved": "TASK-470 added, and the maintainer's answers for TASK-463 and TASK-465 named, on pull request 162 at its record commit. On stage 01, and on a stage-05 or 07 drawing from several files, a proposal's source_text makes no changes, since it names no path; the maintainer decided directly on 2026-11-24 to make the hub send the path and publish it with hub 0.6.0 at the deploy. TASK-470 (Must, L, after TASK-438 and TASK-466, before TASK-464) gives API-256 a source_path by a stage-06 correction asked on its own, and NEXUS reads stage 01's Markdown itself. Five rules were asked with it, each answered on its own: source_path is optional; a drawing from several files sent with no path is refused as invalid_request; a path naming no file the drawing reads is refused; the path is not kept; the stage-01 reader is inside TASK-470. The maintainer approved the recommendations through the delegate they named for checkpoints; the answer is in the project's records. TASK-463 and TASK-465 now name the maintainer's own answers of 2026-11-24 (v3 first at a new address, v2 turned off once v3 is confirmed; v2's data kept with its backup, nothing deleted), which were asked of the maintainer directly.",
           "by": "the maintainer",
           "date": "2026-11-24"
+        },
+        {
+          "approved": "Item 240: TASK-475 remains a historical completion record, with TASK-476 to TASK-479 for the selected combination. The checkpoint delegate approved this treatment on 2026-11-28; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 11 starts with TASK-413, the server skeleton, by a Claude worker; questions 5 and 6 go to the maintainer directly at TASK-463 and TASK-465, and question 7 before TASK-467",

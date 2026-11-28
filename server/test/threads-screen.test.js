@@ -18,7 +18,7 @@ import { listedResponses, responseRecord } from './responses.js';
 import { GATE, json, message, openPage, problem } from './screen-page.js';
 import { seed } from './seed.js';
 import { FORMAT_03, repositorySnapshot } from './snapshots.js';
-import { localGate, startServer } from './support.js';
+import { localGate, startServer, waitFor } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
 const { WORKBENCH_WORDS } = await import('../web/workbench.js');
@@ -162,13 +162,14 @@ function written(path, body) {
 
 // Opens which's stage with answers by path, the writes answered by posts (a function of the path, the body and the
 // key); every write is kept in page.sent as { path, body, key }.
-async function openStage(which, { search = '', more = {}, posts = written, phone = false, session = {}, answers = null } = {}) {
+async function openStage(which, { search = '', more = {}, posts = written, phone = false, session = {}, local = {}, answers = null } = {}) {
   const known = answersOf(more);
   const sent = [];
   const page = await openPage(`/p/${P}/_/${STAGE[which]}`, {
     search,
     phone,
     session,
+    local,
     answers: (path, init) => {
       if (init?.method === 'POST') {
         const body = JSON.parse(init.body);
@@ -466,6 +467,21 @@ describe('SCR-145 threads', () => {
     } finally {
       page.close();
     }
+  });
+
+  test('text typed after sending a reply remains in the draft when the earlier reply succeeds', async () => {
+    let release;
+    const page = await openStage('erd', { posts: (path, body) => new Promise((resolve) => { release = () => resolve(written(path, body)); }) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '첫 답변'; field.dispatch('input'); formOf(field).dispatch('submit');
+      await waitFor(() => typeof release === 'function');
+      fieldOf(page, 'th-reply').value = '이어 적은 글'; fieldOf(page, 'th-reply').dispatch('input');
+      release(); await page.settle();
+      assert.equal(fieldOf(page, 'th-reply').value, '이어 적은 글');
+      assert.equal(drafts(page)[0][1], '이어 적은 글');
+    } finally { page.close(); }
   });
 
   test('a new comment goes on the element, the row or the diagram, at the drawing shown, and opens its thread', async () => {
@@ -1374,20 +1390,127 @@ describe('SCR-145 threads', () => {
       await send(page, 'th-reply', '다시 보내요.');
       const thread = shownThread(page);
       assert.deepEqual(textsIn(thread, 'b'), [message('internal')]);
+      fail = false;
       buttonOf(thread, '다시 시도').click();
       await page.settle();
       assert.equal(page.sent[1].key, page.sent[0].key);
-      // The text changed: another body takes another key.
-      fieldOf(page, 'th-reply').value = '고쳐서 보내요.';
-      fieldOf(page, 'th-reply').dispatch('input');
-      fail = false;
-      buttonOf(shownThread(page), '다시 시도').click();
-      await page.settle();
+      assert.equal(page.shell.pending.recovered().length, 0);
+      await send(page, 'th-reply', '고쳐서 보내요.');
       assert.deepEqual([page.sent[2].body.text, page.sent[2].key !== page.sent[0].key], ['고쳐서 보내요.', true]);
       assert.equal(shownThread(page).all('div', 'cmt').length, 3);
     } finally {
       page.close();
     }
+  });
+
+  test('a reply retry keeps its key when its recovery marker was dismissed', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const item = page.shell.pending.recovered()[0];
+      assert.equal(page.shell.pending.discard(item), true);
+      fail = false;
+      buttonOf(shownThread(page), '다시 시도').click(); await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
+  test('a changed reply after dismissing recovery enters a new undo window', async () => {
+    const page = await openStage('erd', { posts: () => new Error('lost') });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      fieldOf(page, 'th-reply').value = '다른 답변'; fieldOf(page, 'th-reply').dispatch('input');
+      buttonOf(shownThread(page), '다시 시도').click(); await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.notEqual(page.sent[1].key, page.sent[0].key);
+      assert.equal(page.sent[1].body.text, '다른 답변');
+    } finally { page.close(); }
+  });
+
+  test('the main send button retries an uncertain reply with its original key', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      fail = false;
+      formOf(fieldOf(page, 'th-reply')).dispatch('submit'); await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
+  test('a global successful reply retry clears its draft and error without sending twice', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      fail = false;
+      await page.shell.pending.retry(page.shell.pending.recovered()[0]); await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(fieldOf(page, 'th-reply').value, '');
+      assert.deepEqual(drafts(page), []);
+      assert.equal(buttonOf(shownThread(page), '다시 시도'), undefined);
+      assert.equal(page.shell.pending.recovered().length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a reply recovered after reopening clears the matching draft in that tab', async () => {
+    const first = await openStage('erd', { posts: () => new Error('lost') });
+    let session; let local;
+    try {
+      pictureButton(first, 'tbl', 'agent_credentials').click(); await first.settle();
+      await send(first, 'th-reply', '기존 답변');
+      session = Object.fromEntries(first.session.entries);
+      local = Object.fromEntries(first.local.entries);
+    } finally { first.close(); }
+    const next = await openStage('erd', { session, local });
+    try {
+      assert.equal(drafts(next).length, 1);
+      await next.shell.pending.retry(next.shell.pending.recovered()[0]); await next.settle();
+      assert.deepEqual(drafts(next), []);
+      assert.equal(next.sent.length, 1);
+    } finally { next.close(); }
+  });
+
+  test('a joined successful reply retry clears the original draft without sending twice', async () => {
+    let calls = 0, release;
+    const page = await openStage('erd', { posts: (path, body) => {
+      calls += 1;
+      return calls === 1 ? new Error('lost') : new Promise((resolve) => { release = () => resolve(written(path, body)); });
+    } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      buttonOf(shownThread(page), '다시 시도').click();
+      release(); await inflight; await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(fieldOf(page, 'th-reply').value, '');
+      assert.equal(page.shell.pending.recovered().length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a simultaneous reply retry does not leave the reply box busy', async () => {
+    let calls = 0, release;
+    const page = await openStage('erd', { posts: () => {
+      calls += 1;
+      return calls === 1 ? new Error('lost') : new Promise((resolve) => { release = () => resolve(problem(500, 'internal')()); });
+    } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      buttonOf(shownThread(page), '다시 시도').click();
+      release(); await inflight; await page.settle();
+      assert.ok(buttonOf(shownThread(page), '다시 시도'));
+      assert.equal(page.sent.length, 2);
+    } finally { page.close(); }
   });
 
   test('a thread\'s text, quote and links go in as text, and only an https address becomes a link', async () => {
@@ -1679,6 +1802,7 @@ describe('SCR-145 threads against the server', () => {
         const page = await openOn(`?d=${erd.id}&thread=${open.id}`);
         try {
           await send(page, id, '페이지에서 단 답');
+          await waitFor(() => textsIn(shownThread(page), 'span', 'tx').at(-1) === '페이지에서 단 답');
           assert.deepEqual(textsIn(shownThread(page), 'span', 'tx').at(-1), '페이지에서 단 답');
           assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
         } finally {

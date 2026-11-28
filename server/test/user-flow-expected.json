@@ -766,12 +766,12 @@
    {
     "key": "C",
     "kind": "step",
-    "name": "Show projects and counts",
+    "name": "Show the morning report",
     "parent": null,
     "detail": {
      "id": "C",
      "lines": [
-      "Show projects and counts"
+      "Show the morning report"
      ],
      "ids": [
       "REQ-052",
@@ -781,9 +781,9 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:13",
      "box": {
-      "x": 753.25,
+      "x": 756.75,
       "y": 332,
-      "width": 197,
+      "width": 190,
       "height": 64
      }
     }
@@ -1093,13 +1093,13 @@
    {
     "key": "Q",
     "kind": "step",
-    "name": "Open the newest question and its reply",
+    "name": "Act on a card or open the full to-do",
     "parent": null,
     "detail": {
      "id": "Q",
      "lines": [
-      "Open the newest question",
-      "and its reply"
+      "Act on a card or open",
+      "the full to-do"
      ],
      "ids": [
       "REQ-052"
@@ -1108,9 +1108,9 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:26",
      "box": {
-      "x": 997,
+      "x": 1007.5,
       "y": 608,
-      "width": 197,
+      "width": 176,
       "height": 84
      }
     }
@@ -1304,13 +1304,13 @@
    {
     "key": "Q0->Q",
     "kind": "arrow",
-    "name": "newest question",
+    "name": "card or full to-do",
     "parent": "Q0",
     "detail": {
      "id": "e22",
      "from": "Q0",
      "to": "Q",
-     "label": "newest question",
+     "label": "card or full to-do",
      "line": "pass",
      "where": "docs/03-user-flow/FL-002-read-a-stage-from-the-to-do.md:33",
      "points": [
@@ -1334,7 +1334,7 @@
      "label_box": {
       "x": 1101.5,
       "y": 564,
-      "width": 116,
+      "width": 138,
       "height": 20
      }
     }
@@ -1966,7 +1966,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:11",
      "box": {
-      "x": 283.5,
+      "x": 234.75,
       "y": 0,
       "width": 232,
       "height": 84
@@ -1991,7 +1991,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:12",
      "box": {
-      "x": 308,
+      "x": 259.25,
       "y": 132,
       "width": 183,
       "height": 84
@@ -2016,7 +2016,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:13",
      "box": {
-      "x": 233.5,
+      "x": 184.75,
       "y": 284,
       "width": 332,
       "height": 166
@@ -2038,7 +2038,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:14",
      "box": {
-      "x": 407.75,
+      "x": 359,
       "y": 518,
       "width": 235,
       "height": 118
@@ -2088,7 +2088,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:16",
      "box": {
-      "x": 673.75,
+      "x": 717.75,
       "y": 704,
       "width": 212,
       "height": 84
@@ -2110,7 +2110,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:17",
      "box": {
-      "x": 633.75,
+      "x": 677.75,
       "y": 878,
       "width": 292,
       "height": 146
@@ -2120,23 +2120,23 @@
    {
     "key": "H",
     "kind": "decision",
-    "name": "Accept after a confirmation question?",
+    "name": "Accept or reject after undo period?",
     "parent": null,
     "detail": {
      "id": "H",
      "lines": [
-      "Accept after a",
-      "confirmation question?"
+      "Accept or reject",
+      "after undo period?"
      ],
      "ids": [],
      "marks": [],
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:18",
      "box": {
-      "x": 573.5,
+      "x": 575.5,
       "y": 1134,
-      "width": 311,
-      "height": 156
+      "width": 282,
+      "height": 141
      }
     }
    },
@@ -2158,8 +2158,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:19",
      "box": {
-      "x": 686.75,
-      "y": 1358,
+      "x": 798.25,
+      "y": 1343,
       "width": 204,
       "height": 84
      }
@@ -2183,8 +2183,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:20",
      "box": {
-      "x": 457.75,
-      "y": 1358,
+      "x": 569.25,
+      "y": 1343,
       "width": 197,
       "height": 84
      }
@@ -2208,8 +2208,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:21",
      "box": {
-      "x": 374.25,
-      "y": 1490,
+      "x": 458.5,
+      "y": 1475,
       "width": 190,
       "height": 84
      }
@@ -2258,8 +2258,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:23",
      "box": {
-      "x": 186.5,
-      "y": 1170,
+      "x": 159.25,
+      "y": 1162.5,
       "width": 190,
       "height": 84
      }
@@ -2307,10 +2307,32 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:25",
      "box": {
-      "x": 916.5,
-      "y": 1170,
+      "x": 954.25,
+      "y": 1162.5,
       "width": 140,
       "height": 84
+     }
+    }
+   },
+   {
+    "key": "U",
+    "kind": "step",
+    "name": "Undo before sending",
+    "parent": null,
+    "detail": {
+     "id": "U",
+     "lines": [
+      "Undo before sending"
+     ],
+     "ids": [],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:26",
+     "box": {
+      "x": 276.25,
+      "y": 1363,
+      "width": 161,
+      "height": 44
      }
     }
    },
@@ -2327,10 +2349,10 @@
      "ids": [],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:26",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:27",
      "box": {
-      "x": 358,
-      "y": 1634,
+      "x": 318.25,
+      "y": 1619,
       "width": 102,
       "height": 44
      }
@@ -2349,10 +2371,10 @@
      "ids": [],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:27",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:28",
      "box": {
-      "x": 700.75,
-      "y": 1510,
+      "x": 812.25,
+      "y": 1495,
       "width": 176,
       "height": 44
      }
@@ -2369,14 +2391,14 @@
      "to": "B",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:28",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:29",
      "points": [
       {
-       "x": 399.5,
+       "x": 350.75,
        "y": 84
       },
       {
-       "x": 399.5,
+       "x": 350.75,
        "y": 132
       }
      ],
@@ -2394,19 +2416,19 @@
      "to": "C",
      "label": "agent claims",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:29",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:30",
      "points": [
       {
-       "x": 399.5,
+       "x": 350.75,
        "y": 216
       },
       {
-       "x": 399.5,
+       "x": 350.75,
        "y": 284
       }
      ],
      "label_box": {
-      "x": 405.5,
+      "x": 356.75,
       "y": 240,
       "width": 95,
       "height": 20
@@ -2424,14 +2446,14 @@
      "to": "R1",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:30",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:31",
      "points": [
       {
-       "x": 344.17,
+       "x": 295.42,
        "y": 450
       },
       {
-       "x": 344.17,
+       "x": 295.42,
        "y": 462
       },
       {
@@ -2462,27 +2484,27 @@
      "to": "D",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:31",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:32",
      "points": [
       {
-       "x": 454.83,
+       "x": 406.08,
        "y": 450
       },
       {
-       "x": 454.83,
+       "x": 406.08,
        "y": 462
       },
       {
-       "x": 525.25,
+       "x": 476.5,
        "y": 462
       },
       {
-       "x": 525.25,
+       "x": 476.5,
        "y": 518
       }
      ],
      "label_box": {
-      "x": 531.25,
+      "x": 482.5,
       "y": 474,
       "width": 23,
       "height": 20
@@ -2500,14 +2522,14 @@
      "to": "E",
      "label": "answer",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:32",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:33",
      "points": [
       {
-       "x": 486.08,
+       "x": 437.33,
        "y": 636
       },
       {
-       "x": 486.08,
+       "x": 437.33,
        "y": 648
       },
       {
@@ -2538,27 +2560,27 @@
      "to": "F",
      "label": "change",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:33",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:34",
      "points": [
       {
-       "x": 564.42,
+       "x": 515.67,
        "y": 636
       },
       {
-       "x": 564.42,
+       "x": 515.67,
        "y": 648
       },
       {
-       "x": 779.75,
+       "x": 823.75,
        "y": 648
       },
       {
-       "x": 779.75,
+       "x": 823.75,
        "y": 704
       }
      ],
      "label_box": {
-      "x": 785.75,
+      "x": 829.75,
       "y": 660,
       "width": 52,
       "height": 20
@@ -2576,7 +2598,7 @@
      "to": "P",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:34",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:35",
      "points": [
       {
        "x": 321.5,
@@ -2601,7 +2623,7 @@
      "to": "Q",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:35",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:36",
      "points": [
       {
        "x": 245,
@@ -2612,16 +2634,16 @@
        "y": 1078
       },
       {
-       "x": 281.5,
+       "x": 254.25,
        "y": 1078
       },
       {
-       "x": 281.5,
-       "y": 1170
+       "x": 254.25,
+       "y": 1162.5
       }
      ],
      "label_box": {
-      "x": 287.5,
+      "x": 260.25,
       "y": 1090,
       "width": 30,
       "height": 20
@@ -2639,7 +2661,7 @@
      "to": "K",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:36",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:37",
      "points": [
       {
        "x": 398,
@@ -2650,25 +2672,25 @@
        "y": 1078
       },
       {
-       "x": 407.25,
+       "x": 466.5,
        "y": 1078
       },
       {
-       "x": 407.25,
-       "y": 1478
+       "x": 466.5,
+       "y": 1463
       },
       {
-       "x": 437.58,
-       "y": 1478
+       "x": 521.83,
+       "y": 1463
       },
       {
-       "x": 437.58,
-       "y": 1490
+       "x": 521.83,
+       "y": 1475
       }
      ],
      "label_box": {
-      "x": 413.25,
-      "y": 1314,
+      "x": 472.5,
+      "y": 1299,
       "width": 23,
       "height": 20
      }
@@ -2685,23 +2707,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:37",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:38",
      "points": [
       {
-       "x": 281.5,
-       "y": 1254
+       "x": 254.25,
+       "y": 1246.5
       },
       {
-       "x": 281.5,
-       "y": 1610
+       "x": 254.25,
+       "y": 1607
       },
       {
-       "x": 398.8,
-       "y": 1610
+       "x": 352.25,
+       "y": 1607
       },
       {
-       "x": 398.8,
-       "y": 1634
+       "x": 352.25,
+       "y": 1619
       }
      ],
      "label_box": null
@@ -2718,14 +2740,14 @@
      "to": "G",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:38",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:39",
      "points": [
       {
-       "x": 779.75,
+       "x": 823.75,
        "y": 788
       },
       {
-       "x": 779.75,
+       "x": 823.75,
        "y": 878
       }
      ],
@@ -2743,35 +2765,35 @@
      "to": "H",
      "label": "owner on a PC",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:39",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:40",
      "points": [
       {
-       "x": 706.75,
+       "x": 750.75,
        "y": 1024
       },
       {
-       "x": 706.75,
+       "x": 750.75,
        "y": 1078
       },
       {
-       "x": 502,
+       "x": 554,
        "y": 1078
       },
       {
-       "x": 502,
+       "x": 554,
        "y": 1122
       },
       {
-       "x": 677.17,
+       "x": 669.5,
        "y": 1122
       },
       {
-       "x": 677.17,
+       "x": 669.5,
        "y": 1134
       }
      ],
      "label_box": {
-      "x": 508,
+      "x": 560,
       "y": 1090,
       "width": 102,
       "height": 20
@@ -2789,27 +2811,35 @@
      "to": "H",
      "label": "owner on a phone",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:40",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:41",
      "points": [
       {
-       "x": 779.75,
+       "x": 823.75,
        "y": 1024
       },
       {
-       "x": 779.75,
+       "x": 823.75,
+       "y": 1078
+      },
+      {
+       "x": 831.75,
+       "y": 1078
+      },
+      {
+       "x": 831.75,
        "y": 1122
       },
       {
-       "x": 780.83,
+       "x": 763.5,
        "y": 1122
       },
       {
-       "x": 780.83,
+       "x": 763.5,
        "y": 1134
       }
      ],
      "label_box": {
-      "x": 785.75,
+      "x": 837.75,
       "y": 1090,
       "width": 124,
       "height": 20
@@ -2827,31 +2857,102 @@
      "to": "R3",
      "label": "an agent",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:41",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:42",
      "points": [
       {
-       "x": 852.75,
+       "x": 896.75,
        "y": 1024
       },
       {
-       "x": 852.75,
+       "x": 896.75,
        "y": 1078
       },
       {
-       "x": 986.5,
+       "x": 1024.25,
        "y": 1078
       },
       {
-       "x": 986.5,
-       "y": 1170
+       "x": 1024.25,
+       "y": 1162.5
       }
      ],
      "label_box": {
-      "x": 992.5,
+      "x": 1030.25,
       "y": 1090,
       "width": 66,
       "height": 20
      }
+    }
+   },
+   {
+    "key": "H->U",
+    "kind": "arrow",
+    "name": "undo",
+    "parent": "H",
+    "detail": {
+     "id": "e33",
+     "from": "H",
+     "to": "U",
+     "label": "undo",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:43",
+     "points": [
+      {
+       "x": 646,
+       "y": 1275
+      },
+      {
+       "x": 646,
+       "y": 1287
+      },
+      {
+       "x": 356.75,
+       "y": 1287
+      },
+      {
+       "x": 356.75,
+       "y": 1363
+      }
+     ],
+     "label_box": {
+      "x": 362.75,
+      "y": 1299,
+      "width": 37,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "U->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "U",
+    "detail": {
+     "id": "e34",
+     "from": "U",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:44",
+     "points": [
+      {
+       "x": 356.75,
+       "y": 1407
+      },
+      {
+       "x": 356.75,
+       "y": 1595
+      },
+      {
+       "x": 369.25,
+       "y": 1595
+      },
+      {
+       "x": 369.25,
+       "y": 1619
+      }
+     ],
+     "label_box": null
     }
    },
    {
@@ -2865,28 +2966,28 @@
      "to": "I",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:42",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:45",
      "points": [
       {
-       "x": 780.83,
-       "y": 1290
+       "x": 787,
+       "y": 1275
       },
       {
-       "x": 780.83,
-       "y": 1302
+       "x": 787,
+       "y": 1287
       },
       {
-       "x": 788.75,
-       "y": 1302
+       "x": 900.25,
+       "y": 1287
       },
       {
-       "x": 788.75,
-       "y": 1358
+       "x": 900.25,
+       "y": 1343
       }
      ],
      "label_box": {
-      "x": 794.75,
-      "y": 1314,
+      "x": 906.25,
+      "y": 1299,
       "width": 30,
       "height": 20
      }
@@ -2903,28 +3004,28 @@
      "to": "J",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:43",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:46",
      "points": [
       {
-       "x": 677.17,
-       "y": 1290
+       "x": 716.5,
+       "y": 1275
       },
       {
-       "x": 677.17,
-       "y": 1302
+       "x": 716.5,
+       "y": 1287
       },
       {
-       "x": 556.25,
-       "y": 1302
+       "x": 667.75,
+       "y": 1287
       },
       {
-       "x": 556.25,
-       "y": 1358
+       "x": 667.75,
+       "y": 1343
       }
      ],
      "label_box": {
-      "x": 562.25,
-      "y": 1314,
+      "x": 673.75,
+      "y": 1299,
       "width": 23,
       "height": 20
      }
@@ -2941,15 +3042,15 @@
      "to": "Y",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:44",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:47",
      "points": [
       {
-       "x": 788.75,
-       "y": 1442
+       "x": 900.25,
+       "y": 1427
       },
       {
-       "x": 788.75,
-       "y": 1510
+       "x": 900.25,
+       "y": 1495
       }
      ],
      "label_box": null
@@ -2966,23 +3067,23 @@
      "to": "K",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:45",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:48",
      "points": [
       {
-       "x": 556.25,
-       "y": 1442
+       "x": 667.75,
+       "y": 1427
       },
       {
-       "x": 556.25,
-       "y": 1478
+       "x": 667.75,
+       "y": 1463
       },
       {
-       "x": 500.92,
-       "y": 1478
+       "x": 585.17,
+       "y": 1463
       },
       {
-       "x": 500.92,
-       "y": 1490
+       "x": 585.17,
+       "y": 1475
       }
      ],
      "label_box": null
@@ -2999,23 +3100,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:46",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:49",
      "points": [
       {
-       "x": 469.25,
-       "y": 1574
+       "x": 553.5,
+       "y": 1559
       },
       {
-       "x": 469.25,
-       "y": 1610
+       "x": 553.5,
+       "y": 1595
       },
       {
-       "x": 419.2,
-       "y": 1610
+       "x": 386.25,
+       "y": 1595
       },
       {
-       "x": 419.2,
-       "y": 1634
+       "x": 386.25,
+       "y": 1619
       }
      ],
      "label_box": null
@@ -3032,7 +3133,7 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:47",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:50",
      "points": [
       {
        "x": 70,
@@ -3040,15 +3141,15 @@
       },
       {
        "x": 70,
-       "y": 1622
+       "y": 1595
       },
       {
-       "x": 378.4,
-       "y": 1622
+       "x": 335.25,
+       "y": 1595
       },
       {
-       "x": 378.4,
-       "y": 1634
+       "x": 335.25,
+       "y": 1619
       }
      ],
      "label_box": null
@@ -3065,23 +3166,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:48",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:51",
      "points": [
       {
-       "x": 986.5,
-       "y": 1254
+       "x": 1024.25,
+       "y": 1246.5
       },
       {
-       "x": 986.5,
-       "y": 1622
+       "x": 1024.25,
+       "y": 1607
       },
       {
-       "x": 439.6,
-       "y": 1622
+       "x": 403.25,
+       "y": 1607
       },
       {
-       "x": 439.6,
-       "y": 1634
+       "x": 403.25,
+       "y": 1619
       }
      ],
      "label_box": null
@@ -4202,13 +4303,13 @@
    {
     "key": "A",
     "kind": "terminal",
-    "name": "Owner opens a diagram to confirm",
+    "name": "Owner opens confirmation from a card or diagram",
     "parent": null,
     "detail": {
      "id": "A",
      "lines": [
-      "Owner opens a diagram to",
-      "confirm"
+      "Owner opens confirmation from",
+      "a card or diagram"
      ],
      "ids": [
       "REQ-052"
@@ -4217,9 +4318,9 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-006-confirm-a-diagram.md:11",
      "box": {
-      "x": 635.5,
+      "x": 617.5,
       "y": 0,
-      "width": 239,
+      "width": 275,
       "height": 84
      }
     }
@@ -6166,7 +6267,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:11",
      "box": {
-      "x": 346,
+      "x": 360.5,
       "y": 0,
       "width": 225,
       "height": 84
@@ -6191,7 +6292,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:12",
      "box": {
-      "x": 352.5,
+      "x": 367,
       "y": 132,
       "width": 212,
       "height": 84
@@ -6213,7 +6314,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:13",
      "box": {
-      "x": 319.5,
+      "x": 334,
       "y": 264,
       "width": 278,
       "height": 139
@@ -6249,13 +6350,13 @@
    {
     "key": "P",
     "kind": "step",
-    "name": "Ask again, then confirm or answer the proposal",
+    "name": "Confirm after another question; proposal decisions allow undo",
     "parent": null,
     "detail": {
      "id": "P",
      "lines": [
-      "Ask again, then confirm",
-      "or answer the proposal"
+      "Confirm after another question;",
+      "proposal decisions allow undo"
      ],
      "ids": [
       "REQ-068"
@@ -6266,7 +6367,7 @@
      "box": {
       "x": 480,
       "y": 483,
-      "width": 190,
+      "width": 248,
       "height": 84
      }
     }
@@ -6311,7 +6412,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:17",
      "box": {
-      "x": 407.5,
+      "x": 422,
       "y": 627,
       "width": 102,
       "height": 44
@@ -6332,11 +6433,11 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:18",
      "points": [
       {
-       "x": 458.5,
+       "x": 473,
        "y": 84
       },
       {
-       "x": 458.5,
+       "x": 473,
        "y": 132
       }
      ],
@@ -6357,11 +6458,11 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:19",
      "points": [
       {
-       "x": 458.5,
+       "x": 473,
        "y": 216
       },
       {
-       "x": 458.5,
+       "x": 473,
        "y": 264
       }
      ],
@@ -6382,11 +6483,11 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:20",
      "points": [
       {
-       "x": 375.1,
+       "x": 389.6,
        "y": 403
       },
       {
-       "x": 375.1,
+       "x": 389.6,
        "y": 415
       },
       {
@@ -6420,11 +6521,11 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:21",
      "points": [
       {
-       "x": 430.7,
+       "x": 445.2,
        "y": 403
       },
       {
-       "x": 430.7,
+       "x": 445.2,
        "y": 427
       },
       {
@@ -6458,24 +6559,24 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:22",
      "points": [
       {
-       "x": 486.3,
+       "x": 500.8,
        "y": 403
       },
       {
-       "x": 486.3,
+       "x": 500.8,
        "y": 427
       },
       {
-       "x": 575,
+       "x": 604,
        "y": 427
       },
       {
-       "x": 575,
+       "x": 604,
        "y": 483
       }
      ],
      "label_box": {
-      "x": 581,
+      "x": 610,
       "y": 439,
       "width": 196,
       "height": 20
@@ -6496,19 +6597,19 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:23",
      "points": [
       {
-       "x": 575,
+       "x": 604,
        "y": 567
       },
       {
-       "x": 575,
+       "x": 604,
        "y": 603
       },
       {
-       "x": 468.7,
+       "x": 483.2,
        "y": 603
       },
       {
-       "x": 468.7,
+       "x": 483.2,
        "y": 627
       }
      ],
@@ -6529,32 +6630,32 @@
      "where": "docs/03-user-flow/FL-008-read-and-comment-on-a-phone.md:24",
      "points": [
       {
-       "x": 541.9,
+       "x": 556.4,
        "y": 403
       },
       {
-       "x": 541.9,
+       "x": 556.4,
        "y": 415
       },
       {
-       "x": 789,
+       "x": 818,
        "y": 415
       },
       {
-       "x": 789,
+       "x": 818,
        "y": 615
       },
       {
-       "x": 489.1,
+       "x": 503.6,
        "y": 615
       },
       {
-       "x": 489.1,
+       "x": 503.6,
        "y": 627
       }
      ],
      "label_box": {
-      "x": 795,
+      "x": 824,
       "y": 439,
       "width": 73,
       "height": 20
@@ -6583,11 +6684,11 @@
        "y": 615
       },
       {
-       "x": 427.9,
+       "x": 442.4,
        "y": 615
       },
       {
-       "x": 427.9,
+       "x": 442.4,
        "y": 627
       }
      ],
@@ -6616,11 +6717,11 @@
        "y": 603
       },
       {
-       "x": 448.3,
+       "x": 462.8,
        "y": 603
       },
       {
-       "x": 448.3,
+       "x": 462.8,
        "y": 627
       }
      ],

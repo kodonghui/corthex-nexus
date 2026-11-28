@@ -177,3 +177,7 @@ One approved item changed, asked on its own and approved through the same delega
 A removed diagram keeps what waits on it (section 6 of the functional spec). No change in this stage: the `?d=` of SCR-145 and SCR-146 takes "a removed one still listed (SPEC-027)", which follows SPEC-027's listing whatever keeps a diagram listed. The paths and the tree are unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.
 
 On 2026-11-27 the maintainer selected the project-first home: SCR-142 at `/` shows projects and question/review counts first, while `/?view=todo` keeps the full owner to-do. The earlier first-screen decision above remains historical; project, stage and diagram addresses stay unchanged.
+
+## Item 240
+
+Item 240 changes the default SCR-142 view to the morning report; the full to-do and all-projects destinations remain. The checkpoint delegate approved the change on 2026-11-28; the answer is in the project records.

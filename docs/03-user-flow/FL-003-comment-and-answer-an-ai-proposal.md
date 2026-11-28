@@ -15,7 +15,7 @@ flowchart TD
   E["Agent replies in the<br/>thread<br/>REQ-021"]
   F["Agent posts an AI proposal<br/>laid over the diagram<br/>REQ-022"]
   G{"Who answers the proposal?"}
-  H{"Accept after a<br/>confirmation question?"}
+  H{"Accept or reject<br/>after undo period?"}
   I["Add the reflection to the<br/>agent to-do<br/>REQ-023"]
   J["Mark it rejected, thread<br/>stays open<br/>REQ-024"]
   K["Owner closes the thread<br/>when done<br/>REQ-034"]
@@ -23,6 +23,7 @@ flowchart TD
   Q["Resolve; show evidence;<br/>owner may reopen<br/>REQ-034"]
   R1["Refuse the claim<br/>REQ-055"]
   R3["Refuse the agent<br/>credential<br/>REQ-025"]
+  U["Undo before sending"]
   Z(["End"])
   Y(["Reflect it: FL-005"])
   A e1@--> B
@@ -39,6 +40,8 @@ flowchart TD
   G e9@-->|owner on a PC| H
   G e10@-->|owner on a phone| H
   G e11@-->|an agent| R3
+  H e33@-->|undo| U
+  U e34@--> Z
   H e12@-->|yes| I
   H e13@-->|no| J
   I e14@--> Y
@@ -54,9 +57,9 @@ flowchart TD
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z,Y term
   class B,E,F,I,J,K,R1,R3 proc
-  class Q proc
+  class Q,U proc
   class C,D,G,H,P decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
+  class e33,e34,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
 ```
 
 | Shape | Means |

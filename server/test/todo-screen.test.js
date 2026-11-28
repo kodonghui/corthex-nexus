@@ -17,7 +17,7 @@ import { REASONS } from '../web/todo.js';
 import { contract } from './contract.js';
 import { fakePage } from './fake-dom.js';
 import { listedResponses, responseRecord } from './responses.js';
-import { errorShown, headerOf, json, openPage, problem, SCREENS, startShell, texts, TRACE } from './screen-page.js';
+import { errorShown, GATE, headerOf, json, openPage, problem, SCREENS, startShell, texts, TRACE } from './screen-page.js';
 import { seed } from './seed.js';
 import { localGate, startServer, waitFor } from './support.js';
 
@@ -54,7 +54,7 @@ const ENTRIES = [
   // A project API-262's list leaves out, such as one beyond its 1000: its name heads its group.
   entry('confirm', { project: 'old-notes', stage: '03-user-flow', diagram: D4, diagram_name: 'FL-001', reason: 'cancelled', since: earlier(10 * 24 * 60) }),
 ];
-const TODO = { entries: ENTRIES, backup: null };
+const TODO = { entries: ENTRIES, morning: ENTRIES.slice(0, 5), backup: null };
 const BACKUP = { failed_at: new Date(2026, 10, 22, 0, 20).toISOString(), last_succeeded_at: new Date(2026, 10, 20, 0, 5).toISOString() };
 const answersOf = ({ todo = TODO, projects = PROJECTS } = {}) => ({ '/api/todo': json(200, todo), '/api/projects': json(200, projects) });
 
@@ -87,17 +87,13 @@ async function openTodo(options = {}) {
 
 const mainOf = (page) => page.app.all('main')[0];
 // Each row of the to-do: its tag, its tag's class, its place, its reason, its time and where it opens.
-const rowsOf = (page) => mainOf(page).all('a', 'li').map((row) => {
-  const lead = row.all('span', 'lead')[0].all('span')[0] ?? null;
-  return {
-    tag: lead?.textContent ?? null,
-    look: lead?.className ?? null,
-    place: row.all('b')[0].textContent,
-    reason: row.all('span', 'sec')[0]?.textContent ?? null,
-    time: row.all('time')[0].textContent,
-    href: row.getAttribute('href'),
-  };
-});
+const rowsOf = (page) => mainOf(page).all('section', 'morning-card').map((card) => ({
+  time: card.all('time')[0]?.textContent ?? null,
+  href: card.all('a')[0]?.getAttribute('href') ?? null,
+  title: card.all('h3')[0]?.textContent ?? null,
+  text: card.textContent,
+}));
+
 const warningOf = (page) => mainOf(page).all('div', 'warn').filter((element) => element.shown);
 
 describe('how long ago the screen says', () => {
@@ -136,17 +132,190 @@ describe('how long ago the screen says', () => {
 });
 
 describe('SCR-142', () => {
-  test('home lists projects with their questions and reviews and keeps the complete to-do reachable', async () => {
-    const page = await openPage('/', { answers: answersOf() });
+  test('home shows five morning cards and links to all work and projects', async () => {
+    const answers = { ...answersOf(), '/api/projects/reading-club': json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] }) };
+    const page = await openPage('/', { answers });
     try {
-      assert.deepEqual(texts(page, 'h1'), ['프로젝트']);
-      const cards = mainOf(page).all('div', 'project-card');
-      assert.deepEqual(cards.map((card) => card.all('a')[0].getAttribute('href')), ['/p/reading-club', '/p/demo', '/p/garden']);
-      assert.match(cards[0].textContent, /답할 질문 1개 · 확인할 내용 3개/);
-      assert.match(cards[1].textContent, /답할 질문 0개 · 확인할 내용 1개/);
-      assert.equal(cards[0].all('a')[1].getAttribute('href'), `/p/reading-club/nexus/05-erd?d=${D2}&thread=${T2}`);
-      assert.equal(cards[1].all('a').length, 1);
+      assert.deepEqual(texts(page, 'h1'), ['아침 보고']);
+      assert.equal(rowsOf(page).length, 5);
+      assert.deepEqual(mainOf(page).all('span', 'timeline-label').map((label) => label.textContent), ['무엇을 만드는지 정리', '꼭 필요한 기능', '사용하는 순서', '기능 자세히', '저장할 자료', '주고받는 약속', '화면 목록', '화면별 상태', '화면 시안', '할 일 나누기', '만들기', '검사', '발표']);
+      assert.match(mainOf(page).textContent, /오늘 할 일은 6가지예요/);
       assert.ok(mainOf(page).all('a').some((link) => link.getAttribute('href') === '/?view=todo'));
+      assert.ok(headerOf(page).all('a').some((link) => link.getAttribute('href') === '/p'));
+    } finally { page.close(); }
+  });
+
+  test('home keeps a progress line when there are projects but no to-dos', async () => {
+    const answers = { ...answersOf({ todo: { entries: [], morning: [], backup: null } }),
+      '/api/projects/reading-club': json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] }) };
+    const page = await openPage('/', { answers });
+    try {
+      assert.equal(mainOf(page).all('span', 'timeline-label').length, 13);
+      assert.match(mainOf(page).textContent, /기다리는 일이 없어요/);
+    } finally { page.close(); }
+  });
+
+  test('a failed progress refresh cannot show a different project as the current one', async () => {
+    let switched = false;
+    const first = ENTRIES.find((entry) => entry.project === 'reading-club');
+    const second = ENTRIES.find((entry) => entry.project === 'demo');
+    const page = await openPage('/', { answers: (path, init) => {
+      if (path === '/api/todo') return json(200, { entries: [switched ? second : first], morning: [switched ? second : first], backup: null })();
+      if (path === '/api/projects') return json(200, PROJECTS)();
+      if (path === '/api/projects/reading-club') return json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] })();
+      if (path === '/api/projects/demo') return problem(500, 'internal')();
+      throw new Error(`unexpected ${path}`);
+    } });
+    try {
+      assert.match(mainOf(page).textContent, /독서 모임 앱 진행 상황/);
+      switched = true; await page.shell.reload(); await page.settle();
+      assert.doesNotMatch(mainOf(page).textContent, /독서 모임 앱 진행 상황/);
+      assert.match(mainOf(page).textContent, /진행 상황을 불러오지 못했어요/);
+    } finally { page.close(); }
+  });
+
+  test('confirmation retries a failed preview and reopens with a fresh read', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    let reads = 0;
+    const answers = answersOf({ todo: { entries: [entry], morning: [entry], backup: null } });
+    answers[path] = () => {
+      reads += 1;
+      if (reads === 1) return problem(500, 'internal')();
+      return json(200, { drawing: { id: 'dr_000000000001', status: 'drawn' }, confirmation: { state: 'waiting' }, elements: [{ name: '예약 신청' }, { name: '예약 확정' }], overlays: [], since_confirmation: null })();
+    };
+    const page = await openPage('/', { answers });
+    try {
+      const click = (name) => mainOf(page).all('button').find((button) => button.textContent === name).click();
+      click('이 그림 확정하기'); await page.settle();
+      assert.match(mainOf(page).textContent, /그림을 불러오지 못했어요/);
+      click('다시 시도'); await page.settle();
+      assert.match(mainOf(page).textContent, /확정할 내용 미리보기/);
+      assert.match(mainOf(page).textContent, /예약 신청/);
+      assert.match(mainOf(page).textContent, /처음 확정하는 그림이에요/);
+      click('취소'); click('이 그림 확정하기'); await page.settle();
+      assert.equal(reads, 3);
+    } finally { page.close(); }
+  });
+
+  test('a confirmation preview gate response uses the shell permission flow', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    const answers = { ...answersOf({ todo: { entries: [entry], morning: [entry], backup: null } }), [path]: GATE };
+    const page = await openPage('/', { answers });
+    try {
+      mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정하기').click();
+      await page.settle();
+      assert.equal(page.location.reloads, 1);
+      assert.notEqual(page.session.getItem(GATE_KEY), null);
+    } finally { page.close(); }
+  });
+
+  test('an uncertain confirmation retries with the same request key', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    const known = answersOf({ todo: { entries: [entry], morning: [entry], backup: null } });
+    known[path] = json(200, { drawing: { id: 'dr_000000000001', status: 'drawn' }, confirmation: { state: 'waiting' }, elements: [], overlays: [], since_confirmation: null });
+    const keys = [];
+    const page = await openPage('/', { answers: (url, init) => {
+      if (init?.method === 'POST') { keys.push(init.headers['idempotency-key']); return keys.length === 1 ? new Error('lost') : json(200, {})(); }
+      return known[url](url, init);
+    } });
+    try {
+      const click = (name) => mainOf(page).all('button').find((button) => button.textContent === name).click();
+      click('이 그림 확정하기'); await page.settle();
+      click('네, 확정할게요'); await page.settle();
+      assert.match(mainOf(page).textContent, /확정 결과를 확인하지 못했어요/);
+      click('결과 다시 확인'); await page.settle();
+      assert.equal(keys.length, 2);
+      assert.equal(keys[1], keys[0]);
+    } finally { page.close(); }
+  });
+
+  test('a morning answer draft survives a screen reload', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const page = await openPage('/', { answers: answersOf({ todo: { entries: [question], morning: [question], backup: null } }) });
+    try {
+      const field = mainOf(page).all('textarea')[0];
+      field.value = '아직 적는 중이에요';
+      field.dispatch('input');
+      await page.shell.reload();
+      await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '아직 적는 중이에요');
+    } finally { page.close(); }
+  });
+
+  test('a morning answer explains when recovery storage is unavailable', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const page = await openPage('/', { answers: answersOf({ todo: { entries: [question], morning: [question], backup: null } }) });
+    try {
+      page.local.setItem = () => { throw new Error('full'); };
+      const field = mainOf(page).all('textarea')[0];
+      field.value = '답변'; field.dispatch('input');
+      mainOf(page).all('form')[0].dispatch('submit'); await page.settle();
+      assert.match(mainOf(page).textContent, /브라우저 저장 공간을 사용할 수 없어 보내지 못했어요/);
+    } finally { page.close(); }
+  });
+
+  test('recovering a morning answer after reopening clears only the sent draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const first = await openPage('/', { answers: (url, init) => init?.method === 'POST' ? new Error('lost') : answers[url](url, init) });
+    let session; let local;
+    try {
+      const field = mainOf(first).all('textarea')[0];
+      field.value = '  답변  '; field.dispatch('input');
+      mainOf(first).all('form')[0].dispatch('submit'); await first.settle();
+      session = Object.fromEntries(first.session.entries); local = Object.fromEntries(first.local.entries);
+    } finally { first.close(); }
+    const next = await openPage('/', { session, local, answers: (url, init) => init?.method === 'POST' ? json(201, {})() : answers[url](url, init) });
+    try {
+      assert.equal(mainOf(next).all('textarea')[0].value, '  답변  ');
+      await next.shell.pending.retry(next.shell.pending.recovered()[0]); await next.settle();
+      assert.equal(mainOf(next).all('textarea')[0].value, '');
+    } finally { next.close(); }
+  });
+
+  test('a later question in the same thread does not reuse an earlier draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '첫 질문이에요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      const field = mainOf(page).all('textarea')[0]; field.value = '지난 답변'; field.dispatch('input');
+      const next = { ...question, since: earlier(1), question_text: '다음 질문이에요.' };
+      answers['/api/todo'] = json(200, { entries: [next], morning: [next], backup: null });
+      await page.shell.reload(); await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '');
+    } finally { page.close(); }
+  });
+
+  test('a clarification in the same unanswered question keeps its draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '첫 질문이에요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      const field = mainOf(page).all('textarea')[0]; field.value = '적고 있는 답'; field.dispatch('input');
+      const clarified = { ...question, question_text: '질문에 대한 설명이에요.' };
+      answers['/api/todo'] = json(200, { entries: [clarified], morning: [clarified], backup: null });
+      await page.shell.reload(); await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '적고 있는 답');
+    } finally { page.close(); }
+  });
+
+  test('an explicit answer choice can be undone before it is sent', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '기간을 선택해 주세요.', question_choices: ['3일', '7일'] };
+    const path = `/api/projects/${question.project}/threads/${question.thread}/comments`;
+    const page = await openPage('/', { answers: { ...answersOf({ todo: { entries: [question], morning: [question], backup: null } }), [path]: json(201, {}) } });
+    try {
+      const choice = mainOf(page).all('button').find((button) => button.textContent === '7일');
+      assert.ok(choice);
+      choice.click();
+      assert.ok(page.app.textContent.includes('10초 뒤 보내요'));
+      const undo = page.app.all('button').find((button) => button.textContent === '되돌리기');
+      assert.ok(undo); undo.click();
+      await page.settle();
+      assert.equal(page.calls.includes(path), false);
+      assert.ok(page.app.textContent.includes('되돌렸어요'));
     } finally { page.close(); }
   });
 
@@ -157,8 +326,8 @@ describe('SCR-142', () => {
       assert.doesNotMatch(mainOf(missing).textContent, /답할 질문 0개/);
       assert.doesNotMatch(mainOf(missing).textContent, /최근 질문에 답하기/);
     } finally { missing.close(); }
-    const full = await openPage('/', { answers: answersOf({ todo: { entries: Array(5000).fill(ENTRIES[0]), backup: null } }) });
-    try { assert.match(mainOf(full).textContent, /확인할 내용 5000개 이상/); }
+    const full = await openPage('/', { answers: answersOf({ todo: { entries: Array(5000).fill(ENTRIES[0]), morning: ENTRIES.slice(0, 5), backup: null } }) });
+    try { assert.match(mainOf(full).textContent, /적어도 5000가지/); }
     finally { full.close(); }
   });
 
@@ -166,15 +335,15 @@ describe('SCR-142', () => {
     const answers = answersOf();
     const page = await openPage('/', { answers });
     try {
-      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      assert.match(mainOf(page).textContent, /오늘 할 일은 6가지예요/);
       answers['/api/todo'] = problem(500, 'internal');
       await page.shell.reload();
       assert.match(mainOf(page).textContent, /이전 정보예요/);
-      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      assert.match(mainOf(page).textContent, /오늘 할 일은 6가지예요/);
       assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
       answers['/api/todo'] = json(200, TODO);
       await page.shell.reload();
-      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      assert.match(mainOf(page).textContent, /오늘 할 일은 6가지예요/);
     } finally { page.close(); }
   });
 
@@ -190,60 +359,42 @@ describe('SCR-142', () => {
       assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
     } finally { page.close(); }
   });
-  test('normal: the entries by project in API-263\'s order, each by its names, its kind, why it waits and how long', async () => {
+  test('the full inbox shows each item in API order with its target and age', async () => {
     const page = await openTodo();
     try {
-      assert.deepEqual(texts(page, 'h1'), ['내 차례']);
-      assert.equal(page.document.title, '내 차례 · NEXUS');
-      assert.deepEqual(texts(page, 'p', 'sec'), ['모든 프로젝트에서 나를 기다리는 일이에요. 최근 것부터 보여요.']);
-      // Each group by its project's title from API-262, or its name when the list leaves it out, to its page.
-      const groups = mainOf(page).all('section', 'group');
-      assert.deepEqual(groups.map((group) => [group.all('h2')[0].textContent, group.all('a', 'small')[0].textContent, group.all('a', 'small')[0].getAttribute('href')]), [
-        ['독서 모임 앱', '프로젝트 보기', '/p/reading-club'],
-        ['demo', '프로젝트 보기', '/p/demo'],
-        ['old-notes', '프로젝트 보기', '/p/old-notes'],
-      ]);
-      assert.deepEqual(groups.map((group) => group.all('a', 'li').length), [4, 1, 1]);
-      // Each 프로젝트 보기 is named with its group's heading too.
-      const byId = new Map(mainOf(page).descendants().filter((element) => element.getAttribute('id') !== null).map((element) => [element.getAttribute('id'), element]));
-      assert.deepEqual(groups.map((group) => group.all('a', 'small')[0].getAttribute('aria-labelledby').split(' ').map((id) => byId.get(id).textContent).join(' ')), [
-        '프로젝트 보기 독서 모임 앱', '프로젝트 보기 demo', '프로젝트 보기 old-notes',
-      ]);
-      assert.deepEqual(rowsOf(page), [
-        { tag: '확정', look: 'tag gray', place: '01 도메인 · 도메인 보드', reason: '새 문서로 확정이 풀렸어요', time: '12분 전', href: `/p/reading-club/_/01-domain?d=${D1}` },
-        { tag: 'AI 제안', look: 'ai', place: '01 도메인 · 도메인 보드', reason: null, time: '3시간 전', href: `/p/reading-club/_/01-domain?d=${D1}&thread=${T1}` },
-        { tag: 'AI 제안', look: 'ai', place: '01 도메인 · 도메인 보드', reason: null, time: '3시간 전', href: `/p/reading-club/_/01-domain?d=${D1}` },
-        { tag: '질문', look: 'tag cyan', place: '05 ERD · ERD', reason: '열어서 질문을 읽고 댓글에 답해 주세요.', time: '어제', href: `/p/reading-club/nexus/05-erd?d=${D2}&thread=${T2}` },
-        { tag: '확정', look: 'tag gray', place: '02 PRD · 요구사항 표', reason: '아직 확정한 적이 없어요', time: '2일 전', href: `/p/demo/_/02-prd?d=${D3}` },
-        { tag: '확정', look: 'tag gray', place: '03 사용자 흐름 · FL-001', reason: '확정을 취소했어요', time: '10일 전', href: `/p/old-notes/_/03-user-flow?d=${D4}` },
-      ]);
-      // Each time holds its moment, and each row ends in the mockup's chevron.
-      assert.deepEqual(mainOf(page).all('time').map((time) => time.getAttribute('datetime')), ENTRIES.map((each) => each.since));
-      assert.ok(mainOf(page).all('a', 'li').every((row) => row.all('svg', 'chev').length === 1));
-      // Names, not IDs (SPEC-010): no diagram, thread or proposal ID shows.
+      assert.deepEqual(texts(page, 'h1'), ['모든 할 일']);
+      assert.equal(page.document.title, '모든 할 일 · NEXUS');
+      assert.deepEqual(rowsOf(page).map((row) => row.href), ENTRIES.map((entry) => stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread })));
+      assert.deepEqual(mainOf(page).all('time').map((time) => time.getAttribute('datetime')), ENTRIES.map((entry) => entry.since));
       assert.doesNotMatch(mainOf(page).textContent, /\b(?:dg|nc|np)_/);
-      // "내 차례 N" is this list's count, and with no failed backup there is no warning.
       assert.equal(headerOf(page).all('span', 'cnt')[0].textContent, String(ENTRIES.length));
-      assert.deepEqual(warningOf(page), []);
       assert.equal(errorShown(page), false);
-      // The screen and the header read API-262 and API-263 once each.
-      assert.deepEqual([...page.calls].sort(), ['/api/projects', '/api/todo']);
-    } finally {
-      page.close();
-    }
+    } finally { page.close(); }
+  });
+
+  test('the inbox keeps its expanded batch after a reload', async () => {
+    const entries = Array.from({ length: 120 }, (_, index) => ({ ...ENTRIES[index % ENTRIES.length], since: earlier(index + 1) }));
+    const page = await openTodo({ answers: answersOf({ todo: { entries, morning: [], backup: null } }) });
+    try {
+      page.app.all('button').find((button) => button.textContent === '다음 할 일 보기').click();
+      assert.equal(rowsOf(page).length, 100);
+      await page.shell.reload(); await page.settle();
+      assert.equal(rowsOf(page).length, 100);
+    } finally { page.close(); }
   });
 
   test('each reason a diagram waits for its confirmation has its words, and only a confirmation says one', () => {
     assert.deepEqual(Object.keys(REASONS), contract.components.schemas.OwnerTodoEntry.properties.reason.anyOf[0].enum);
   });
 
-  test('every entry API-263 answers shows, up to its most, with no "more"', async () => {
+  test('the full inbox shows all entries in batches, in order', async () => {
     const most = contract.components.schemas.OwnerTodo.properties.entries.maxItems;
     const entries = Array.from({ length: most }, (_, index) => ({ ...ENTRIES[index % ENTRIES.length], since: earlier(12 + index) }));
     const page = await openTodo({ answers: answersOf({ todo: { entries, backup: null } }) });
     try {
-      assert.equal(mainOf(page).all('a', 'li').length, most);
-      assert.equal(page.app.textContent.includes('더 보기'), false);
+      assert.equal(rowsOf(page).length, 50);
+      for (let n = 50; n < most; n += 50) page.app.all('button').find((button) => button.textContent === '다음 할 일 보기').click();
+      assert.equal(rowsOf(page).length, most);
     } finally {
       page.close();
     }
@@ -260,7 +411,7 @@ describe('SCR-142', () => {
       assert.deepEqual(shown(), expected);
       // On top: before the first group. The last backup that succeeded is not said.
       const body = mainOf(page).children;
-      assert.ok(body.indexOf(warningOf(page)[0]) < body.indexOf(mainOf(page).all('section', 'group')[0]));
+      assert.ok(body.indexOf(warningOf(page)[0]) < body.indexOf(mainOf(page).all('div', 'morning-cards')[0]));
       assert.equal(mainOf(page).textContent.includes(dayOf(BACKUP.last_succeeded_at)), false);
       // Nothing to do, and the backup still failed.
       entries = [];
@@ -319,13 +470,13 @@ describe('SCR-142', () => {
       startShell(page.app, SCREENS['SCR-142'], { screen: 'SCR-142', view: 'todo' });
       await waitFor(() => held.length === 2);
       const main = mainOf(page);
-      assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+      assert.deepEqual(texts(page, 'h1'), ['모든 할 일']);
       const groups = main.all('section', 'group');
       assert.deepEqual(groups.map((group) => [group.all('span', 'line').length, group.all('span', 'row').length, group.getAttribute('aria-hidden')]), [[1, 2, 'true'], [1, 2, 'true']]);
       assert.deepEqual([main.all('button'), main.all('a')], [[], []]);
       assert.equal(page.app.textContent.includes('독서 모임 앱'), false);
       for (const release of held) release();
-      await waitFor(() => mainOf(page).all('a', 'li').length === ENTRIES.length);
+      await waitFor(() => rowsOf(page).length === ENTRIES.length);
       assert.deepEqual(mainOf(page).all('span', 'sk'), []);
     } finally {
       restore();
@@ -339,7 +490,7 @@ describe('SCR-142', () => {
       const answers = answersOf();
       const page = await openTodo({ answers: { ...answers, [path]: (read) => (fail ? problem(500, 'internal')() : answers[read]()) } });
       try {
-        assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+        assert.deepEqual(texts(page, 'h1'), ['모든 할 일']);
         assert.deepEqual(texts(page, 'b'), ['문제가 생겼어요. 다시 해 보세요.']);
         assert.deepEqual(texts(page, 'span', 'helper'), [`traceId ${TRACE}`]);
         assert.deepEqual(mainOf(page).all('a', 'li'), []);
@@ -450,7 +601,7 @@ describe('SCR-142 against the server', () => {
 
   test('a new install has nothing to do and no project: the way to the agent credentials', async () => {
     const answer = responses.note('getOwnerTodo', await good.send({ path: '/api/todo', headers: owner() }));
-    assert.deepEqual(answer.json, { entries: [], backup: null });
+    assert.deepEqual(answer.json, { entries: [], morning: [], backup: null });
     const page = await openOn(good, owner());
     try {
       assert.deepEqual(texts(page, 'h2'), ['기다리는 일이 없어요']);
@@ -495,25 +646,19 @@ describe('SCR-142 against the server', () => {
     assert.equal(answer.status, 200);
     const { entries } = answer.json;
     assert.deepEqual(entries.map((each) => [each.project, each.kind]), [
-      ['reading-club', 'question'], ['reading-club', 'proposal'], ['reading-club', 'confirm'], ['reading-club', 'confirm'],
-      ['reading-club', 'confirm'], ['demo', 'confirm'],
+      ['demo', 'confirm'], ['reading-club', 'confirm'], ['reading-club', 'confirm'], ['reading-club', 'confirm'],
+      ['reading-club', 'proposal'], ['reading-club', 'question'],
     ]);
     assert.ok(answer.json.backup);
     // A clock 30 s into its minute, so that no minute, hour or day turns between the drawing and the check.
     const restore = clockAt(Math.floor(Date.now() / 60_000) * 60_000 + 30_000);
     const page = await openOn(good, owner());
     try {
-      assert.deepEqual(mainOf(page).all('section', 'group').map((group) => group.all('h2')[0].textContent), ['독서 모임 앱', 'demo']);
-      const words = { confirm: '확정', proposal: 'AI 제안', question: '질문' };
-      const now = Date.now();
-      assert.deepEqual(rowsOf(page).map(({ tag, place, reason, time, href }) => ({ tag, place, reason, time, href })), entries.map((each) => ({
-        tag: words[each.kind],
-        place: `${each.stage.slice(0, 2)} ${{ '02-prd': 'PRD', '03-user-flow': '사용자 흐름', '05-erd': 'ERD' }[each.stage]} · ${each.diagram_name}`,
-        reason: each.kind === 'confirm' ? REASONS[each.reason] : each.kind === 'question' ? '열어서 질문을 읽고 댓글에 답해 주세요.' : null,
-        time: ago(each.since, now),
-        href: stageHref(each.project, each.part, each.stage, { diagram: each.diagram, thread: each.thread }),
-      })));
-      assert.deepEqual(rowsOf(page).filter((row) => row.reason !== null).map((row) => row.reason), ['열어서 질문을 읽고 댓글에 답해 주세요.', '확정을 취소했어요', '새 문서로 확정이 풀렸어요', '아직 확정한 적이 없어요', '아직 확정한 적이 없어요']);
+      assert.deepEqual(rowsOf(page).map((row) => row.href), entries.map((each) =>
+        stageHref(each.project, each.part, each.stage, { diagram: each.diagram, thread: each.thread })));
+      assert.deepEqual(rowsOf(page).map((row) => row.time), entries.map((each) => ago(each.since, Date.now())));
+      assert.ok(rowsOf(page).some((row) => row.text.includes('확정을 취소했어요')));
+      assert.ok(rowsOf(page).some((row) => row.text.includes('새 문서로 확정이 풀렸어요')));
       assert.ok(rowsOf(page).some((row) => row.href.includes('/nexus/03-user-flow?d=dg_') && row.href.includes('&thread=nc_')));
       assert.deepEqual(texts(page, 'b').filter((text) => text.includes('백업')), [`${dayOf(answer.json.backup.failed_at)} 백업이 실패했어요.`]);
       assert.doesNotMatch(mainOf(page).textContent, /\b(?:dg|nc|np)_/);
@@ -533,7 +678,7 @@ describe('SCR-142 against the server', () => {
     {
       status: 500, code: 'internal', who: 'owner', fails: true,
       shows: (page) => {
-        assert.deepEqual(texts(page, 'h1'), ['내 차례']);
+        assert.deepEqual(texts(page, 'h1'), ['모든 할 일']);
         assert.deepEqual(texts(page, 'b'), ['문제가 생겼어요. 다시 해 보세요.']);
         assert.match(texts(page, 'span', 'helper')[0], /^traceId [0-9a-f]{16}$/);
       },

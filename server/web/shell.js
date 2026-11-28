@@ -5,8 +5,9 @@
 // The page holds no project data before the API answers it: the shell reads the screen's data and the header's, and
 // draws nothing of a project until a read answered it. It keeps nothing an API answered (see storage.js).
 
-import { parseAddress, HOME_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
-import { probe, read, write } from './api.js';
+import { pendingActions } from './pending-actions.js';
+import { parseAddress, HOME_HREF, PROJECTS_HREF, projectHref, stageHref, TODO_HREF } from './address.js';
+import { isRetryableOutcome, probe, read, write } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { MESSAGES } from './messages.js';
 import { STAGES } from './stages.js';
@@ -34,11 +35,50 @@ export function isPhone() {
 }
 
 // Runs screen at address in root, the page's #app, and returns the shell it gives the screen.
-export function startShell(root, screen, address) {
+export function startShell(root, screen, address, { pendingOptions = {} } = {}) {
   const states = screen.states ?? SHARED_STATES;
   // The reads whose failure shows in the screen's own part (shell.missed), not in place of the whole screen.
   const parts = new Set(screen.parts ?? []);
   const leaving = [];
+  const pendingArea = h('div', { role: 'status' });
+  const noticeArea = h('div', { role: 'status' });
+  let pending = null;
+  try {
+    pending = pendingActions({ ...pendingOptions, send: (method, path, body, key, options) => writeOf(method, path, body, key, options), onChange: (result, handled, viewFailed, item) => {
+      // A retry after reloading has no old screen callback. Clear only the exact answer that was delivered.
+      if ((result?.status === 200 || result?.status === 201) && typeof item?.draft === 'string' && typeof item.body.text === 'string') {
+        const [, , , project, , thread] = item.path.split('/');
+        const threadDraft = item.draft.startsWith(`/p/${project} `) && item.draft.endsWith(` reply ${thread}`) && draftOf(item.draft) === item.body.text;
+        const todoDraft = item.draft.startsWith(`todo:${project}:${thread}:`) && typeof item.draftText === 'string'
+          && item.draftText.trim() === item.body.text && draftOf(item.draft) === item.draftText;
+        if (threadDraft || todoDraft) keepDraft(item.draft, '');
+      }
+      drawPending();
+      if (viewFailed || (!handled && (result?.status === 200 || result?.status === 201))) reload();
+    } });
+  } catch { /* Storage unavailable: actions cannot promise recovery. */ }
+  function drawPending() {
+    if (pending === null) return;
+    let waiting = []; let recovered = [];
+    try { waiting = pending.waiting(); recovered = pending.recovered(); } catch { return; }
+    fill(pendingArea,
+      waiting.map((item) => h('div', { class: 'nt', role: 'status' }, '10초 뒤 보내요 ',
+        h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => { if (!pending.undo(item.key)) shell.announce('되돌릴 수 있는 시간이 끝났거나 이미 보내는 중이에요.'); } } }, '되돌리기'))),
+      recovered.map((item) => h('div', { class: 'nt warn', role: 'alert' }, pending.expired(item)
+        ? '오래된 답변이나 결정이에요. 다시 보내기 전에 대화나 그림의 현재 내용을 확인해 주세요. '
+        : item.state === 'waiting'
+        ? '아직 전송되지 않았거나 다른 화면에서 기다리는 중이에요. 내용을 확인해 주세요. '
+        : item.state === 'failed' ? (item.path.endsWith('/comments') ? '보내지 못한 답변이 있어요. 대화의 현재 상태를 확인해 주세요. ' : '보내지 못한 결정이 있어요. 그림의 현재 상태를 확인해 주세요. ')
+          : '전송 결과를 확인하지 못했어요. 다시 보내기 전에 확인해 주세요. ',
+        h('p', {}, `${item.path.split('/')[3]} · `, typeof item.body.text === 'string' ? `답변: ${item.body.text}` : item.path.endsWith('/accept') ? '제안 넣기' : '제안 빼기'),
+        item.state === 'failed' || pending.expired(item) ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: async () => { const result = await pending.retry(item); if (result?.failure === 'pending') shell.announce('다른 결정이나 답변이 처리 중이에요. 위 안내를 확인해 주세요.'); else if (result?.failure === 'expired') { shell.announce('오래된 항목이에요. 대화나 그림의 현재 내용을 확인해 주세요.'); drawPending(); } else if (result?.failure === 'stale') { shell.announce('이 안내는 이미 처리되었어요.'); drawPending(); } else if (result?.status >= 400 && result.status < 500 && !isRetryableOutcome(result)) reload(); } } }, '다시 보내기'),
+        h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => {
+          if (pending.discard(item)) { reload(); return; }
+          if (pending.canForceDiscard(item) && globalThis.confirm?.('다른 화면에서 이미 보내고 있다면 멈출 수 없어요. 내용을 확인하고 이 안내를 지울까요?') && pending.discard(item, true)) { reload(); return; }
+          shell.announce('이 항목이 처리 중이거나 이미 바뀌었어요.'); drawPending();
+        } } }, '안내 지우기'))));
+  }
+  globalThis.addEventListener?.('pagehide', () => pending?.flush());
   let round = new Map();
   let data = null;
   let readAt = null;
@@ -72,6 +112,7 @@ export function startShell(root, screen, address) {
       if (!round.has(path)) round.set(path, read(path));
       return round.get(path);
     },
+    readFresh: async (path) => met(await read(path)),
     reload,
     write: writeOf,
     redraw,
@@ -82,6 +123,8 @@ export function startShell(root, screen, address) {
     probe: probeOf,
     go,
     onLeave: (keep) => leaving.push(keep),
+    pending,
+    announce: (message) => fill(noticeArea, h('div', { class: 'nt', role: 'status' }, message)),
     keepDraft,
     draftOf,
     isPhone,
@@ -94,7 +137,8 @@ export function startShell(root, screen, address) {
   const header = createHeader(address);
   const tabs = screen.tabs ? stageTabs(address) : null;
   const view = h('div', { class: 'view' });
-  fill(root, header.element, tabs, view);
+  fill(root, header.element, tabs, pendingArea, noticeArea, view);
+  drawPending();
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && data !== null) load(true);
@@ -242,6 +286,7 @@ export function startShell(root, screen, address) {
   // stage (?d=): the address goes into the browser's history and the screen loads it, as on opening, with its loading
   // state. Any other address opens as a page of its own.
   function go(href) {
+    pending?.flush();
     const { pathname, search } = partsOf(href);
     if (!samePlace(parseAddress(pathname, search))) {
       globalThis.location.assign(href);
@@ -531,12 +576,13 @@ function createHeader(address) {
   const count = h('span', { class: 'cnt' });
   const turn = h('a', { class: 'hb', href: TODO_HREF, hidden: true }, '내 차례', count);
   const themeLabel = h('span', { class: 'theme-label' });
-  const theme = h('button', { type: 'button', class: 'hb', on: { click: switchTheme } }, themeLabel, icon('moon', 'ic theme-icon'));
+  const theme = h('button', { type: 'button', class: 'hb theme-control', on: { click: switchTheme } }, themeLabel, icon('moon', 'ic theme-icon'));
   // The menu opens under its button, which .pm holds with it (nexus.css), so no script places it.
   const element = h('header', { class: 'hd' },
-    h('a', { class: 'brand hb', href: HOME_HREF }, 'NEXUS'), h('div', { class: 'pm' }, button, list), h('span', { class: 'sp' }), turn, theme);
+    h('a', { class: 'brand hb', href: HOME_HREF }, 'NEXUS'), h('div', { class: 'pm' }, button, list), h('span', { class: 'sp' }),
+    h('a', { class: 'hb all-projects', href: PROJECTS_HREF }, '모든 프로젝트 보기'), turn, theme);
   let titled = false;
-  const all = h('li', { role: 'none', class: 'all' }, h('a', { role: 'menuitem', href: HOME_HREF }, '프로젝트 목록'));
+  const all = h('li', { role: 'none', class: 'all' }, h('a', { role: 'menuitem', href: PROJECTS_HREF }, '프로젝트 목록'));
   fill(list, all);
   showTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
   globalThis.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', (event) => {
@@ -609,8 +655,8 @@ function createHeader(address) {
     },
     todo(body) {
       const number = Array.isArray(body.entries) ? body.entries.length : 0;
-      count.textContent = String(number);
-      turn.setAttribute('aria-label', `내 차례 ${number}개`);
+      count.textContent = number >= 5000 ? `${number}+` : String(number);
+      turn.setAttribute('aria-label', `내 차례 ${number}개${number >= 5000 ? ' 이상' : ''}`);
       turn.hidden = false;
     },
     noTodo() {

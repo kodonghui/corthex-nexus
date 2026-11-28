@@ -209,64 +209,39 @@ describe('SCR-145 changes', () => {
     }
   });
 
-  test('수락 asks once, "수락할까요?" with 수락 and 취소; 취소 and Escape stop; 수락 sends API-270 with every button off until the diagram is read again', async () => {
+  test('proposal acceptance is queued once and may be undone before sending', async () => {
     const answer = held(json(200, { change_set: { ...PROPOSED, state: 'accepted', decided_at: TIME }, changed: true, pull_request: null }));
     const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }), posted: () => answer.answer });
     try {
       const id = `p-${PROPOSED.id}`;
       byId(page, `${id}-accept`).click();
-      const group = byId(page, `${id}-ask`).parentNode;
-      assert.deepEqual([byId(page, `${id}-ask`).textContent, buttonsIn(group)], [CHANGE_WORDS.askAccept, [CHANGE_WORDS.accept, CHANGE_WORDS.stop]]);
-      focused(page, byId(page, `${id}-stop`));
-      byId(page, `${id}-stop`).click();
-      assert.ok(byId(page, `${id}-ask`) === null);
-      focused(page, byId(page, `${id}-accept`));
+      assert.equal(page.sent.length, 0);
+      assert.ok(texts(page, 'div').some((text) => text.includes('10초 뒤 보내요')));
+      page.app.all('button').find((button) => button.textContent === '되돌리기').click();
+      await page.settle();
+      assert.equal(page.sent.length, 0);
       byId(page, `${id}-accept`).click();
-      byId(page, `${id}-ask`).parentNode.dispatch('keydown', { key: 'Escape' });
-      assert.ok(byId(page, `${id}-ask`) === null);
-      assert.deepEqual(page.sent, []);
-      byId(page, `${id}-accept`).click();
-      press(byId(page, `${id}-yes`));
       await waitFor(() => page.sent.length === 1);
       assert.deepEqual([page.sent[0].path, page.sent[0].body], [changeSetPath(PROPOSED.id, 'accept'), {}]);
-      assert.match(page.sent[0].key, /^"nw_[0-9a-hjkmnp-tv-z]{12}"$/);
-      // While it runs, every button of the changes is off, and the one pressed keeps the focus.
-      assert.equal(byId(page, `${id}-yes`).getAttribute('aria-disabled'), 'true');
-      focused(page, byId(page, `${id}-yes`));
-      const reads = page.diagramReads();
       page.reads[diagramPath('erd')] = json(200, diagramOf('erd', { overlays: [{ ...PROPOSED, state: 'accepted', decided_at: TIME }] }));
       answer.release();
       await page.settle();
-      assert.equal(page.diagramReads(), reads + 1);
       const card = sectionOf(page, CHANGE_WORDS.proposals).all('div', 'prop')[0];
-      assert.deepEqual([card.all('p', 'sec')[0].textContent, card.all('span', 'tag')[0].textContent, buttonsIn(card)], [CHANGE_WORDS.accepted, MARK_WORDS.wait, []]);
-      focused(page, byId(page, 'proposals-heading'));
-      assert.equal(page.sent.length, 1);
-    } finally {
-      page.close();
-    }
+      assert.deepEqual([card.all('p', 'sec')[0].textContent, card.all('span', 'tag')[0].textContent], [CHANGE_WORDS.accepted, MARK_WORDS.wait]);
+    } finally { page.close(); }
   });
 
-  test('거절 asks "거절할까요?" and sends API-271; once the diagram is read again the overlay is gone', async () => {
-    const page = await openStage('erd', {
-      diagram: diagramOf('erd', { overlays: [PROPOSED] }),
-      posted: () => json(200, { change_set: { ...PROPOSED, state: 'rejected', decided_at: TIME }, changed: true, pull_request: null }),
-    });
+  test('proposal rejection is sent after the undo period and removes the overlay', async () => {
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => json(200, { change_set: { ...PROPOSED, state: 'rejected', decided_at: TIME }, changed: true, pull_request: null }) });
     try {
       const id = `p-${PROPOSED.id}`;
-      assert.ok(buttonNamed(page, 'agent_keys').className.split(' ').includes('ov-prop'));
-      byId(page, `${id}-reject`).click();
-      assert.deepEqual([byId(page, `${id}-ask`).textContent, buttonsIn(byId(page, `${id}-ask`).parentNode)], [CHANGE_WORDS.askReject, [CHANGE_WORDS.reject, CHANGE_WORDS.stop]]);
       page.reads[diagramPath('erd')] = json(200, diagramOf('erd'));
-      byId(page, `${id}-yes`).click();
+      byId(page, `${id}-reject`).click();
       await page.settle();
       assert.deepEqual(page.sent.map((each) => [each.path, each.body]), [[changeSetPath(PROPOSED.id, 'reject'), {}]]);
-      assert.ok(buttonNamed(page, 'agent_keys') === undefined);
       assert.equal(buttonNamed(page, A.name).className.split(' ').includes('ov-prop'), false);
-      assert.deepEqual(shownTexts(sectionOf(page, CHANGE_WORDS.proposals), 'p', 'sec'), [CHANGE_WORDS.allAnswered]);
-    } finally {
-      page.close();
-    }
+    } finally { page.close(); }
   });
 
   test('SCR-145#waiting on a PC: the elements marked, and "이 그림" with its count, why confirming waits, the list with 편집 취소 and the confirm button off', async () => {
@@ -408,6 +383,18 @@ describe('SCR-145 changes', () => {
     }
   });
 
+  test('the visible name button saves an edited element without a keyboard shortcut', async () => {
+    const page = await openStage('erd', { posted: () => json(201, { change_set: null, created: true }) });
+    try {
+      buttonNamed(page, A.name).click();
+      typeName(page, 'new_name');
+      byId(page, 'save-element-name').click();
+      await page.settle();
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.sent[0].body.name, 'new_name');
+    } finally { page.close(); }
+  });
+
   test('a name refused once another element is chosen stays with its own element, and the focus stays where it is', async () => {
     const answer = held(problem(400, 'invalid_request'));
     const page = await openStage('erd', { posted: () => answer.answer });
@@ -520,6 +507,59 @@ describe('SCR-145 changes', () => {
     }
   });
 
+  test('a simultaneous proposal retry explains the request already in flight', async () => {
+    let calls = 0; const answer = held(problem(500, 'internal'));
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? () => new TypeError('lost') : answer.answer });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      assert.match(lineOf(page).textContent, /처리 중/);
+      answer.release(); await inflight; await page.settle();
+      assert.equal(page.sent.length, 2);
+    } finally { page.close(); }
+  });
+
+  test('an old proposal retry cannot race a different pending decision', async () => {
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }), posted: () => () => new TypeError('lost') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      const other = page.shell.pending.enqueue(changeSetPath(PROPOSED.id, 'reject'), {});
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      assert.equal(page.sent.length, 1);
+      assert.match(lineOf(page).textContent, /처리 중/);
+      assert.equal(page.shell.pending.undo(other), true);
+    } finally { page.close(); }
+  });
+
+  test('a proposal retry retains its key even if its stored marker disappeared', async () => {
+    let calls = 0;
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? () => new TypeError('Failed to fetch') : problem(409, 'change_set_state') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      const item = page.shell.pending.recovered()[0];
+      assert.equal(page.shell.pending.discard(item), true);
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
+  test('a temporarily limited proposal retry keeps the same request key', async () => {
+    let calls = 0;
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? problem(429, 'rate_limited') : problem(409, 'change_set_state') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
   test('a lost connection keeps the request key for 다시 시도; a decided change shows the stale bar with "새 제안을 부탁하세요." and 새로 고침', async () => {
     let calls = 0;
     const page = await openStage('erd', {
@@ -533,7 +573,6 @@ describe('SCR-145 changes', () => {
     try {
       const id = `p-${PROPOSED.id}`;
       byId(page, `${id}-accept`).click();
-      byId(page, `${id}-yes`).click();
       await page.settle();
       // A lost connection has no code: the message of any failure.
       assert.deepEqual([shownTexts(lineOf(page), 'b'), buttonsIn(lineOf(page))], [[message('internal')], ['다시 시도']]);
@@ -580,13 +619,8 @@ describe('SCR-145 changes', () => {
       assert.equal(sectionOf(page, CHANGE_WORDS.proposals).hidden, false);
       const id = `p-${PROPOSED.id}`;
       byId(page, `${id}-accept`).click();
-      assert.equal(byId(page, `${id}-ask`).textContent, CHANGE_WORDS.askAccept);
       assert.deepEqual(page.sent, []);
-      byId(page, `${id}-stop`).click();
-      byId(page, `${id}-reject`).click();
-      assert.equal(byId(page, `${id}-ask`).textContent, CHANGE_WORDS.askReject);
-      assert.deepEqual(page.sent, []);
-      byId(page, `${id}-stop`).click();
+      page.app.all('button').find((button) => button.textContent === '되돌리기').click();
       const section = sectionOf(page, CHANGE_WORDS.diagram);
       assert.deepEqual([section.hidden, shownTexts(section, 'p'), buttonsIn(section)], [false, [CHANGE_WORDS.waitingWhy], []]);
       assert.deepEqual(rowsOf(section.all('ul', 'chg')[0]).map(([title]) => title), ['project_rooms', ACCEPTED.change]);
@@ -604,13 +638,12 @@ describe('SCR-145 changes', () => {
   });
 
   for (const verb of ['accept', 'reject']) {
-    test(`a phone sends proposal ${verb} only after the second question`, async () => {
+    test(`a phone queues proposal ${verb} and sends after the undo period`, async () => {
       const page = await openStage('erd', { phone: true, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
       try {
         const id = `p-${PROPOSED.id}`;
         byId(page, `${id}-${verb}`).click();
         assert.equal(page.sent.length, 0);
-        byId(page, `${id}-yes`).click();
         await page.settle();
         assert.equal(page.sent.length, 1);
         assert.equal(page.sent[0].path, `/api/projects/${P}/change-sets/${PROPOSED.id}/${verb}`);
@@ -790,11 +823,9 @@ describe('SCR-145 changes against the server', () => {
         await page.settle();
       };
       await click(`p-${shown.proposals.accept}-accept`);
-      await click(`p-${shown.proposals.accept}-yes`);
       const accepted = sectionOf(page, CHANGE_WORDS.proposals).all('div', 'prop').find((card) => card.all('span', 'tag').length > 0);
       assert.deepEqual(accepted.all('p', 'sec').map((p) => p.textContent), [CHANGE_WORDS.accepted]);
       await click(`p-${shown.proposals.reject}-reject`);
-      await click(`p-${shown.proposals.reject}-yes`);
       assert.ok(byId(page, `p-${shown.proposals.reject}-reject`) === null);
       await click(`w-${shown.edits.cancel}-cancel`);
       assert.ok(byId(page, `w-${shown.edits.cancel}-cancel`) === null);
@@ -832,7 +863,6 @@ describe('SCR-145 changes against the server', () => {
       buttonNamed(page, 'project_rooms').dispatch('keydown', { key: 'F2' });
       assert.ok(fieldOf(page) === null && byId(page, 'connect') === null);
       byId(page, `p-${proposal}-reject`).click();
-      byId(page, `p-${proposal}-yes`).click();
       await page.settle();
       assert.deepEqual(shownTexts(sectionOf(page, CHANGE_WORDS.proposals), 'p', 'sec'), [CHANGE_WORDS.allAnswered]);
       byId(page, `w-${edit}-cancel`).click();
@@ -906,7 +936,6 @@ describe('SCR-145 changes against the server', () => {
   };
   const answerOn = (verb) => async (page) => {
     byId(page, `p-${shown.proposals.replay}-${verb}`).click();
-    byId(page, `p-${shown.proposals.replay}-yes`).click();
   };
 
   test('every response API-270 lists leads accepting to the state SCR-145 gives', async () => {
