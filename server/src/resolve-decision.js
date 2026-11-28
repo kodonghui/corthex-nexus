@@ -12,25 +12,26 @@ function approvedText(entries, owner, last) {
     && normalize(recommendation.body) === normalize(last.body);
 }
 
-function approvalTime(entries, last, reopenedAt) {
+function approvalTime(q, thread, row, entries, last, reopenedAt) {
   const owner = entries.findLast((entry) => entry.author === 'owner');
   if (owner && !/[?？]/u.test(owner.body) && approvedText(entries, owner, last)
       && (reopenedAt == null || owner.created_at > reopenedAt)
       && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return owner.created_at;
   const evidence = JSON.parse(last.detail).external_evidence;
-  if (!evidence || typeof evidence.at !== 'string' || evidence.at < entries[0].created_at || evidence.at > last.created_at
+  if (!evidence || typeof evidence.at !== 'string' || typeof evidence.text !== 'string' || /[?？]/u.test(evidence.text)
+      || evidence.at < row.opened_at || evidence.at > last.created_at
       || (reopenedAt != null && evidence.at <= reopenedAt)) return null;
-  if (entries.some((entry) => entry.seq < last.seq && entry.created_at >= evidence.at
-      && (entry.author === 'owner' || JSON.parse(entry.detail).asks !== undefined))) return null;
+  if (q.laterQuestion.get(thread, last.seq, evidence.at)) return null;
   return evidence.at;
 }
 const cached = new WeakMap();
 function queries(store) {
   if (!cached.has(store)) cached.set(store, {
-    thread: store.prepare(`SELECT t.state, t.diagram_id, t.element_key, d.source_key, d.kind, p.repository, p.held_commit FROM comment_threads t
+    thread: store.prepare(`SELECT t.state, t.opened_at, t.diagram_id, t.element_key, d.source_key, d.kind, p.repository, p.held_commit FROM comment_threads t
       JOIN diagrams d ON d.id = t.diagram_id JOIN project_spaces p ON p.id = d.project_id
       WHERE t.id = ? AND p.id = ?`),
     entries: store.prepare('SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 200'),
+    laterQuestion: store.prepare("SELECT 1 FROM comments WHERE thread_id = ? AND seq < ? AND created_at >= ? AND (author = 'owner' OR json_type(detail, '$.asks') IS NOT NULL) LIMIT 1"),
     lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
     pending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
     ownerPending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state = 'proposed' LIMIT 1"),
@@ -59,7 +60,7 @@ export function decisionWaitingForRecord(store, { project, thread }) {
   const entries = q.entries.all(thread).reverse();
   const last = entries.at(-1);
   const reopenedAt = q.lastReopen.get(thread)?.at;
-  if (!last || last.author !== 'agent' || !approvalTime(entries, last, reopenedAt)
+  if (!last || last.author !== 'agent' || !approvalTime(q, thread, row, entries, last, reopenedAt)
       || typeof JSON.parse(last.detail).link !== 'string') return false;
   return normalize(last.body) !== '';
 }
@@ -76,7 +77,7 @@ export function resolveDecision(store, { project, thread, time }) {
   const { link } = JSON.parse(last.detail);
   if (typeof link !== 'string') return false;
   const text = normalize(last.body);
-  const approvedAt = approvalTime(entries, last, reopenedAt);
+  const approvedAt = approvalTime(q, thread, row, entries, last, reopenedAt);
   if (!text || !approvedAt) return false;
   const drawing = q.current.get(row.diagram_id);
   if (!drawing || drawing.status !== 'drawn' || q.incomplete.get(drawing.id)) return false;

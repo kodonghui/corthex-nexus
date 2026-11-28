@@ -352,6 +352,14 @@ describe('agent comments', () => {
     s.comment(laterQuestion, { author: 'agent', body: 'Another question?', at: '2026-11-23T00:40:00.000Z' });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ asks: 'answer' }), laterQuestion);
     assert.equal((await decide(idOf('nc', laterQuestion), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name })).json.thread.state, 'open');
+    const questionEvidence = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    assert.equal((await decide(idOf('nc', questionEvidence), { link: `${repository}/pull/42`, text, external_evidence: { ...evidence, text: 'Which one?' } }, { project: example.name })).json.thread.state, 'open');
+    const longThread = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    for (let i = 0; i < 201; i++) s.comment(longThread, { author: 'agent', body: 'Status.', at: '2026-11-23T00:40:00.000Z' });
+    assert.equal((await decide(idOf('nc', longThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name })).json.thread.state, 'closed');
+    const missingRecord = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    const waitingRecord = await decide(idOf('nc', missingRecord), { link: `${repository}/pull/99`, text, external_evidence: evidence }, { project: example.name });
+    assert.deepEqual([waitingRecord.json.thread.state, waitingRecord.json.thread.waits_on], ['open', 'agent']);
     const result = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(result.status, 201);
     assert.equal(result.json.thread.state, 'closed');
@@ -717,6 +725,10 @@ describe('agent comments', () => {
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'a\u0000b', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: '\uD800', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: 'bad' } }, 'invalid_request', 'external_evidence.at'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: at(clock + MINUTE) } }, 'invalid_request', 'external_evidence.at'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: ' ', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: [] }, 'invalid_request', 'external_evidence'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: at(clock), extra: true } }, 'invalid_request', 'body'],
     ];
     for (const [send, body, code, field, limit] of refusals) {
       const refused = await send(body, {});
