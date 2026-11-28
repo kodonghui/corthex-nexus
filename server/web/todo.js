@@ -27,7 +27,7 @@ const KINDS = Object.freeze({
 // Why a diagram waits for its confirmation (OwnerTodoEntry.reason).
 export const REASONS = Object.freeze({
   new: '아직 확정한 적이 없어요',
-  invalidated: '새 문서로 확정이 풀렸어요',
+  invalidated: '지난 확정 뒤 확인할 내용이 생겼어요. 그림을 다시 확인해 주세요',
   cancelled: '확정을 취소했어요',
 });
 
@@ -47,10 +47,10 @@ export function todoBody({ address, data, shell }) {
   const list = h('div', { class: 'morning-cards' });
   const more = h('button', { type: 'button', class: 'btn tertiary', on: { click: showMore } }, '다음 할 일 보기');
   let shown = Math.min(shell.inboxShown ?? 50, entries.length);
-  for (const entry of entries.slice(0, shown)) list.append(morningCard(entry, shell, titles));
+  for (const [index, entry] of entries.slice(0, shown).entries()) list.append(morningCard(entry, shell, titles, index + 1));
   more.hidden = shown >= entries.length;
   function showMore() {
-    for (const entry of entries.slice(shown, shown + 50)) list.append(morningCard(entry, shell, titles));
+    for (const [index, entry] of entries.slice(shown, shown + 50).entries()) list.append(morningCard(entry, shell, titles, shown + index + 1));
     shown = Math.min(shown + 50, entries.length);
     shell.inboxShown = Math.max(shell.inboxShown ?? 50, shown);
     more.hidden = shown >= entries.length;
@@ -64,7 +64,7 @@ function oldTodoNotice(shell, failure) {
     ...shell.errorNotice(failure, () => shell.reload())];
 }
 
-// Project-first home: only known counts are shown, and a capped to-do is labelled as a minimum.
+// Morning report: only known counts and delivery times are shown.
 function projectHome(data, shell) {
   const todo = data.todo;
   const failure = shell.missed('todo');
@@ -74,31 +74,101 @@ function projectHome(data, shell) {
   const warning = todo.backup ? backupWarning(todo.backup) : null;
   const stale = failure ? oldTodoNotice(shell, failure) : null;
   const titles = new Map((data.projects?.projects ?? []).map((project) => [project.name, project.title || project.name]));
-  return [warning, stale, timeline(data, shell), h('h2', {}, `오늘 할 일은 ${todo.entries.length >= 5000 ? '적어도 ' : ''}${todo.entries.length}가지예요`),
-    entries.length ? h('div', { class: 'morning-cards' }, entries.map((entry) => morningCard(entry, shell, titles)))
-      : h('div', { class: 'empty' }, h('p', {}, todo.morning === undefined && todo.entries.length ? '아침 보고를 읽지 못했어요. 모든 할 일에서 확인해 주세요.' : '기다리는 일이 없어요.'), titles.size === 0 ? h('p', {}, '에이전트가 처음 보내면 여기에 나와요.') : null),
-    h('a', { class: 'btn tertiary', href: TODO_HREF }, '모든 할 일 보기'),
-    h('a', { class: 'btn tertiary', href: PROJECTS_HREF }, '모든 프로젝트 보기')];
+  const hasDecisions = entries.some((entry) => entry.kind === 'question' || entry.kind === 'proposal');
+  const guidance = entries.length === 0 ? (todo.entries.length ? '모든 할 일에서 확인해 주세요.' : '새 질문이나 제안이 오면 여기에 알려 드려요.')
+    : !hasDecisions ? '그림 내용을 살펴본 뒤 확정을 한 번 더 확인해 주세요.'
+      : shell.pending ? '버튼 하나씩 누르면 끝나요. 답변과 제안은 10초 안에 되돌릴 수 있어요.'
+        : '답변과 제안을 보내려면 브라우저 저장 공간을 확인해 주세요.';
+  const intro = h('div', { class: 'morning-intro' }, h('p', { class: 'sec' }, '좋은 아침이에요'),
+    h('h2', {}, `오늘 할 일은 ${todo.entries.length >= 5000 ? '적어도 ' : ''}${todo.entries.length}가지예요`),
+    h('p', { class: 'sec' }, guidance));
+  const cards = entries.length ? h('div', { class: 'morning-cards' }, entries.map((entry, index) => morningCard(entry, shell, titles, index + 1)))
+    : h('div', { class: 'empty' }, h('p', {}, todo.morning === undefined && todo.entries.length ? '아침 보고를 읽지 못했어요. 모든 할 일에서 확인해 주세요.' : '기다리는 일이 없어요.'), titles.size === 0 ? h('p', {}, '에이전트가 처음 보내면 여기에 나와요.') : null);
+  return [warning, stale, timeline(data, shell), h('div', { class: 'digest-grid' },
+    h('div', { class: 'digest-main' }, intro, cards, h('a', { class: 'digest-more', href: TODO_HREF }, '모든 할 일 보기')),
+    digestAside(data.projects?.projects ?? [], shell))];
+}
+
+// API-262 exposes the latest delivery per project, not a complete activity history.
+function digestAside(projects, shell) {
+  const today = new Date(Date.now());
+  today.setHours(0, 0, 0, 0);
+  today.setDate(today.getDate() - 1);
+  const now = Date.now();
+  const recent = projects.filter((project) => {
+    const at = Date.parse(project.pushed_at);
+    return Number.isFinite(at) && at >= today.getTime() && at <= now + CLOCK_SKEW_MS;
+  }).sort((a, b) => Date.parse(b.pushed_at) - Date.parse(a.pushed_at)).slice(0, 5);
+  const overview = projects.slice(0, 5).map((project) => {
+    const count = project.stages_passed;
+    const known = Number.isInteger(count) && count >= 0 && count <= STAGES.length;
+    return h('li', {}, h('div', { class: 'overview-title' }, h('a', { href: projectHref(project.name) }, project.title || project.name),
+      h('span', { class: 'small' }, known ? `${count}/${STAGES.length}` : '진행 정보 없음')),
+    known ? h('progress', { max: STAGES.length, value: count, 'aria-label': `${project.title || project.name}: ${STAGES.length}단계 중 ${count}단계 통과` }) : null);
+  });
+  return h('aside', { class: 'digest-side', 'aria-label': '프로젝트 요약' },
+    h('section', {}, h('h2', {}, '어제부터 AI가 한 일'),
+      h('p', { class: 'small' }, 'AI 작업의 전체 기록은 아직 볼 수 없어요. 조회할 때 어제부터 도착한 프로젝트 자료를 보여요.'),
+      recent.length ? h('ul', { class: 'digest-activity' }, recent.map((project) => h('li', {},
+        h('a', { href: projectHref(project.name) }, project.title || project.name), ': 자료가 도착했어요 · ', shell.since(project.pushed_at))))
+        : h('p', { class: 'sec' }, '최근 도착한 자료가 없어요.')),
+    h('section', {}, h('h2', {}, '프로젝트 한눈에'),
+      overview.length ? h('ul', { class: 'project-overview' }, overview) : h('p', { class: 'sec' }, '아직 프로젝트가 없어요.'),
+      h('a', { href: PROJECTS_HREF }, '모든 프로젝트 보기')));
 }
 
 function timeline(data, shell) {
   const first = data.todo?.morning?.[0] ?? (data.projects?.projects?.[0] ? { project: data.projects.projects[0].name, part: null } : null);
   if (!first) return null;
-  if (!data.progress || data.progress.name !== first.project) return h('p', { class: 'sec' }, '진행 상황을 불러오지 못했어요.');
+  if (!data.progress || data.progress.name !== first.project) return h('div', { class: 'nt warn', role: 'status' },
+    h('span', {}, '진행 상황을 불러오지 못했어요.'), h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => shell.reload() } }, '다시 확인'));
   const project = data.progress;
   const words = { passed: '통과', changed_since_pass: '통과 뒤 바뀜', open: '진행 중', not_sent: '시작 전' };
   const part = first.part ?? project.stages?.[0]?.part ?? '';
-  return h('section', { 'aria-label': '프로젝트 진행 상황' },
-    h('h2', {}, `${project.title || project.name} 진행 상황`),
-    h('nav', { class: 'tabs timeline', 'aria-label': '13단계 진행 상황' }, STAGES.map((stage) => {
+  const rows = (project.stages ?? []).filter((stage) => stage.part === part);
+  if (rows.length === 0) return h('div', { class: 'nt warn', role: 'status' },
+    h('span', {}, '이 프로젝트의 진행 상황을 확인할 수 없어요.'), h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => shell.reload() } }, '다시 확인'));
+  const firstRow = rows.find((stage) => stage.stage === first.stage);
+  const current = firstRow && ['open', 'changed_since_pass'].includes(firstRow.state) ? firstRow.stage
+    : rows.find((stage) => stage.state === 'open')?.stage ?? rows.find((stage) => stage.state === 'changed_since_pass')?.stage ?? null;
+  const next = current === null ? rows.find((stage) => stage.state === 'not_sent')?.stage ?? null : null;
+  const positionKey = `${project.name}:${part}:${current ?? next ?? 'none'}`;
+  const positions = shell.timelinePositions ??= new Map();
+  let interacted = false;
+  let active = null;
+  const nav = h('nav', { class: 'tabs timeline', 'aria-label': '13단계 진행 상황', on: {
+    pointerdown: () => { interacted = true; }, wheel: () => { interacted = true; }, keydown: () => { interacted = true; },
+    scroll: () => { if (interacted) { if (!positions.has(positionKey) && positions.size >= 100) positions.delete(positions.keys().next().value); positions.set(positionKey, nav.scrollLeft); } },
+  } }, STAGES.map((stage) => {
       const row = (project.stages ?? []).find((each) => each.stage === stage.id && each.part === part);
       const state = words[row?.state] ?? '시작 전';
-      return h('a', { class: 'tab', href: stageHref(first.project, part, stage.id), 'aria-label': `${stage.number} ${stageLabel(stage.id)}: ${state}` },
-        h('span', { class: 'n' }, stage.number), h('span', { class: 'timeline-label' }, stageLabel(stage.id)), h('span', { class: 'timeline-state' }, state));
-    })));
+      const isCurrent = stage.id === current;
+      const isNext = stage.id === next;
+      const marker = isCurrent ? (row?.state === 'changed_since_pass' ? '현재 · 바뀜' : '현재') : isNext ? '다음'
+        : row?.state === 'passed' ? '✓' : row?.state === 'changed_since_pass' ? '바뀜' : row?.state === 'open' ? '진행 중' : '';
+      const link = h('a', { class: `tab timeline-${row?.state ?? 'not_sent'}${isCurrent || isNext ? ' current' : ''}`,
+        href: stageHref(first.project, part, stage.id), 'aria-current': isCurrent ? 'step' : null,
+        'aria-label': `${stage.number} ${stageLabel(stage.id)}: ${state}${isCurrent ? ', 현재 단계' : isNext ? ', 다음 단계' : ''}` },
+      h('span', { class: 'n' }, stage.number), h('span', { class: 'timeline-label' }, stageLabel(stage.id)),
+      marker ? h('span', { class: 'timeline-marker', 'aria-hidden': 'true' }, marker) : null);
+      if (isCurrent || isNext) active = link;
+      return link;
+    }));
+  globalThis.requestAnimationFrame?.(() => {
+    if (positions.has(positionKey)) nav.scrollLeft = positions.get(positionKey);
+    else if (active?.isConnected && nav.clientWidth < nav.scrollWidth) {
+      const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
+      nav.scrollLeft = Math.max(0, left - (nav.clientWidth - active.clientWidth) / 2);
+    }
+  });
+  return h('section', { class: 'timeline-section', 'aria-label': '프로젝트 진행 상황' },
+    h('div', { class: 'timeline-heading' }, h('h2', {}, `${project.title || project.name} 진행 상황`),
+      h('p', { class: 'small' }, '파랑: 현재 또는 다음 단계 · ✓: 통과 · 바뀜: 다시 확인')),
+    shell.missed('progress') ? h('div', { class: 'nt warn', role: 'status' }, h('span', {}, '진행 상황은 이전 정보예요.'),
+      h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => shell.reload() } }, '다시 확인')) : null, nav);
 }
 
-function morningCard(entry, shell, titles = new Map()) {
+function morningCard(entry, shell, titles = new Map(), number = 1) {
   const target = stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread });
   const path = entry.kind === 'question' && entry.thread
     ? `${projectApi(entry.project)}/threads/${encodeURIComponent(entry.thread)}/comments`
@@ -109,13 +179,22 @@ function morningCard(entry, shell, titles = new Map()) {
     ? entry.question_text.split(/\r?\n/).filter((line) => !/^\s*[-*]\s+\[ \]/.test(line)).join('\n').trim()
     : entry.question_text;
   const draftKey = `todo:${entry.project}:${entry.thread}:${entry.since}`;
+  const openAnswers = shell.openAnswers ??= new Map();
+  // Keep the current tab's text across redraws even if browser storage is unavailable.
+  const drafts = shell.morningDrafts ??= new Map();
+  const getDraft = () => drafts.has(draftKey) ? drafts.get(draftKey) : shell.draftOf(draftKey);
+  const keepDraft = (text) => {
+    if (!drafts.has(draftKey) && drafts.size >= 5000) drafts.delete(drafts.keys().next().value);
+    drafts.set(draftKey, text);
+    shell.keepDraft(draftKey, text);
+  };
   const queue = (url, body, submittedDraft = null) => {
     try {
       if (!shell.pending) throw new Error('storage unavailable');
       shell.pending.enqueue(url, body, {
         draft: submittedDraft === null ? null : draftKey,
         draftText: submittedDraft,
-        done: () => { if (submittedDraft !== null && shell.draftOf(draftKey) === submittedDraft) shell.keepDraft(draftKey, ''); shell.reload(); },
+        done: () => { openAnswers.delete(draftKey); if (submittedDraft !== null && getDraft() === submittedDraft) { drafts.delete(draftKey); shell.keepDraft(draftKey, ''); } shell.reload(); },
         undone: (reason) => { notice.textContent = reason === 'elsewhere' ? '다른 화면에서 상태가 바뀌었어요. 현재 내용을 확인해 주세요.' : '되돌렸어요. 아직 보내지 않았어요.'; },
         failed: (outcome) => { notice.textContent = outcome.failure === 'expired' ? '오래된 답변이나 결정은 현재 내용을 확인해 주세요.' : isRetryableOutcome(outcome)
           ? '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.' : '보내지 못했어요. 위의 안내를 확인해 주세요.'; },
@@ -123,30 +202,54 @@ function morningCard(entry, shell, titles = new Map()) {
       notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
     } catch (error) { notice.textContent = error.message === 'already pending' ? '이 항목은 처리 중이에요. 위 안내를 확인해 주세요.' : error.message === 'storage unavailable' ? '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
   };
-  const field = entry.kind === 'question' ? h('textarea', { 'aria-label': '답변', rows: '3', on: { input: () => shell.keepDraft(draftKey, field.value) } }) : null;
-  if (field) field.value = shell.draftOf(draftKey);
-  const choices = entry.kind === 'question' && path ? (entry.question_choices ?? []).map((choice) =>
-    h('button', { type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
-  const actions = entry.kind === 'question' && path && entry.question_text ? h('div', {}, h('div', { class: 'btns' }, choices), h('form', { on: { submit: (event) => {
+  const identity = [entry.project, entry.thread, entry.since].map((part) => encodeURIComponent(String(part)));
+  const formId = `answer-${identity.map((part) => `${part.length}_${part}`).join('-')}`;
+  const field = entry.kind === 'question' ? h('textarea', { id: `${formId}-input`, 'data-preserve-focus': 'true', 'aria-label': '답변', rows: '3', on: {
+    input: () => keepDraft(field.value),
+    compositionstart: () => field.setAttribute('data-composing', 'true'),
+    compositionend: () => { field.removeAttribute('data-composing'); shell.finishComposition(); },
+    blur: () => { if (field.getAttribute('data-composing') === 'true') { field.removeAttribute('data-composing'); shell.finishComposition(); } },
+  } }) : null;
+  if (field) field.value = getDraft();
+  const choices = entry.kind === 'question' && path ? (entry.question_choices ?? []).map((choice, index) =>
+    h('button', { id: `${formId}-choice-${index}-${encodeURIComponent(choice.toWellFormed())}`, 'data-preserve-focus': 'true', type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
+  const expanded = openAnswers.has(draftKey) ? openAnswers.get(draftKey) : Boolean(field?.value);
+  if (expanded && !openAnswers.has(draftKey)) {
+    if (openAnswers.size >= 5000) openAnswers.delete(openAnswers.keys().next().value);
+    openAnswers.set(draftKey, true);
+  }
+  const form = field ? h('form', { id: formId, hidden: !expanded, on: { submit: (event) => {
     event.preventDefault();
     const text = field.value.trim();
     if (!text) { notice.textContent = '답변을 적어 주세요.'; return; }
     if ([...text].length > 4000) { notice.textContent = '답변은 4,000자까지 쓸 수 있어요.'; return; }
     queue(path, { text }, field.value);
-  } } }, field, h('button', { type: 'submit', class: 'btn primary' }, '답변 보내기')))
+  } } }, field, h('button', { type: 'submit', class: 'btn primary' }, '답변 보내기')) : null;
+  const writeOwn = form ? h('button', { id: `${formId}-toggle`, 'data-preserve-focus': 'true', type: 'button', class: 'btn tertiary', 'aria-expanded': expanded ? 'true' : 'false', 'aria-controls': formId, on: { click: () => {
+    form.hidden = !form.hidden;
+    if (!openAnswers.has(draftKey) && openAnswers.size >= 5000) openAnswers.delete(openAnswers.keys().next().value);
+    openAnswers.set(draftKey, !form.hidden);
+    writeOwn.setAttribute('aria-expanded', form.hidden ? 'false' : 'true');
+    if (!form.hidden) field.focus();
+  } } }, '직접 쓰기') : null;
+  const actions = entry.kind === 'question' && path && entry.question_text ? h('div', { class: 'answer-actions' }, h('div', { class: 'btns choice-row' }, choices, writeOwn), form)
     : entry.kind === 'proposal' && path && entry.proposal_summary ? h('div', { class: 'btns' },
       entry.removed ? null : h('button', { type: 'button', class: 'btn primary', on: { click: () => queue(`${path}/accept`, {}) } }, '제안 넣기'),
       h('button', { type: 'button', class: 'btn tertiary', on: { click: () => queue(`${path}/reject`, {}) } }, '제안 빼기'))
       : entry.kind === 'confirm' ? confirmationCard(entry, shell) : null;
+  const stage = stageOf(entry.stage);
+  const technical = stage && stage.name !== stageLabel(entry.stage) ? stage.name : null;
+  const pictureName = entry.diagram_name && entry.diagram_name !== stage?.name && entry.diagram_name !== stageLabel(entry.stage) ? entry.diagram_name : null;
   return h('section', { class: 'panel morning-card' },
-    h('h3', {}, `${titles.get(entry.project) ?? entry.project} · ${entry.diagram_name}`),
-    h('p', { class: 'small' }, `${KINDS[entry.kind]?.text ?? '할 일'} · ${stageLabel(entry.stage)}`, ' · ', shell.since(entry.since)),
+    h('div', { class: 'morning-card-head' }, h('span', { class: 'card-number', 'aria-hidden': 'true' }, String(number)),
+      h('h3', { 'aria-label': `${titles.get(entry.project) ?? entry.project} · ${stageLabel(entry.stage)}${pictureName ? ` · 그림: ${pictureName}` : ''}` }, `${titles.get(entry.project) ?? entry.project} · ${stageLabel(entry.stage)}`), technical ? h('span', { class: 'small technical-name' }, technical) : null),
+    h('p', { class: 'small' }, `${KINDS[entry.kind]?.text ?? '할 일'}`, pictureName ? ` · 그림: ${pictureName}` : null, ' · ', shell.since(entry.since)),
     h('p', { class: 'question-copy' }, question || entry.proposal_summary || (entry.kind === 'confirm' ? REASONS[entry.reason] ?? '확인할 그림이 있어요.' : '그림에서 내용을 확인해 주세요.')),
-    actions, notice, h('a', { href: target, class: 'btn tertiary' }, entry.kind === 'confirm' ? '이 그림 확인하기' : '그림에서 보기'));
+    actions, notice, h('a', { href: target, class: 'picture-link' }, entry.kind === 'confirm' ? '이 그림 확인하기' : '그림에서 보기'));
 }
 
 function confirmationCard(entry, shell) {
-  const area = h('div');
+  const area = h('div', { class: 'confirmation-area' });
   const path = diagramApi(entry.project, entry.diagram);
   let busy = false;
   const open = async () => {
@@ -170,7 +273,7 @@ function confirmationCard(entry, shell) {
     const count = changed ? (changed.added?.length ?? 0) + (changed.changed?.length ?? 0) + (changed.removed?.length ?? 0) : 0;
     const summary = changed == null ? '처음 확정하는 그림이에요.' : `지난 확정 뒤 바뀐 곳이 ${count}개예요.`;
     const names = (diagram.elements ?? []).map((element) => element.name?.trim()).filter(Boolean);
-    const preview = h('div', { class: 'nt' }, h('b', {}, '확정할 내용 미리보기'),
+    const preview = h('div', { class: 'nt confirmation-preview' }, h('b', {}, '확정할 내용 미리보기'),
       names.length ? h('ul', {}, names.slice(0, 6).map((name) => h('li', {}, name))) : h('p', {}, '그림에서 내용을 확인해 주세요.'),
       names.length > 6 ? h('p', {}, `이 밖에 ${names.length - 6}개가 더 있어요.`) : null,
       h('a', { href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram }), class: 'btn tertiary' }, '전체 그림 보기'));
@@ -194,8 +297,11 @@ function confirmationCard(entry, shell) {
       fill(area, h('p', { role: 'alert' }, '확정하지 못했어요. 그림의 현재 상태를 다시 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
     };
     const yes = h('button', { type: 'button', class: 'btn primary', on: { click: confirm } }, '네, 확정할게요');
-    fill(area, preview, h('p', {}, summary), h('p', {}, '확정하면 함께 일하는 AI가 기록해요. 모든 그림과 표의 기록이 끝나면 단계가 통과돼요.'),
-      yes, h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
+    const stage = stageOf(entry.stage);
+    const lastStep = stage ? `모든 그림과 표가 기록되면 ${Number(stage.number)}단계가 끝나요.` : '모든 그림과 표가 기록되면 이 단계가 끝나요.';
+    fill(area, preview, h('p', {}, summary), h('div', { class: 'confirmation-steps' }, h('b', {}, '확정하면'), h('ol', {},
+      h('li', {}, '지금 그림을 맞다고 표시해요.'), h('li', {}, 'AI가 내용을 기록해요.'), h('li', {}, lastStep))),
+      h('div', { class: 'btns' }, yes, h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소')));
   };
   const reset = () => fill(area, h('button', { type: 'button', class: 'btn primary', on: { click: open } }, '이 그림 확정하기'));
   reset();

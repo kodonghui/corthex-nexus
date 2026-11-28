@@ -400,6 +400,7 @@ describe('screen states through the push', () => {
   test('a screen file whose state table cannot be read keeps its last good drawing and is named in failures with its line', async () => {
     const name = 'screens-failed';
     const files = storedFiles();
+    const brokenLine = files.find((file) => file.key === `${FOLDER}SCR-142.md`).text.split('\n').findIndex((line) => line.startsWith('| SCR-142#loading |')) + 1;
     const broken = files.map((file) => (file.key === `${FOLDER}SCR-142.md`
       ? { ...file, text: file.text.replace('| SCR-142#loading |', '| SCR-142#loading | | | |') }
       : file));
@@ -408,10 +409,10 @@ describe('screen states through the push', () => {
     const answer = await push(snapshotWith(name, broken, { commit: b, replaces: a }));
     const diagram = diagramsOf(name)[0];
     assert.deepEqual([answer.json.diagrams, answer.json.failures], [counted({ failed: 1, unchanged: 4 }), [
-      { diagram: idOf('dg', Number(diagram.id)), part: '', stage: STAGE, where: `${FOLDER}SCR-142.md:31` },
+      { diagram: idOf('dg', Number(diagram.id)), part: '', stage: STAGE, where: `${FOLDER}SCR-142.md:${brokenLine}` },
     ]]);
     const [good, failed] = drawings(diagram.id);
-    assert.deepEqual([good.status, failed.status, failed.failed_path, failed.failed_line], ['drawn', 'failed', `${FOLDER}SCR-142.md`, 31]);
+    assert.deepEqual([good.status, failed.status, failed.failed_path, failed.failed_line], ['drawn', 'failed', `${FOLDER}SCR-142.md`, brokenLine]);
     assert.deepEqual(elements(failed.id), []);
     assert.equal(elements(good.id).length, 6);
     // The diagram keeps its name, and the same file failing again makes no new drawing.

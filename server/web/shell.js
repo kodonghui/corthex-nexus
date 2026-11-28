@@ -94,6 +94,8 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   let clocks = [];
   // The outcomes of the parts' reads that failed in the last load, by the read's name.
   let misses = {};
+  // A normal refresh waits until an active Korean IME composition has committed its final input.
+  let afterComposition = null;
   // Whether a part's read again failed and the part kept what it showed, so the read time shows (states.js readTag).
   let partStale = false;
   // How the address was last reached: 'open' (the page opened, or the browser went back or forward to it), 'switch'
@@ -116,6 +118,11 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
     reload,
     write: writeOf,
     redraw,
+    finishComposition: () => setTimeout(() => {
+      const draw = afterComposition;
+      afterComposition = null;
+      if (draw && !ended) again(draw);
+    }, 0),
     missed: (name) => misses[name] ?? null,
     // A refresh is authoritative only when the whole screen read succeeded, including its dependent reads.
     fresh: (name) => !ended && reread === null && !partStale && !misses[name] ? data?.[name] ?? null : null,
@@ -300,6 +307,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   // page's address reloads the page.
   function arrive(pathname, search, how) {
     if (ended) return;
+    afterComposition = null;
     const next = parseAddress(pathname, search);
     if (!samePlace(next)) {
       globalThis.location.reload();
@@ -336,8 +344,18 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   // Draws the view again where the page is scrolled to.
   function again(draw) {
     const y = globalThis.scrollY ?? 0;
+    const focused = document.activeElement;
+    const keep = focused?.getAttribute?.('data-preserve-focus') === 'true' && view.contains(focused);
+    if (keep && focused.getAttribute('data-composing') === 'true') { afterComposition = draw; showTimes(); return; }
+    const focusId = keep ? focused.getAttribute('id') : null;
+    const selection = keep ? [focused.selectionStart, focused.selectionEnd] : null;
     draw();
     globalThis.scrollTo?.(0, y);
+    const restored = focusId ? document.getElementById(focusId) : null;
+    if (restored) {
+      restored.focus({ preventScroll: true });
+      if (selection?.every(Number.isInteger)) restored.setSelectionRange?.(...selection);
+    }
   }
 
   function headerRead(path, show, hide) {
@@ -459,7 +477,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
       if (element.textContent !== text) element.textContent = text;
     }
     if (tag === null) return;
-    const text = readTag(readAt, now, reread !== null || partStale);
+    const text = afterComposition ? '입력을 마치면 새 내용을 보여드려요.' : readTag(readAt, now, reread !== null || partStale);
     tag.hidden = text === null;
     tag.textContent = text ?? '';
   }
@@ -479,6 +497,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   function permission(kind, outcome) {
     if (ended) return;
     ended = true;
+    afterComposition = null;
     if (kind === 'gate' && gateStep(stored('sessionStorage', GATE_KEY)) === 'reload') {
       store('sessionStorage', GATE_KEY, String(Date.now()));
       // Without the mark the page could not tell the next 401 from this one, so it reloads only once the mark holds:
