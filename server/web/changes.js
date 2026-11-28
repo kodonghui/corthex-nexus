@@ -535,20 +535,21 @@ function ask(state, set, verb) {
   const path = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/${verb}`;
   try {
     if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+    let pendingKey = null;
     const retry = () => {
-      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.path === path);
+      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey);
       if (item) state.ctx.shell.pending.retry(item, hooks);
     };
     const hooks = {
       done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
       failed: (outcome) => {
         if (!state.live()) return;
-        const again = !outcome.status || outcome.status >= 500 ? retry : () => ask(state, set, verb);
+        const again = !outcome.status || outcome.status >= 500 || [401, 408, 429].includes(outcome.status) ? retry : () => ask(state, set, verb);
         met(state, outcome, { verb, retry: again, focus: 'proposals-heading' });
       },
       undone: () => { if (state.live()) drawChanges(state); },
     };
-    state.ctx.shell.pending.enqueue(path, {}, hooks);
+    pendingKey = state.ctx.shell.pending.enqueue(path, {}, hooks);
     drawChanges(state);
   } catch (error) {
     if (error.message === 'already pending') { drawChanges(state); return; }

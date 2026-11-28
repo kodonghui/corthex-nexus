@@ -27,12 +27,15 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     inFlight.delete(item.key);
     if (current) current.sending = false;
     if (result.status === 200 || result.status === 201) {
-      try { forget(item); } catch { /* A retry with the same key remains safe. */ }
+      try {
+        forget(item);
+        for (const old of recovered()) if (old.state === 'failed' && targetOf(old.path) === targetOf(item.path)) forget(old);
+      } catch { /* A retry with the same key remains safe. */ }
       live.delete(item.key);
       current?.done?.(result.body, result);
     } else {
       // An explicit client refusal remains visible but does not block a new action.
-      if (result.status >= 400 && result.status < 500) {
+      if (result.status >= 400 && result.status < 500 && ![401, 408, 429].includes(result.status)) {
         item.state = 'failed';
         try { save(item); } catch { /* Keep the previous persisted marker. */ }
       } else {

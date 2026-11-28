@@ -507,6 +507,18 @@ describe('SCR-145 changes', () => {
     }
   });
 
+  test('a temporarily limited proposal retry keeps the same request key', async () => {
+    let calls = 0;
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? problem(429, 'rate_limited') : problem(409, 'change_set_state') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
   test('a lost connection keeps the request key for 다시 시도; a decided change shows the stale bar with "새 제안을 부탁하세요." and 새로 고침', async () => {
     let calls = 0;
     const page = await openStage('erd', {

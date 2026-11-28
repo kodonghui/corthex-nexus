@@ -61,8 +61,8 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
         : item.state === 'failed' ? '보내지 못한 결정이 있어요. 그림의 현재 상태를 확인해 주세요. '
           : '전송 결과를 확인하지 못했어요. 다시 보내기 전에 확인해 주세요. ',
         h('p', {}, `${item.path.split('/')[3]} · `, typeof item.body.text === 'string' ? `답변: ${item.body.text}` : item.path.endsWith('/accept') ? '제안 넣기' : '제안 빼기'),
-        item.state === 'failed' ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => pending.retry(item) } }, '다시 보내기'),
-        h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => pending.discard(item) } }, '안내 지우기'))));
+        item.state === 'failed' ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: async () => { const result = await pending.retry(item); if (result?.status >= 400 && result.status < 500) reload(); } } }, '다시 보내기'),
+        h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => { if (pending.discard(item)) reload(); } } }, '안내 지우기'))));
   }
   globalThis.addEventListener?.('pagehide', () => pending?.flush());
   let round = new Map();

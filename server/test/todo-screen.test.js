@@ -192,6 +192,19 @@ describe('SCR-142', () => {
     } finally { page.close(); }
   });
 
+  test('a later question in the same thread does not reuse an earlier draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '첫 질문이에요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      const field = mainOf(page).all('textarea')[0]; field.value = '지난 답변'; field.dispatch('input');
+      const next = { ...question, question_text: '다음 질문이에요.' };
+      answers['/api/todo'] = json(200, { entries: [next], morning: [next], backup: null });
+      await page.shell.reload(); await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '');
+    } finally { page.close(); }
+  });
+
   test('an explicit answer choice can be undone before it is sent', async () => {
     const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '기간을 선택해 주세요.', question_choices: ['3일', '7일'] };
     const path = `/api/projects/${question.project}/threads/${question.thread}/comments`;
@@ -259,6 +272,17 @@ describe('SCR-142', () => {
       assert.doesNotMatch(mainOf(page).textContent, /\b(?:dg|nc|np)_/);
       assert.equal(headerOf(page).all('span', 'cnt')[0].textContent, String(ENTRIES.length));
       assert.equal(errorShown(page), false);
+    } finally { page.close(); }
+  });
+
+  test('the inbox keeps its expanded batch after a reload', async () => {
+    const entries = Array.from({ length: 120 }, (_, index) => ({ ...ENTRIES[index % ENTRIES.length], since: earlier(index + 1) }));
+    const page = await openTodo({ answers: answersOf({ todo: { entries, morning: [], backup: null } }) });
+    try {
+      page.app.all('button').find((button) => button.textContent === '다음 할 일 보기').click();
+      assert.equal(rowsOf(page).length, 100);
+      await page.shell.reload(); await page.settle();
+      assert.equal(rowsOf(page).length, 100);
     } finally { page.close(); }
   });
 

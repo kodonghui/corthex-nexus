@@ -83,3 +83,28 @@ test('an uncertain failure blocks the same target until retry or dismissal', asy
   assert.equal(queue.discard(queue.recovered()[0]), true);
   assert.equal(queue.hasTarget(path), false);
 });
+
+test('authentication and temporary refusals keep a retryable action', async () => {
+  for (const status of [401, 408, 429]) {
+    const store = storage(); const timers = [];
+    const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+      cancelTimer: () => {}, send: async () => ({ status }) });
+    const path = '/api/projects/demo/change-sets/np_000000000001/accept';
+    queue.enqueue(path, {});
+    await timers[0]();
+    assert.equal(queue.recovered()[0].state, 'unconfirmed', String(status));
+    assert.equal(queue.hasTarget(path), true, String(status));
+  }
+});
+
+test('a later successful decision clears earlier failed records for the same proposal', async () => {
+  const store = storage(); const timers = []; let status = 409;
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+    cancelTimer: () => {}, send: async () => ({ status }) });
+  const path = '/api/projects/demo/change-sets/np_000000000001/accept';
+  queue.enqueue(path, {}); await timers[0]();
+  assert.equal(queue.recovered()[0].state, 'failed');
+  status = 200;
+  queue.enqueue(path.replace('/accept', '/reject'), {}); await timers[1]();
+  assert.equal(queue.recovered().length, 0);
+});

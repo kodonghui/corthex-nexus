@@ -209,3 +209,9 @@ The implementation review found recovery and redraw gaps: definite refusals now 
 The selected mockup keeps the existing stage-09 diagram key, so its diagram conversations keep their target. Its token list differs from the earlier 39-state page; conversations attached to token keys the selected page no longer reads may be shown as attached to removed elements. Check that history during a later authorized rollout; the local synthetic fixture does not establish what exists in production.
 
 A later mockup review also noted duplicated supplied reference fonts and the copied standalone combination page. Measure whether the reference assets can share one copy without breaking the archived HTML, and whether a single source can produce both the stage page and the stage-09 review page; keep the standalone sandbox constraint in that evaluation.
+
+A further mockup review raised a possible double announcement when a live status is also focused. This has not been reproduced with a screen reader; check it, the new direction's remaining states, and real first-time users as follow-up work.
+
+The next implementation review also raised possible cost from rereading browser storage for each proposal and maintenance drift between the timeline's plain-language names and the stage registry. Measure the former with many proposals and consider a shared stage-label source in a later change; neither was measured as a current user-visible failure.
+
+The mockup review also raised unverified focus and announcement ordering when the preview changes to a restricted state during a pending timer, and a possible duplicate announcement when the last decision finishes after confirmation. Check these sequences with assistive technology in the later full-state mockup pass.

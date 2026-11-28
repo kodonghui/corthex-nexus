@@ -42,17 +42,18 @@ export function todoBody({ address, data, shell }) {
   const warning = data.todo.backup ? backupWarning(data.todo.backup) : null;
   if (entries.length === 0) return [warning, stale, nothingToDo(projects, shell, Boolean(missed))];
   const titles = new Map(projects.map((project) => [project.name, project.title || project.name]));
-  // Each 프로젝트 보기 is named with its group's heading too, so that a list of the links tells them apart.
   const capped = entries.length >= 5000 ? h('p', { class: 'nt warn', role: 'status' }, '할 일이 적어도 5,000개예요. 오래된 5,000개를 보여 드려요.') : null;
   const list = h('div', { class: 'morning-cards' });
   const more = h('button', { type: 'button', class: 'btn tertiary', on: { click: showMore } }, '다음 할 일 보기');
-  let shown = 0;
+  let shown = Math.min(shell.inboxShown ?? 50, entries.length);
+  for (const entry of entries.slice(0, shown)) list.append(morningCard(entry, shell, titles));
+  more.hidden = shown >= entries.length;
   function showMore() {
     for (const entry of entries.slice(shown, shown + 50)) list.append(morningCard(entry, shell, titles));
     shown = Math.min(shown + 50, entries.length);
+    shell.inboxShown = Math.max(shell.inboxShown ?? 50, shown);
     more.hidden = shown >= entries.length;
   }
-  showMore();
   return [warning, stale, capped, list, more];
 }
 
@@ -106,7 +107,7 @@ function morningCard(entry, shell, titles = new Map()) {
   const question = entry.question_choices?.length && entry.question_text
     ? entry.question_text.split(/\r?\n/).filter((line) => !/^\s*[-*]\s+\[ \]/.test(line)).join('\n').trim()
     : entry.question_text;
-  const draftKey = `todo:${entry.project}:${entry.thread}`;
+  const draftKey = `todo:${entry.project}:${entry.thread}:${entry.since}:${entry.question_text ?? ""}`;
   const queue = (url, body, submittedDraft = null) => {
     try {
       if (!shell.pending) throw new Error('storage unavailable');
@@ -158,7 +159,7 @@ function confirmationCard(entry, shell) {
     }
     if (diagram.removed || diagram.drawing?.status !== 'drawn' || diagram.confirmation?.state === 'confirmed'
         || (diagram.overlays ?? []).some((set) => set.state === 'accepted')) {
-      fill(area, h('p', { role: 'alert' }, '지금은 이 그림을 확정할 수 없어요. 그림에서 상태를 확인해 주세요.'));
+      fill(area, h('p', { role: 'alert' }, '지금은 이 그림을 확정할 수 없어요. 그림에서 상태를 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
       return;
     }
     const changed = diagram.since_confirmation;
@@ -183,29 +184,6 @@ function confirmationCard(entry, shell) {
   const reset = () => fill(area, h('button', { type: 'button', class: 'btn primary', on: { click: open } }, '이 그림 확정하기'));
   reset();
   return area;
-}
-
-// The entries by project, the projects in the order of their first entry and each one's entries in their order.
-function groupsOf(entries) {
-  const groups = new Map();
-  for (const entry of entries) {
-    if (!groups.has(entry.project)) groups.set(entry.project, []);
-    groups.get(entry.project).push(entry);
-  }
-  return [...groups];
-}
-
-function entryRow(entry, shell) {
-  const kind = KINDS[entry.kind] ?? null;
-  const stage = stageOf(entry.stage);
-  const place = [stage === undefined ? entry.stage : `${stage.number} ${stage.name}`, entry.diagram_name].filter(Boolean).join(' · ');
-  const reason = entry.kind === 'confirm' ? REASONS[entry.reason] ?? null
-    : entry.kind === 'question' ? '열어서 질문을 읽고 댓글에 답해 주세요.' : null;
-  return h('a', { class: 'li', href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread }) },
-    h('span', { class: 'lead' }, kind === null ? null : h('span', { class: kind.class }, kind.text)),
-    h('span', { class: 'grow' }, h('b', {}, place), reason === null ? null : h('span', { class: 'sec' }, reason)),
-    h('span', { class: 'end' }, shell.since(entry.since)),
-    icon('next', 'ic chev'));
 }
 
 // The warning of a failed daily backup (BackupWarning): the local date it failed on, as the mockup says it. It stays
