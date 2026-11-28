@@ -275,7 +275,8 @@ function diagramParts(state) {
     if (!isDrawn(diagram)) return [heading(...(live === null ? [] : [confirmedTag()]), h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
       h('p', {}, CONFIRM_WORDS.phoneNotDrawn), live === null ? h('p', { class: 'small' }, CONFIRM_WORDS.phone) : confirmedLines(state, live)];
     if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live)];
-    return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), confirmControl(state), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
+    return [sinceParts(state, heading), diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
+      h('p', {}, CONFIRM_WORDS.beforeConfirm), confirmControl(state), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
   }
   if (!isDrawn(diagram)) {
     // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.

@@ -89,6 +89,7 @@ const RENAMED = setOf('np_0000000000e1', 'direct_edit', [{ op: 'rename', element
 const ACCEPTED = setOf('np_0000000000e2', 'proposal', [{ op: 'rename', element: C.key, name: 'snapshot_rows', target: null }], {
   items: ['TBL-148'], change: 'Rename snapshots to snapshot_rows.', reason: 'Rows, as the other tables.',
 });
+const PROPOSED = { ...ACCEPTED, state: 'proposed', decided_at: null };
 
 const STAGE_IDS = ['01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs', '11-development', '12-qa', '13-presentation'];
 const summaryOf = (which) => {
@@ -189,10 +190,10 @@ describe('SCR-145 "이 그림"', () => {
     } finally {
       page.close();
     }
-    const phone = await openAt('erd', { phone: true });
+    const phone = await openAt('erd', { phone: true, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
     try {
       assert.equal(diagramSection(phone).hidden, false);
-      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.leftOut, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
       assert.ok(byId(phone, 'confirm') !== null);
       press(byId(phone, 'confirm'));
       assert.equal(phone.sent.length, 0);
@@ -549,6 +550,17 @@ describe('SCR-145 "이 그림"', () => {
 });
 
 describe('SCR-146', () => {
+  test('both widths explain that open proposals are excluded before confirmation', async () => {
+    for (const phone of [true, false]) {
+      const page = await openAt('erd', { screen: 'changes', phone, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
+      try {
+        assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.leftOut));
+        press(byId(page, 'confirm'));
+        assert.equal(page.sent.length, 0);
+        assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.leftOut));
+      } finally { page.close(); }
+    }
+  });
   test('the recording explanation stays visible while confirming', async () => {
     const page = await openAt('erd', { screen: 'changes', diagram: confirmedWith('erd', 'invalidated') });
     try {

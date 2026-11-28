@@ -848,6 +848,11 @@
           "approved": "SCR-142 and SCR-144 records the measured correction that a failed refresh retains previous tasks marked old with retry and an opened stage group survives a redraw. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-146 explains, like SCR-145, that remaining AI proposals are excluded before a diagram confirmation; this correction follows the approved phone confirmation flow. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
@@ -913,6 +918,11 @@
         },
         {
           "approved": "the project-first mockup records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-27"
+        },
+        {
+          "approved": "SCR-146 description in the mockup follows the stage-08 correction about proposals excluded from confirmation; the selected project-first direction and frames are unchanged. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
         }

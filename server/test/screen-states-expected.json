@@ -871,7 +871,7 @@
      "name": "SCR-146#normal",
      "status": null,
      "detail": {
-      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, when confirmation is available, an explanation to answer questions, review changes and request AI recording before the confirm button. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: Confirm is offered after one more question when available; Cancel edit remains on a PC.",
+      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, when confirmation is available, an explanation to answer questions, review changes and request AI recording before the confirm button. For diagrams other than mockups, explain that remaining AI proposals are not included in the confirmation. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: Confirm is offered after one more question when available; Cancel edit remains on a PC.",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -884,7 +884,7 @@
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -901,7 +901,7 @@
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -920,7 +920,7 @@
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -954,7 +954,7 @@
       "where": "docs/08-screens/SCR-146.md:33",
       "box": {
        "x": 0,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -984,7 +984,7 @@
       "where": "docs/08-screens/SCR-146.md:34",
       "box": {
        "x": 340,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -1004,7 +1004,7 @@
       "where": "docs/08-screens/SCR-146.md:35",
       "box": {
        "x": 680,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -1023,7 +1023,7 @@
       "where": "docs/08-screens/SCR-146.md:36",
       "box": {
        "x": 0,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }
@@ -1042,7 +1042,7 @@
       "where": "docs/08-screens/SCR-146.md:37",
       "box": {
        "x": 340,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }
@@ -1062,7 +1062,7 @@
       "where": "docs/08-screens/SCR-146.md:38",
       "box": {
        "x": 680,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }

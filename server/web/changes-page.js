@@ -115,7 +115,7 @@ function changedPart(since, confirmedHere, heading) {
     h('div', { class: 'list' }, since.rows.map(pageRow)));
 }
 
-// The document does not draw (SCR-146#not-drawn), on a PC, where 이 그림 확정 is off for it: what to do, and the
+// The document does not draw (SCR-146#not-drawn), where 이 그림 확정 is off for it: what to do, and the
 // picture where the failure shows.
 function notDrawn(state, live) {
   const diagram = state.ctx.data.diagram;
@@ -124,14 +124,15 @@ function notDrawn(state, live) {
     h('a', { class: 'btn ghost sm', href: toDiagram(state.ctx) }, CONFIRM_WORDS.seeInDiagram));
 }
 
-// The end of the page: 이 그림 확정 on a PC for a diagram not removed and not confirmed now, off while something waits
-// or the document does not draw, with why when something waits; then 그림으로. A phone adds where to act instead.
+// The end of the page: 이 그림 확정 on a PC or phone for a diagram not removed and not confirmed now, off while something
+// waits or the document does not draw, with why when something waits; then 그림으로.
 function endRow(ctx, state, confirmedHere, waiting) {
   const diagram = ctx.data.diagram ?? null;
   const phone = ctx.shell.isPhone();
   const offers = state !== null && !diagram.removed && liveConfirmation(diagram) === null;
   const back = h('a', { class: confirmedHere ? 'btn tertiary' : 'btn ghost', href: toDiagram(ctx) }, CONFIRM_WORDS.toDiagram);
   return [
+    offers && confirmable(state) && diagram.kind !== 'mockup' ? h('p', { class: 'small' }, CONFIRM_WORDS.leftOut) : null,
     offers && confirmable(state) ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,
     h('div', { class: 'btns mid' },
       offers ? (confirmable(state) ? confirmControl(state, { wide: false }) : pageOffButton()) : null,
