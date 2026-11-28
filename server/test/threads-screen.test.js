@@ -229,6 +229,8 @@ describe('SCR-145 threads', () => {
       assert.ok(shownThread(page).textContent.includes(`봇이 적은 결정 "${entries[1].text}"`));
       const confirm = buttonOf(shownThread(page), '맞아요, 닫기');
       assert.ok(confirm);
+      assert.equal(confirm.getAttribute('aria-describedby'), `th-external-summary-${T.mine}`);
+      assert.ok(page.document.getElementById(confirm.getAttribute('aria-describedby')).textContent.includes(entries[1].text));
       confirm.click();
       await page.settle();
       assert.equal(page.sent.at(-1).path, `${threadPath(T.mine)}/close`);
@@ -243,6 +245,19 @@ describe('SCR-145 threads', () => {
       pictureButton(page, 'tbl', 'agent_credentials').click();
       await page.settle();
       assert.ok(buttonOf(shownThread(page), '맞아요, 닫기'));
+    } finally { page.close(); }
+  });
+
+  test('a matching answer waiting on the owner is not shown as a mismatch', async () => {
+    const entries = structuredClone(ENTRIES);
+    entries[1].external_evidence = { source_kind: 'conversation', location: 'example-123', text: entries[1].text, at: ago(20) };
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.equal(buttonOf(shownThread(page), '맞아요, 닫기'), undefined);
+      assert.equal(shownThread(page).all('p', 'external-summary').length, 0);
+      assert.ok(buttonOf(shownThread(page), THREAD_WORDS.close));
     } finally { page.close(); }
   });
   test('with nothing chosen the section lists every thread of the diagram, open ones first, each named by where it is', async () => {

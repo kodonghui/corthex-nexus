@@ -5,3 +5,7 @@ export function sameDecisionAnswer(answer, decision) {
   const a = key(answer);
   return a !== '' && a === key(decision);
 }
+
+export function exactExternalAnswer(answer, decision) {
+  return typeof answer === 'string' && !/[?？]/u.test(answer) && sameDecisionAnswer(answer, decision);
+}

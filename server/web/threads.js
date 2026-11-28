@@ -21,6 +21,7 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
+import { exactExternalAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
 export const TEXT_LIMIT = 4000;
@@ -487,11 +488,13 @@ function closeRow(state, thread, reopen = false) {
   const busy = t.sending.has(what);
   const last = thread.entries.at(-1);
   const evidence = !reopen && last?.kind === 'decision' ? last.external_evidence : null;
-  const needsConfirmation = evidence && thread.waits_on === 'owner';
+  const needsConfirmation = evidence && thread.waits_on === 'owner' && !exactExternalAnswer(evidence.text, last.text);
+  const summaryId = `th-external-summary-${thread.id}`;
   return [
-    needsConfirmation ? h('p', { class: 'external-summary' }, '봇 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '" / 봇이 적은 결정 "', last.text, '"') : null,
+    needsConfirmation ? h('p', { class: 'external-summary', id: summaryId }, '봇 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '" / 봇이 적은 결정 "', last.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {
       type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
+      'aria-describedby': needsConfirmation ? summaryId : null,
       on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
     }, reopen ? THREAD_WORDS.reopen : needsConfirmation ? THREAD_WORDS.confirmClose : THREAD_WORDS.close)),
     errorOf(state, what, t.errors.get(what) ?? null, 'th-close'),

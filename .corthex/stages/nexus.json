@@ -48,7 +48,7 @@
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "02-prd": {
       "state": "done",
@@ -110,7 +110,7 @@
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "03-user-flow": {
       "state": "done",
@@ -162,7 +162,7 @@
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
-      "updated": "2026-11-27T18:42:06+00:00",
+      "updated": "2026-11-28T04:55:57+00:00",
       "checks": [
         {
           "level": "info",
@@ -325,13 +325,13 @@
           "date": "2026-11-28"
         },
         {
-          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule.",
+          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule. The delegate confirmed the choice-mismatch follow-up in an Orca reply; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "05-erd": {
       "state": "done",
@@ -428,7 +428,7 @@
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-27T18:42:06+00:00",
+      "updated": "2026-11-28T04:55:57+00:00",
       "checks": [
         {
           "level": "info",
@@ -642,7 +642,7 @@
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -714,7 +714,7 @@
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "08-screen-states": {
       "state": "done",
@@ -900,13 +900,13 @@
           "date": "2026-11-28"
         },
         {
-          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule.",
+          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule. The delegate confirmed the choice-mismatch follow-up in an Orca reply; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-27T18:42:06+00:00"
+      "updated": "2026-11-28T04:55:57+00:00"
     },
     "09-mockup": {
       "state": "done",
