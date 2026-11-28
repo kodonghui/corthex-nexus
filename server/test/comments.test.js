@@ -723,6 +723,7 @@ describe('agent comments', () => {
       [(body, options) => decide(id, body, options), { link: LINK, text: 3 }, 'invalid_request', 'text'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'x'.repeat(4001), at: at(clock) } }, 'text_too_long', 'external_evidence.text', 4000],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'a\u0000b', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id\u202Eexample', text: 'yes', at: at(clock) } }, 'invalid_request', 'external_evidence.location'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: '\uD800', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: 'bad' } }, 'invalid_request', 'external_evidence.at'],
       [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: at(clock + MINUTE) } }, 'invalid_request', 'external_evidence.at'],
