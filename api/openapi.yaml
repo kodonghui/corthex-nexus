@@ -10545,6 +10545,16 @@ components:
           minimum: 0
           maximum: 1000000
           description: Entries that another session claims.
+    CredentialReference:
+      type: object
+      required: [id, name]
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/CredentialId"
+        name:
+          type: string
+          maxLength: 64
     Entry:
       type: object
       required: [seq, author, kind, text, made_at]
@@ -10572,6 +10582,10 @@ components:
           maxLength: 2000
         link:
           $ref: "#/components/schemas/Link"
+        external_evidence:
+          $ref: "#/components/schemas/ExternalEvidence"
+        evidence_reported_by:
+          $ref: "#/components/schemas/CredentialReference"
         made_at:
           $ref: "#/components/schemas/Time"
     ThreadSummary:
@@ -10595,6 +10609,9 @@ components:
             - type: "null"
         resolved:
           type: boolean
+        reopened_at:
+          $ref: "#/components/schemas/Time"
+          description: Present in a reopen answer when the thread has external evidence, naming the start of its current evidence cycle.
         last_at:
           $ref: "#/components/schemas/Time"
     Thread:
@@ -10644,8 +10661,23 @@ components:
         resolved:
           type: boolean
           description: True when the current closure has verified resolution evidence.
+        last_resolution:
+          type: object
+          required: [by, at, current]
+          additionalProperties: false
+          description: Most recent attributed automatic resolution of a thread containing external evidence, retained after reopening. current is true only for the current closure; otherwise this is historical.
+          properties:
+            by:
+              $ref: "#/components/schemas/CredentialReference"
+            at:
+              $ref: "#/components/schemas/Time"
+            current:
+              type: boolean
         opened_at:
           $ref: "#/components/schemas/Time"
+        reopened_at:
+          $ref: "#/components/schemas/Time"
+          description: Present on an open reopened thread when it has external evidence; the latest reopen starts the current evidence cycle.
         closed_at:
           anyOf:
             - $ref: "#/components/schemas/Time"
@@ -10951,6 +10983,26 @@ components:
       additionalProperties: false
       maxProperties: 0
       description: An empty JSON object, {}.
+    ExternalEvidence:
+      type: object
+      required: [source_kind, location, text, at]
+      additionalProperties: false
+      description: Exact owner answer outside NEXUS, supplied by the agent; the source is not independently verified. An answer that does not match the decision after whitespace runs and final sentence punctuation are normalized is retained but does not resolve a conversation. Every text field must contain non-whitespace text. Values are never truncated; control characters other than tab and line breaks, bidirectional formatting controls, invalid Unicode and future timestamps are refused.
+      properties:
+        source_kind:
+          type: string
+          minLength: 1
+          maxLength: 100
+        location:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        at:
+          $ref: "#/components/schemas/Time"
     DecisionRequest:
       type: object
       required: [link]
@@ -10961,6 +11013,8 @@ components:
         text:
           type: string
           maxLength: 4000
+        external_evidence:
+          $ref: "#/components/schemas/ExternalEvidence"
     ProposalRequest:
       type: object
       required: [part, stage, items, reason, change]

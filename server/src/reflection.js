@@ -62,7 +62,7 @@ function statementsOf(store) {
       incomplete: store.prepare(INCOMPLETE_DRAWING),
       reflect: store.prepare("UPDATE change_sets SET state = 'reflected', reflected_drawing_id = ? WHERE id = ? AND state = 'accepted'"),
       asking: store.prepare("SELECT 1 AS asking FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
-      threadEntries: store.prepare('SELECT seq, author, body, created_at FROM comments WHERE thread_id = ? ORDER BY seq'),
+      threadEntries: store.prepare('SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq'),
       threadSets: store.prepare("SELECT id, diagram_id, state, detail, created_at, decided_at FROM change_sets WHERE thread_id = ? AND origin = 'proposal' AND state IN ('reflected', 'rejected', 'cancelled')"),
       lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
       reflectedThreads: store.prepare(`SELECT DISTINCT c.thread_id FROM change_sets c JOIN comment_threads t ON t.id = c.thread_id
@@ -205,7 +205,7 @@ function lacking(statements, { shown, itemTable, decided, mine, now }, cache) {
 }
 
 // See the top of this file. project is the project's key, commit the merge commit, time the time of the write.
-export function reflectMerged(store, { project, commit, time }) {
+export function reflectMerged(store, { project, commit, time, credential, requestId }) {
   const statements = statementsOf(store);
   const sets = statements.reflecting.all(project, commit);
   if (sets.length === 0) return 0;
@@ -241,19 +241,19 @@ export function reflectMerged(store, { project, commit, time }) {
     }
     changeSetsChanged(store, { project, diagram, time });
   }
-  resolveReflected(store, { project, threads: asked, time });
+  resolveReflected(store, { project, threads: asked, time, credential, requestId });
   return sets.length;
 }
 
 // A reflected proposal that could not be proved on its merge can become provable
 // after a later, complete drawing. Recheck it without reflecting its set twice.
-export function recheckReflected(store, { project, diagram, time }) {
+export function recheckReflected(store, { project, diagram, time, credential, requestId }) {
   const statements = statementsOf(store);
   const threads = statements.reflectedThreads.all(project, diagram).map((row) => Number(row.thread_id));
-  resolveReflected(store, { project, threads, time });
+  resolveReflected(store, { project, threads, time, credential, requestId });
 }
 
-function resolveReflected(store, { project, threads, time }) {
+function resolveReflected(store, { project, threads, time, credential, requestId }) {
   const statements = statementsOf(store);
   const cache = new Map();
   const decidedCache = new Map();
@@ -305,7 +305,7 @@ function resolveReflected(store, { project, threads, time }) {
     });
     if (!verified) continue;
     if (statements.closeThread.run(time, thread).changes > 0) {
-      recordResolved(store, { thread, detail: { change_sets: reflected.map((set) => Number(set.id)) }, time });
+      recordResolved(store, { thread, detail: { change_sets: reflected.map((set) => Number(set.id)), ...(credential && entries.some((entry) => JSON.parse(entry.detail).external_evidence) ? { resolved_by: { id: credential.id, name: credential.name }, request_id: requestId } : {}) }, time });
       threadChanged(store, { project, thread, time });
     }
   }

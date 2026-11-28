@@ -109,7 +109,7 @@ function answer({ project, revision, commit, replaced, created, sameCommit, draw
 }
 
 // API-242: the hub's push, drawn by drawers (see drawing.js).
-function pushSnapshot(drawers, { store, request, body, size, credential, now }) {
+function pushSnapshot(drawers, { store, request, body, size, credential, now, requestId }) {
   if (request.headers['idempotency-key'] !== undefined) {
     throw invalidRequest('Idempotency-Key', 'push takes no request key: the same commit again answers its revision');
   }
@@ -127,7 +127,7 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
     if (project.repository !== null && project.repository !== snapshot.repository) throw new Problem('repository_mismatch');
     const earlier = statements.byCommit.get(project.id, snapshot.commit);
     if (earlier !== undefined && project.held_commit === snapshot.commit) {
-      return again({ statements, store, project, held: earlier, snapshot, time, drawers });
+      return again({ statements, store, project, held: earlier, snapshot, time, drawers, credential, requestId });
     }
     if (earlier !== undefined) throw new Problem('older_snapshot', undefined, {}, { revision: Number(earlier.revision) });
     if (project.held_commit !== null && snapshot.replaces !== project.held_commit) {
@@ -153,14 +153,14 @@ function pushSnapshot(drawers, { store, request, body, size, credential, now }) 
     time,
     drawers,
   });
-  const after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time });
+  const after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time, credential, requestId });
   return answer({ project: project.name, revision, commit: snapshot.commit, replaced, created, sameCommit: false, drawn, refused, after });
 }
 
 // The held commit again: the same revision. In a newer format than it came in, it completes that revision with the
 // documents of the picture stages the older format did not carry and draws them; otherwise nothing is kept again or
 // drawn, and every diagram is unchanged but those whose source fails, named in failures again.
-function again({ statements, store, project, held, snapshot, time, drawers }) {
+function again({ statements, store, project, held, snapshot, time, drawers, credential, requestId }) {
   const revision = Number(held.revision);
   // The push's documents, less those left out as REQ-077 asks: a diagram that is not drawn again and whose source is
   // among them, or among the sources the push leaves out, fails as its last drawing did.
@@ -186,7 +186,7 @@ function again({ statements, store, project, held, snapshot, time, drawers }) {
       time,
       drawers,
     });
-    after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time });
+    after = afterDrawing(store, { project: project.id, commit: snapshot.commit, changed: drawn.changed, time, credential, requestId });
   } else {
     drawn = heldDrawing({ store, project, documents: sent, leftOut: snapshot.leftOut });
   }

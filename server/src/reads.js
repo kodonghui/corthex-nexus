@@ -65,7 +65,9 @@ function statementsOf(store) {
          WHERE h.id = ? AND d.project_id = ?`,
       ),
       entries: store.prepare(`SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq LIMIT ${ENTRIES}`),
-      resolution: store.prepare('SELECT event FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
+      resolution: store.prepare('SELECT id, event, created_at FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
+      lastResolved: store.prepare("SELECT id, detail, created_at FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved' AND json_type(detail, '$.resolved_by') = 'object' ORDER BY id DESC LIMIT 1"),
+      hasExternal: store.prepare("SELECT 1 FROM comments WHERE thread_id = ? AND json_type(detail, '$.external_evidence') = 'object' LIMIT 1"),
       answering: store.prepare(`SELECT id FROM change_sets WHERE thread_id = ? ORDER BY id LIMIT ${THREAD_CHANGE_SETS}`),
       changeSet: store.prepare(
         `SELECT c.id, c.diagram_id, c.drawing_id, c.origin, c.thread_id, c.state, c.created_at, c.decided_at, c.pull_request_id,
@@ -165,6 +167,9 @@ export function threadBody(store, project, key) {
   const row = statements.thread.get(key, project);
   if (row === undefined) return null;
   const entries = statements.entries.all(key).map((entry) => entryOf({ ...entry, detail: JSON.parse(entry.detail) }));
+  const resolution = statements.resolution.get(key);
+  const resolved = statements.lastResolved.get(key);
+  const resolvedDetail = resolved ? JSON.parse(resolved.detail) : null;
   return {
     id: idOf('nc', key),
     ...whereOf(store, row),
@@ -177,7 +182,9 @@ export function threadBody(store, project, key) {
     state: row.state,
     waits_on: row.waits_on,
     closed_by: row.closed_by,
-    ...(row.state === 'closed' && statements.resolution.get(key)?.event === 'resolved' ? { resolved: true } : {}),
+    ...(row.state === 'closed' && resolution?.event === 'resolved' ? { resolved: true } : {}),
+    ...(resolvedDetail?.resolved_by ? { last_resolution: { by: resolvedDetail.resolved_by, at: resolved.created_at, current: row.state === 'closed' && row.closed_by === 'reflection' && resolution?.event === 'resolved' && resolution.id === resolved.id } } : {}),
+    ...(row.state === 'open' && resolution?.event === 'reopened' && statements.hasExternal.get(key) ? { reopened_at: resolution.created_at } : {}),
     opened_at: row.opened_at,
     closed_at: row.closed_at,
     last_at: entries.at(-1).made_at,

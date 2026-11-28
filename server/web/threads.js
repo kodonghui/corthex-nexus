@@ -21,6 +21,7 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
+import { exactExternalAnswer, sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
 export const TEXT_LIMIT = 4000;
@@ -40,6 +41,7 @@ export const THREAD_WORDS = Object.freeze({
   replyField: '이 스레드에 남길 말',
   close: '스레드 닫기',
   reopen: '다시 열기',
+  confirmClose: '맞아요, 닫기',
   comment: '댓글 쓰기',
   send: '보내기',
   fields: Object.freeze({ element: '이 요소에 남길 말', row: '이 행에 남길 말', diagram: '이 그림에 남길 말' }),
@@ -401,6 +403,7 @@ function drawShown(state) {
   refill(box, REPLY_FIELD, h('div', { class: 'thread', role: 'group', 'aria-label': whereOf(state, thread) },
     h('div', { class: 'btns mid' }, h('span', { class: 'small' }, whereOf(state, thread)), stateTag(thread)),
     thread.entries.map((entry) => entryOf(shell, entry)),
+    thread.last_resolution ? h('div', { class: 'small tx' }, thread.last_resolution.current ? '이번 자동 해결 · 에이전트 자격: ' : '이전 자동 해결 · 에이전트 자격: ', thread.last_resolution.by.name, ' (', thread.last_resolution.by.id, ') · ', thread.last_resolution.at) : null,
     open ? replyForm(state, thread) : null,
     open ? closeRow(state, thread) : thread.resolved === true ? closeRow(state, thread, true) : null));
 }
@@ -415,6 +418,12 @@ function entryOf(shell, entry) {
       h('span', { class: 'small' }, shell.since(entry.made_at))),
     entry.quote ? h('blockquote', { class: 'q' }, entry.quote) : null,
     h('span', { class: 'tx' }, entry.text),
+    entry.external_evidence ? h('div', { class: 'external-evidence' },
+      h('span', { class: 'small tx' }, '외부 근거: ', entry.external_evidence.source_kind),
+      entry.evidence_reported_by ? h('span', { class: 'small tx' }, '근거를 전한 자격: ', entry.evidence_reported_by.name, ' (', entry.evidence_reported_by.id, ')') : null,
+      h('span', { class: 'small tx' }, '출처: ', entry.external_evidence.location),
+      h('span', { class: 'small tx' }, '시각: ', entry.external_evidence.at),
+      h('blockquote', { class: 'q tx' }, entry.external_evidence.text)) : null,
     entry.look_first ? h('span', { class: 'small tx' }, THREAD_WORDS.lookFirst, entry.look_first) : null,
     link === null ? null : h('a', { class: 'small mono', href: link, target: '_blank', rel: 'noopener noreferrer' }, link));
 }
@@ -479,11 +488,28 @@ function closeRow(state, thread, reopen = false) {
   const what = `${reopen ? 'reopen' : 'close'} ${thread.id}`;
   const t = state.threads;
   const busy = t.sending.has(what);
+  const last = thread.entries.at(-1);
+  const allEvidence = !reopen && last?.kind === 'decision' ? thread.entries.map((entry) => entry.external_evidence).filter(Boolean) : [];
+  const latestAt = allEvidence.reduce((latest, item) => item.at > latest ? item.at : latest, '');
+  const superseded = latestAt < thread.opened_at || latestAt > last.made_at || (thread.reopened_at && latestAt <= thread.reopened_at)
+    || thread.entries.some((entry) => entry.seq < last.seq && (entry.author === 'owner' && entry.made_at > latestAt
+      || entry.asks !== undefined && entry.made_at >= latestAt));
+  const latestEvidence = superseded ? [] : allEvidence.filter((item) => item.at === latestAt);
+  const evidence = latestEvidence.find((item) => !exactExternalAnswer(item.text, last.text)) ?? latestEvidence.at(-1);
+  const conflict = evidence && latestEvidence.some((item) => !sameDecisionAnswer(item.text, evidence.text));
+  const sameTimeOwnerConflict = evidence && thread.entries.some((entry) => entry.seq < last.seq && entry.author === 'owner'
+    && entry.made_at === latestAt && !exactExternalAnswer(entry.text, last.text));
+  const needsConfirmation = evidence && thread.waits_on === 'owner' && (conflict || sameTimeOwnerConflict || !exactExternalAnswer(evidence.text, last.text));
+  const summaryId = `th-external-summary-${thread.id}`;
+  const shownEvidence = conflict ? latestEvidence : [evidence];
+  const originals = needsConfirmation ? shownEvidence.flatMap((item, index) => [index === 0 ? '' : ' / ', item.source_kind, ' ', item.location, ', 원문 "', item.text, '"']) : [];
   return [
+    needsConfirmation ? h('p', { class: 'external-summary', id: summaryId }, '봇 정리 요청: ', originals, ' / 봇이 적은 결정 "', last.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {
       type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
+      'aria-describedby': needsConfirmation ? summaryId : null,
       on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
-    }, reopen ? THREAD_WORDS.reopen : THREAD_WORDS.close)),
+    }, reopen ? THREAD_WORDS.reopen : needsConfirmation ? THREAD_WORDS.confirmClose : THREAD_WORDS.close)),
     errorOf(state, what, t.errors.get(what) ?? null, 'th-close'),
   ];
 }
@@ -652,6 +678,7 @@ function closeOf(state, id, reopen = false) {
       if (t.thread?.id === id && !resolved) {
         Object.assign(t.thread, summaryOf(answer.thread));
         if (reopen) delete t.thread.resolved;
+        if ((reopen || answer.thread.closed_by === 'owner') && t.thread.last_resolution) t.thread.last_resolution.current = false;
       }
       brief(state, id, resolved ? (t.thread?.id === id ? t.thread : listed) : answer.thread);
       drawList(state);
@@ -661,6 +688,7 @@ function closeOf(state, id, reopen = false) {
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
       else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
       else if (readSinceWrite || diagram !== state.ctx.data.diagram) refreshAfterClose(state, id);
+      else if (reopen && t.shown === id) refreshAfterClose(state, id);
       else if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
       else if (pendingRead) refreshAfterClose(state, id);
     },
@@ -668,7 +696,8 @@ function closeOf(state, id, reopen = false) {
 }
 
 function summaryOf(summary) {
-  return { state: summary.state, waits_on: summary.waits_on, closed_by: summary.closed_by, last_at: summary.last_at };
+  return { state: summary.state, waits_on: summary.waits_on, closed_by: summary.closed_by, last_at: summary.last_at,
+    ...(summary.reopened_at === undefined ? {} : { reopened_at: summary.reopened_at }) };
 }
 
 // A reply to a thread closed meanwhile (SCR-145#stale): the bar over the picture, with 새로 고침, and the text moves

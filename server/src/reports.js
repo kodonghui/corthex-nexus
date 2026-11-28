@@ -246,7 +246,7 @@ function removalReport(store, statements, { project, entry, number, keep, time }
 }
 
 // A report on an open reflection entry (see the top of this file). Returns whether it changed anything.
-function reflectionReport(store, statements, { project, entry, report, number, credential, keep, time }) {
+function reflectionReport(store, statements, { project, entry, report, number, credential, keep, time, actor, requestId }) {
   const held = heldChangeSets(store, { project: project.id, entry });
   const linked = held.pullRequest === null ? undefined : pullOf(statements.byId.get(held.pullRequest));
   if (linked !== undefined && number !== null && linked.number !== number) throw mismatch(project, linked);
@@ -272,16 +272,16 @@ function reflectionReport(store, statements, { project, entry, report, number, c
   statements.claimPull.run(pull.id, Number(entry.id), project.id);
   for (const diagram of diagrams) changeSetsChanged(store, { project: project.id, diagram, time });
   if (report.event === 'reflected' && statements.holds.get(project.id, report.commit) !== undefined) {
-    changed = reflectMerged(store, { project: project.id, commit: report.commit, time }) > 0 || changed;
+    changed = reflectMerged(store, { project: project.id, commit: report.commit, time, credential: actor, requestId }) > 0 || changed;
     for (const thread of statements.openThreads.all(project.id, pullRequestLink(project.repository, pull.number))) {
-      changed = resolveDecision(store, { project: project.id, thread: Number(thread.id), time }) || changed;
+      changed = resolveDecision(store, { project: project.id, thread: Number(thread.id), time, credential: actor, requestId }) || changed;
     }
   }
   return changed;
 }
 
 // API-258: the agent reports the pull request of a reflection or a removal (SPEC-023, SPEC-024, SPEC-025, SPEC-045).
-function reportEdit({ store, params, request, body, credential, now }) {
+function reportEdit({ store, params, request, body, credential, now, requestId }) {
   const session = sessionOf(request.headers, { required: true });
   const report = reportOf(body, { fields: EDIT_FIELDS, events: EDIT_EVENTS });
   const statements = statementsOf(store);
@@ -296,7 +296,7 @@ function reportEdit({ store, params, request, body, credential, now }) {
     changed = closedEntryReport(statements, { entry, report, number });
   } else {
     const keep = () => keepClaim(store, { project: project.id, entry: key, session, credential: credential.key, time });
-    const context = { project, entry, report, number, credential: credential.key, keep, time };
+    const context = { project, entry, report, number, credential: credential.key, keep, time, actor: credential, requestId };
     changed = entry.kind === 'remove_from_pr' ? removalReport(store, statements, context) : reflectionReport(store, statements, context);
     if (statements.open.get(key) === undefined) finishClaim(store, { project: project.id, entry: key, session, time });
   }

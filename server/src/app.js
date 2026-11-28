@@ -56,6 +56,7 @@ export function createApp({
     const entry = {
       time: new Date().toISOString(),
       traceId: randomTraceId(),
+      requestId: randomTraceId(),
       method: methodOf(request.method),
       action: null,
       sender: 'unknown',
@@ -98,13 +99,13 @@ export function createApp({
       // The caller a request key belongs to (TBL-169's actor): 'owner' for an admitted owner operation, the credential's
       // ID for an agent operation.
       const { caller, credential, recheck } = await admit(family, request, entry);
-      const { traceId } = entry;
+      const { traceId, requestId } = entry;
       const malformed = malformedParameter(route.checks, params);
       if (malformed !== null) throw new Problem(malformed);
       const key = route.requestKey ? requestKeyOf(request.headers) : null;
       const { value: body, bytes = null } = route.body === undefined ? {} : await readJson(request, route.body);
       const size = bytes === null ? null : bytes.length;
-      const context = { request, params, traceId, settings, store, caller, credential, body, size, now };
+      const context = { request, params, traceId, requestId, settings, store, caller, credential, body, size, now };
       let answer;
       if (isWrite(route)) {
         answer = await write(route, context, { pathname, key, bytes, recheck });

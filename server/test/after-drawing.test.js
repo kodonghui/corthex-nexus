@@ -81,7 +81,7 @@ describe('after a drawing', () => {
   function project(name) {
     let held;
     const space = { name };
-    space.push = async ({ format = FORMAT_03, tables = [], flows = [], items = [], commit = newCommit(), same = false } = {}) => {
+    space.push = async ({ format = FORMAT_03, tables = [], flows = [], items = [], commit = newCommit(), same = false, agent = rows.agent } = {}) => {
       if (!bases.has(format)) bases.set(format, repositorySnapshot(format, { name: 'base' }));
       const snapshot = structuredClone(bases.get(format));
       const sent = same ? held : commit;
@@ -98,7 +98,7 @@ describe('after a drawing', () => {
       snapshot.items = items;
       clock.now += 60_000;
       const answer = await server.send({
-        method: 'POST', path: '/api/snapshots', headers: { ...JSON_TYPE, ...rows.agent.headers }, body: JSON.stringify(snapshot),
+        method: 'POST', path: '/api/snapshots', headers: { ...JSON_TYPE, ...agent.headers }, body: JSON.stringify(snapshot),
       });
       assert.ok([200, 201].includes(answer.status), JSON.stringify(answer.json));
       held = sent;
@@ -132,6 +132,24 @@ describe('after a drawing', () => {
   };
   const stageRow = (space, stage) => readProject(db, space.name).stages.find((row) => row.stage === stage && row.part === 'nexus')
     ?? readProject(db, space.name).stages.find((row) => row.stage === stage);
+
+  test('a later snapshot records its authenticated agent as the resolver', async () => {
+    const space = project('external-resolution-actor');
+    await space.push({ tables: [table('TBL-146', 'before')] });
+    const current = diagram(space, ERD);
+    const thread = rows.thread(current, { author: 'agent', body: 'Choose a name.', at: time() });
+    const evidence = { source_kind: 'conversation', location: 'example-42', text: 'agreed_name', at: at(clock.now + 1000) };
+    const commit = newCommit();
+    const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(space.id).repository;
+    rows.comment(thread, { body: 'agreed_name', at: at(clock.now + 2000) });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/commit/${commit}`, external_evidence: evidence }), thread);
+    const actor = rows.credential('snapshot-agent');
+    await space.push({ tables: [table('TBL-146', 'agreed_name')], commit, agent: actor });
+    assert.equal(threadRow(thread).state, 'closed');
+    const event = JSON.parse(db.prepare("SELECT detail FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).detail);
+    assert.deepEqual(event.resolved_by, { id: idOf('ac', actor.key), name: actor.name });
+    assert.ok(server.logText().split('\n').filter(Boolean).map(JSON.parse).some((line) => line.requestId === event.request_id && line.sender === actor.name));
+  });
 
   test('a changed document invalidates its confirmation and puts the diagram back on the owner\'s to-do (SPEC-033)', async () => {
     const space = project('invalidated');
@@ -250,7 +268,8 @@ describe('after a drawing', () => {
     const space = project('reflection-after-repair');
     await space.push({ tables: [table('TBL-146', 'old name')] });
     const current = diagram(space, ERD);
-    const thread = rows.thread(current, { elementKey: 'TBL-146' });
+    const thread = rows.thread(current, { elementKey: 'TBL-146', author: 'agent' });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ external_evidence: { source_kind: 'conversation', location: 'example-42', text: 'Use the new name', at: SEEDED } }), thread);
     const proposalAt = '2026-11-23T01:01:00.000Z';
     const pull = rows.pullRequest(space, { number: 95, state: 'merged' });
     const proposal = rows.changeSet(space, current, { origin: 'proposal', threadId: thread, state: 'accepted', pullRequestId: pull,
@@ -262,8 +281,12 @@ describe('after a drawing', () => {
     await space.push({ tables: [table('TBL-146', 'new name', { broken: true })], commit: merge });
     assert.equal(changeSetRow(proposal).state, 'reflected');
     assert.equal(threadRow(thread).state, 'open');
-    await space.push({ tables: [table('TBL-146', 'new name')] });
+    const repairActor = rows.credential('repair-agent');
+    await space.push({ tables: [table('TBL-146', 'new name')], agent: repairActor });
     assert.equal(threadRow(thread).state, 'closed');
+    const event = JSON.parse(db.prepare("SELECT detail FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(thread).detail);
+    assert.deepEqual(event.resolved_by, { id: idOf('ac', repairActor.key), name: repairActor.name });
+    assert.ok(server.logText().split('\n').filter(Boolean).map(JSON.parse).some((line) => line.requestId === event.request_id && line.sender === repairActor.name));
     db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(thread);
     db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(thread, at(clock.now));
     await space.push({ tables: [table('TBL-146', 'new name'), table('TBL-147', 'another table')] });

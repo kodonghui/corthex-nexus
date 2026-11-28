@@ -1,7 +1,7 @@
 {
  "about": "The pinned hub's stage-05 picture of db/nexus.sql, as its erd.py makes it, and the SHA-256 of the file. tests/test_erd_picture.py checks it against the pinned hub and says how to make it again.",
  "source": "db/nexus.sql",
- "sha256": "d3f00651a0e5b880c073b49ff938ea4b395a4635ac851fcec9468704214f6ea1",
+ "sha256": "f74272c2aec85aa933119477d753415a5efc9c473cd6491bd4d0e63ef7c72381",
  "part": "nexus",
  "checks": [],
  "picture": {
@@ -2503,31 +2503,31 @@
       "name": "id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:549"
+      "where": "db/nexus.sql:550"
      },
      {
       "name": "thread_id",
       "type": "INTEGER",
       "null": false,
-      "where": "db/nexus.sql:550"
+      "where": "db/nexus.sql:551"
      },
      {
       "name": "event",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:551"
+      "where": "db/nexus.sql:552"
      },
      {
       "name": "detail",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:552"
+      "where": "db/nexus.sql:553"
      },
      {
       "name": "created_at",
       "type": "TEXT",
       "null": false,
-      "where": "db/nexus.sql:553"
+      "where": "db/nexus.sql:554"
      }
     ],
     "primary_key": [
@@ -2544,7 +2544,7 @@
        "id"
       ],
       "on_delete": "cascade",
-      "where": "db/nexus.sql:550"
+      "where": "db/nexus.sql:551"
      }
     ],
     "where": "db/nexus.sql:545",

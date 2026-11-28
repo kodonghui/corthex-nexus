@@ -69,7 +69,8 @@ function statementsOf(store) {
       ),
       reopen: store.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ? AND state = 'closed' AND closed_by = 'reflection'"),
       reopened: store.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)"),
-      resolution: store.prepare('SELECT event FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
+      resolution: store.prepare('SELECT event, created_at FROM thread_resolution_events WHERE thread_id = ? ORDER BY id DESC LIMIT 1'),
+      hasExternal: store.prepare("SELECT 1 FROM comments WHERE thread_id = ? AND json_type(detail, '$.external_evidence') = 'object' LIMIT 1"),
     };
     prepared.set(store, statements);
   }
@@ -228,7 +229,11 @@ function reopenThread({ store, params, body, now }) {
   const statements = statementsOf(store);
   const project = projectOf(statements, params.project);
   const thread = threadOf(statements, project, params.thread);
-  if (thread.state === 'open') return { body: { thread: threadSummary(store, thread), changed: false } };
+  if (thread.state === 'open') {
+    const resolution = statements.resolution.get(thread.id);
+    return { body: { thread: { ...threadSummary(store, thread),
+      ...(resolution?.event === 'reopened' && statements.hasExternal.get(thread.id) ? { reopened_at: resolution.created_at } : {}) }, changed: false } };
+  }
   if (thread.closedBy !== 'reflection' || statements.resolution.get(thread.id)?.event !== 'resolved') {
     throw invalidRequest('thread', 'only an automatically resolved thread can be reopened');
   }
@@ -237,7 +242,8 @@ function reopenThread({ store, params, body, now }) {
   statements.reopened.run(thread.id, time);
   threadChanged(store, { project, thread: thread.id, time });
   const reopened = { ...thread, state: 'open', waitsOn: 'agent', closedBy: null };
-  return { body: { thread: threadSummary(store, reopened), changed: true } };
+  return { body: { thread: { ...threadSummary(store, reopened),
+    ...(statements.hasExternal.get(thread.id) ? { reopened_at: time } : {}) }, changed: true } };
 }
 
 // The routes of API-266 to API-269 (see router.js), of the owner family; the writes with a JSON body and a request key

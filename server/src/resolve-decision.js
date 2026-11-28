@@ -3,6 +3,7 @@
 import { pullRequestLink, repositoryBase } from './claims.js';
 import { INCOMPLETE_DRAWING, normalizeDecisionText as normalize, recordResolved, RECOMMENDATION_CHOICES } from './decision-evidence.js';
 import { threadChanged } from './entries.js';
+import { exactExternalAnswer, sameDecisionAnswer } from '../web/decision-match.js';
 
 function approvedText(entries, owner, last) {
   if (normalize(owner.body) === normalize(last.body)) return true;
@@ -11,13 +12,37 @@ function approvedText(entries, owner, last) {
     && JSON.parse(recommendation.detail).asks === 'recommended'
     && normalize(recommendation.body) === normalize(last.body);
 }
+
+function approvalTime(q, thread, row, entries, last, reopenedAt) {
+  const owner = entries.findLast((entry) => entry.author === 'owner');
+  const latestEvidence = q.latestEvidence.get(thread);
+  const evidence = latestEvidence ? JSON.parse(latestEvidence.detail).external_evidence : null;
+  const latestEvidenceAt = evidence?.at;
+  const newerEvidenceAgrees = owner && latestEvidenceAt >= owner.created_at
+    && q.evidenceSince.all(thread, owner.created_at).every((row) => exactExternalAnswer(row.text, last.body));
+  if (owner && !/[?？]/u.test(owner.body) && approvedText(entries, owner, last)
+      && (latestEvidenceAt == null || latestEvidenceAt < owner.created_at || newerEvidenceAgrees)
+      && (reopenedAt == null || owner.created_at > reopenedAt)
+      && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return owner.created_at;
+  if (!evidence || typeof evidence.at !== 'string'
+      || q.evidenceAt.all(thread, evidence.at).some((row) => !sameDecisionAnswer(row.text, evidence.text))
+      || !exactExternalAnswer(evidence.text, last.body)
+      || evidence.at < row.opened_at || evidence.at > last.created_at
+      || (reopenedAt != null && evidence.at <= reopenedAt)) return null;
+  if (q.laterQuestion.get(thread, last.seq, evidence.at)) return null;
+  return evidence.at;
+}
 const cached = new WeakMap();
 function queries(store) {
   if (!cached.has(store)) cached.set(store, {
-    thread: store.prepare(`SELECT t.state, t.diagram_id, t.element_key, d.source_key, d.kind, p.repository, p.held_commit FROM comment_threads t
+    thread: store.prepare(`SELECT t.state, t.opened_at, t.diagram_id, t.element_key, d.source_key, d.kind, p.repository, p.held_commit FROM comment_threads t
       JOIN diagrams d ON d.id = t.diagram_id JOIN project_spaces p ON p.id = d.project_id
       WHERE t.id = ? AND p.id = ?`),
     entries: store.prepare('SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 200'),
+    latestEvidence: store.prepare("SELECT detail FROM comments WHERE thread_id = ? AND json_type(detail, '$.external_evidence') = 'object' ORDER BY json_extract(detail, '$.external_evidence.at') DESC, seq DESC LIMIT 1"),
+    evidenceAt: store.prepare("SELECT json_extract(detail, '$.external_evidence.text') AS text FROM comments WHERE thread_id = ? AND json_extract(detail, '$.external_evidence.at') = ?"),
+    evidenceSince: store.prepare("SELECT json_extract(detail, '$.external_evidence.text') AS text FROM comments WHERE thread_id = ? AND json_extract(detail, '$.external_evidence.at') >= ?"),
+    laterQuestion: store.prepare("SELECT 1 FROM comments WHERE thread_id = ? AND seq < ? AND created_at >= ? AND (author = 'owner' OR json_type(detail, '$.asks') IS NOT NULL) LIMIT 1"),
     lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
     pending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
     ownerPending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state = 'proposed' LIMIT 1"),
@@ -45,16 +70,13 @@ export function decisionWaitingForRecord(store, { project, thread }) {
   if (!row || row.state !== 'open' || q.ownerPending.get(thread)) return false;
   const entries = q.entries.all(thread).reverse();
   const last = entries.at(-1);
-  const owner = entries.findLast((entry) => entry.author === 'owner');
   const reopenedAt = q.lastReopen.get(thread)?.at;
-  if (!last || last.author !== 'agent' || !owner || /[?？]/u.test(owner.body)
-      || (reopenedAt != null && owner.created_at <= reopenedAt)
+  if (!last || last.author !== 'agent' || !approvalTime(q, thread, row, entries, last, reopenedAt)
       || typeof JSON.parse(last.detail).link !== 'string') return false;
-  return normalize(last.body) !== '' && approvedText(entries, owner, last)
-    && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined);
+  return normalize(last.body) !== '';
 }
 
-export function resolveDecision(store, { project, thread, time }) {
+export function resolveDecision(store, { project, thread, time, credential, requestId }) {
   const q = queries(store);
   const row = q.thread.get(thread, project);
   if (!row || row.state !== 'open' || row.repository === null || q.pending.get(thread)) return false;
@@ -66,10 +88,8 @@ export function resolveDecision(store, { project, thread, time }) {
   const { link } = JSON.parse(last.detail);
   if (typeof link !== 'string') return false;
   const text = normalize(last.body);
-  const owner = entries.findLast((entry) => entry.author === 'owner');
-  if (!text || !owner || /[?？]/u.test(owner.body) || !approvedText(entries, owner, last)
-      || (reopenedAt != null && owner.created_at <= reopenedAt)
-      || entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return false;
+  const approvedAt = approvalTime(q, thread, row, entries, last, reopenedAt);
+  if (!text || !approvedAt) return false;
   const drawing = q.current.get(row.diagram_id);
   if (!drawing || drawing.status !== 'drawn' || q.incomplete.get(drawing.id)) return false;
   const base = repositoryBase(row.repository);
@@ -85,7 +105,7 @@ export function resolveDecision(store, { project, thread, time }) {
   } else return false;
   const recorded = q.snapshot.get(project, commit);
   const held = q.snapshot.get(project, row.held_commit);
-  if (!recorded || !held || Number(recorded.revision) > Number(held.revision) || recorded.received_at <= owner.created_at) return false;
+  if (!recorded || !held || Number(recorded.revision) > Number(held.revision) || recorded.received_at <= approvedAt) return false;
   const prior = q.priorSnapshot.get(project, recorded.revision);
   if (!prior) return false;
   if (row.kind === 'ddd_board') {
@@ -117,7 +137,7 @@ export function resolveDecision(store, { project, thread, time }) {
     if (holdsAnswer(previous.id, true) || !holdsAnswer(historical.id) || !holdsAnswer(drawing.id)) return false;
   }
   if (q.close.run(time, thread).changes === 0) return false;
-  recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
+  recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(credential && q.latestEvidence.get(thread) ? { resolved_by: { id: credential.id, name: credential.name }, request_id: requestId } : {}), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
   threadChanged(store, { project, thread, time });
   return true;
 }

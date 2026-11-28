@@ -180,7 +180,7 @@ describe('the request log', () => {
   });
 
   test('holds only the fields the server sets', async () => {
-    const fields = new Set(['time', 'traceId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
+    const fields = new Set(['time', 'traceId', 'requestId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
     for (const line of await server.logged(answers.length)) {
       for (const field of Object.keys(line)) assert.ok(fields.has(field), field);
     }

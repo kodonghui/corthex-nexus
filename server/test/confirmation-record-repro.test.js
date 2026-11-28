@@ -142,6 +142,27 @@ test('a verified decision recorded on the same diagram keeps its confirmation', 
       assert.equal(isDecisionRecord(db, proof), false);
       db.prepare("DELETE FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").run(disputed);
       assert.equal(isDecisionRecord(db, proof), true);
+      const external = { source_kind: 'conversation', location: 'example-123', text: 'No, use another option.', at: '2026-11-27T10:01:30.000Z' };
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/pull/91`, external_evidence: external }), disputed);
+      assert.equal(isDecisionRecord(db, proof), false);
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/pull/91`, external_evidence: { ...external, text: decided } }), disputed);
+      assert.equal(isDecisionRecord(db, proof), true);
+      db.prepare('DELETE FROM comment_threads WHERE id = ?').run(disputed);
+      const recommendation = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(4), author: 'agent', body: decided, at: '2026-11-27T10:01:00.000Z' });
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), recommendation);
+      rows.comment(recommendation, { author: 'owner', body: '추천안', at: '2026-11-27T10:02:00.000Z' });
+      rows.comment(recommendation, { body: decided, at: '2026-11-27T10:03:00.000Z' });
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 3').run(JSON.stringify({ link: `${repository}/pull/91` }), recommendation);
+      assert.equal(isDecisionRecord(db, proof), true);
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 3').run(JSON.stringify({ link: `${repository}/pull/91`, external_evidence: { ...external, at: '2026-11-27T10:02:30.000Z' } }), recommendation);
+      assert.equal(isDecisionRecord(db, proof), false);
+      db.prepare('DELETE FROM comment_threads WHERE id = ?').run(recommendation);
+      const proposal = rows.thread({ id: diagram, drawing }, { elementKey: hotspot(4), author: 'agent', body: decided, at: '2026-11-27T10:01:00.000Z' });
+      rows.changeSet({ id: project }, { id: diagram, drawing }, { origin: 'proposal', threadId: proposal, state: 'accepted', detail: { change: decided }, decidedAt: '2026-11-27T10:02:00.000Z' });
+      assert.equal(isDecisionRecord(db, proof), true);
+      rows.comment(proposal, { body: decided, at: '2026-11-27T10:03:00.000Z' });
+      db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: `${repository}/pull/91`, external_evidence: { ...external, at: '2026-11-27T10:02:30.000Z' } }), proposal);
+      assert.equal(isDecisionRecord(db, proof), false);
     } finally {
       db.exec('ROLLBACK TO disputed_record');
       db.exec('RELEASE disputed_record');

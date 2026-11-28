@@ -200,8 +200,8 @@ CREATE INDEX comment_threads_by_drawing ON comment_threads (drawing_id, diagram_
 
 -- TBL-156 comments (CTX-038) ← SPEC-016, SPEC-017, SPEC-018, SPEC-025, SPEC-051 | terms: TERM-200
 -- One comment or reply in a thread, in order. Rule: an agent's comment names its credential,
--- the owner's names none. detail keeps, as a JSON object, what the hub sends with an entry
--- that has no column of its own: its quote, asks, look_first and a decision's link.
+-- the owner's names none. detail keeps, as a JSON object, quote, asks, look_first and link,
+-- plus external evidence and its server-derived evidence_reported_by credential reference.
 CREATE TABLE comments (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   thread_id      INTEGER NOT NULL REFERENCES comment_threads (id) ON DELETE CASCADE,
@@ -544,7 +544,8 @@ CREATE INDEX restore_rehearsals_by_backup ON restore_rehearsals (backup_id);
 
 -- TBL-172 thread_resolution_events (CTX-038) ← SPEC-013, SPEC-028 | terms: TERM-200
 -- Audit of verified automatic resolutions and owner reopenings. Detail identifies the
--- evidence in this store; a link by itself is not evidence that a decision was recorded.
+-- evidence in this store. For external-evidence threads a resolution can also name
+-- resolved_by and request_id; a link alone does not prove a decision was recorded.
 CREATE TABLE thread_resolution_events (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   thread_id   INTEGER NOT NULL REFERENCES comment_threads (id) ON DELETE CASCADE,

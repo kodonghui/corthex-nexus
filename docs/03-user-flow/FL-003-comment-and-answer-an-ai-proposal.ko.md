@@ -21,6 +21,8 @@ flowchart TD
   I["반영을<br/>에이전트<br/>할 일에<br/>더하기<br/>REQ-023"]
   J["거절됨 표시,<br/>스레드는 열림<br/>REQ-024"]
   K["끝나면<br/>사용자가<br/>스레드를 닫음<br/>REQ-034"]
+  P{"사용자 답 또는<br/>외부 근거와<br/>검증된 기록,<br/>미처리 일 없음?<br/>REQ-034"}
+  Q["해결하고<br/>근거 표시;<br/>다시 열 수 있음<br/>REQ-034"]
   R1["점유 거절<br/>REQ-055"]
   R3["에이전트 자격<br/>거절<br/>REQ-025"]
   Z(["끝"])
@@ -31,7 +33,10 @@ flowchart TD
   C e4@-->|아니요| D
   D e5@-->|답| E
   D e6@-->|변경| F
-  E e7@--> K
+  E e7@--> P
+  P e30@-->|예| Q
+  P e31@-->|아니요| K
+  Q e32@--> Z
   F e8@--> G
   G e9@-->|PC의 사용자| H
   G e10@-->|휴대폰의 사용자| H
@@ -51,8 +56,9 @@ flowchart TD
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z,Y term
   class B,E,F,I,J,K,R1,R3 proc
-  class C,D,G,H decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19 pass
+  class Q proc
+  class C,D,G,H,P decide
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
 ```
 
 | 모양 | 뜻 |
@@ -65,3 +71,5 @@ flowchart TD
 
 - 점유 거절 (REQ-055)
 - 에이전트 자격 거절 (REQ-025)
+
+사용자 답 또는 외부 근거가 있는 결정의 기록을 검증하고 미처리 제안과 질문이 없으면 대화를 해결할 수 있다. 외부 출처와 원문을 그대로 표시하고 사용자는 다시 열 수 있다.
