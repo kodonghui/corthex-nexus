@@ -17,7 +17,7 @@ flowchart TD
   E["에이전트가<br/>스레드에 답글<br/>REQ-021"]
   F["에이전트가<br/>AI 제안을<br/>그림 위에 겹쳐<br/>올림<br/>REQ-022"]
   G{"누가 제안에<br/>답하나?"}
-  H{"한 번 더 묻고<br/>받아들이나?"}
+  H{"되돌리기<br/>시간 뒤<br/>수락하나?"}
   I["반영을<br/>에이전트<br/>할 일에<br/>더하기<br/>REQ-023"]
   J["거절됨 표시,<br/>스레드는 열림<br/>REQ-024"]
   K["끝나면<br/>사용자가<br/>스레드를 닫음<br/>REQ-034"]
@@ -25,6 +25,7 @@ flowchart TD
   Q["해결하고<br/>근거 표시;<br/>다시 열 수 있음<br/>REQ-034"]
   R1["점유 거절<br/>REQ-055"]
   R3["에이전트 자격<br/>거절<br/>REQ-025"]
+  U["전송 전에<br/>되돌림"]
   Z(["끝"])
   Y(["반영으로:<br/>FL-005"])
   A e1@--> B
@@ -41,6 +42,8 @@ flowchart TD
   G e9@-->|PC의 사용자| H
   G e10@-->|휴대폰의 사용자| H
   G e11@-->|에이전트| R3
+  H e33@-->|되돌리기| U
+  U e34@--> Z
   H e12@-->|예| I
   H e13@-->|아니요| J
   I e14@--> Y
@@ -56,9 +59,9 @@ flowchart TD
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z,Y term
   class B,E,F,I,J,K,R1,R3 proc
-  class Q proc
+  class Q,U proc
   class C,D,G,H,P decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
+  class e33,e34,e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
 ```
 
 | 모양 | 뜻 |

@@ -2,17 +2,14 @@
 // the projects' titles from API-262. screens.js runs it in the shell; the shell draws the title, the loading, error,
 // permission and stale states, and the header.
 //
-// - The entries keep API-263's order: projects by their newest entry, each project's entries newest first. Every entry
-//   it answers shows, up to its 5000; there is no "more".
-// - A project's group is headed by its title (API-262), or its name when the list leaves it out, with 프로젝트 보기 to
-//   SCR-144. A row shows its kind as a tag, the stage and the diagram's name, for a confirmation why it waits, and how
-//   long it has waited; it opens SCR-145 at its diagram, and at its thread when it has one. No ID shows.
-// - A failed daily backup is a warning on top, in the empty state too, until a backup succeeds.
-// - With nothing to do: "기다리는 일이 없어요" and the projects, or, with no project yet, the way to the agent
-//   credentials of SCR-143.
+// - The morning report shows the separately selected cards and their direct actions. The full inbox keeps the API's
+//   oldest-first order and warns when its 5000-entry limit may have truncated the list.
+// - A failed daily backup stays above the list; unavailable and stale data are labelled and can be retried.
+// - Questions and proposal decisions use the shell's ten-second undo; confirmation is previewed and asked again.
 
-import { PROJECTS_HREF, TODO_HREF, projectHref, stageHref } from './address.js';
-import { h, icon } from './dom.js';
+import { PROJECTS_HREF, TODO_HREF, diagramApi, projectApi, projectHref, stageHref } from './address.js';
+import { newRequestKey } from './api.js';
+import { fill, h, icon } from './dom.js';
 import { STAGES, stageOf } from './stages.js';
 import { dayOf, sentWords } from './states.js';
 
@@ -42,11 +39,8 @@ export function todoBody({ address, data, shell }) {
   if (entries.length === 0) return [warning, stale, nothingToDo(projects, shell, Boolean(missed))];
   const titles = new Map(projects.map((project) => [project.name, project.title || project.name]));
   // Each 프로젝트 보기 is named with its group's heading too, so that a list of the links tells them apart.
-  return [warning, stale, groupsOf(entries).map(([project, items], index) => h('section', { class: 'group' },
-    h('div', { class: 'gh' },
-      h('h2', { id: `todo-group-${index}` }, titles.get(project) ?? project),
-      h('a', { class: 'small', id: `todo-open-${index}`, href: projectHref(project), 'aria-labelledby': `todo-open-${index} todo-group-${index}` }, '프로젝트 보기')),
-    h('div', { class: 'list' }, items.map((entry) => entryRow(entry, shell)))))];
+  const capped = entries.length >= 5000 ? h('p', { class: 'nt warn', role: 'status' }, '할 일이 적어도 5,000개예요. 오래된 5,000개를 보여 드려요.') : null;
+  return [warning, stale, capped, h('div', { class: 'morning-cards' }, entries.map((entry) => morningCard(entry, shell, titles)))];
 }
 
 // A failed refresh keeps the last answer visible but never presents it as current.
@@ -57,42 +51,116 @@ function oldTodoNotice(shell, failure) {
 
 // Project-first home: only known counts are shown, and a capped to-do is labelled as a minimum.
 function projectHome(data, shell) {
-  const projects = data.projects.projects ?? [];
+  const todo = data.todo;
   const failure = shell.missed('todo');
-  const entries = data.todo?.entries ?? null;
-  const capped = entries !== null && entries.length >= 5000;
-  const counts = new Map();
-  for (const entry of entries ?? []) {
-    const count = counts.get(entry.project) ?? { questions: 0, reviews: 0, firstQuestion: null };
-    if (entry.kind === 'question') {
-      count.questions += 1;
-      count.firstQuestion ??= entry;
+  if (todo === null || todo === undefined) return [h('p', {}, '할 일 수를 읽지 못했어요.'),
+    ...(failure ? shell.errorNotice(failure, () => shell.reload()) : [])];
+  const entries = todo.morning ?? [];
+  const warning = todo.backup ? backupWarning(todo.backup) : null;
+  const stale = failure ? oldTodoNotice(shell, failure) : null;
+  const titles = new Map((data.projects?.projects ?? []).map((project) => [project.name, project.title || project.name]));
+  return [warning, stale, timeline(data, shell), h('h2', {}, `오늘 할 일은 ${todo.entries.length >= 5000 ? '적어도 ' : ''}${todo.entries.length}가지예요`),
+    entries.length ? h('div', { class: 'morning-cards' }, entries.map((entry) => morningCard(entry, shell, titles)))
+      : h('div', { class: 'empty' }, h('p', {}, todo.morning === undefined && todo.entries.length ? '아침 보고를 읽지 못했어요. 모든 할 일에서 확인해 주세요.' : '기다리는 일이 없어요.'), titles.size === 0 ? h('p', {}, '에이전트가 처음 보내면 여기에 나와요.') : null),
+    h('a', { class: 'btn tertiary', href: TODO_HREF }, '모든 할 일 보기'),
+    h('a', { class: 'btn tertiary', href: PROJECTS_HREF }, '모든 프로젝트 보기')];
+}
+
+function timeline(data, shell) {
+  const first = data.todo?.morning?.[0];
+  if (!first) return null;
+  if (!data.progress) return h('p', { class: 'sec' }, '진행 상황을 불러오지 못했어요.');
+  const project = data.progress;
+  const words = { passed: '통과', changed_since_pass: '통과 뒤 바뀜', open: '진행 중', not_sent: '시작 전' };
+  const part = first.part ?? '';
+  return h('section', { 'aria-label': '프로젝트 진행 상황' },
+    h('h2', {}, `${project.title || project.name} 진행 상황`),
+    h('nav', { class: 'tabs timeline', 'aria-label': '13단계 진행 상황' }, STAGES.map((stage) => {
+      const row = (project.stages ?? []).find((each) => each.stage === stage.id && each.part === part);
+      const state = words[row?.state] ?? '시작 전';
+      return h('a', { class: 'tab', href: stageHref(first.project, part, stage.id), 'aria-label': `${stage.number} ${stage.name}: ${state}` },
+        h('span', { class: 'n' }, stage.number), h('span', { class: 'timeline-label' }, stage.name), h('span', { class: 'timeline-state' }, state));
+    })));
+}
+
+function morningCard(entry, shell, titles = new Map()) {
+  const target = stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram, thread: entry.thread });
+  const path = entry.kind === 'question' && entry.thread
+    ? `${projectApi(entry.project)}/threads/${encodeURIComponent(entry.thread)}/comments`
+    : entry.kind === 'proposal' && entry.change_set
+      ? `${projectApi(entry.project)}/change-sets/${encodeURIComponent(entry.change_set)}` : null;
+  const notice = h('p', { class: 'sec', role: 'status' });
+  const question = entry.question_choices?.length && entry.question_text
+    ? entry.question_text.split(/\r?\n/).filter((line) => !/^\s*[-*]\s+\[ \]/.test(line)).join('\n').trim()
+    : entry.question_text;
+  const queue = (url, body) => {
+    try {
+      if (!shell.pending) throw new Error('storage unavailable');
+      shell.pending.enqueue(url, body, {
+        undone: () => { notice.textContent = '되돌렸어요. 아직 보내지 않았어요.'; },
+        failed: () => { notice.textContent = '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.'; },
+      });
+      notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
+    } catch { notice.textContent = '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
+  };
+  const field = entry.kind === 'question' ? h('textarea', { 'aria-label': '답변', rows: '3' }) : null;
+  const choices = entry.kind === 'question' && path ? (entry.question_choices ?? []).map((choice) =>
+    h('button', { type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
+  const actions = entry.kind === 'question' && path && entry.question_text ? h('div', {}, h('div', { class: 'btns' }, choices), h('form', { on: { submit: (event) => {
+    event.preventDefault();
+    const text = field.value.trim();
+    if (!text) { notice.textContent = '답변을 적어 주세요.'; return; }
+    if ([...text].length > 4000) { notice.textContent = '답변은 4,000자까지 쓸 수 있어요.'; return; }
+    queue(path, { text });
+  } } }, field, h('button', { type: 'submit', class: 'btn primary' }, '답변 보내기')))
+    : entry.kind === 'proposal' && path && entry.proposal_summary ? h('div', { class: 'btns' },
+      entry.removed ? null : h('button', { type: 'button', class: 'btn primary', on: { click: () => queue(`${path}/accept`, {}) } }, '제안 넣기'),
+      h('button', { type: 'button', class: 'btn tertiary', on: { click: () => queue(`${path}/reject`, {}) } }, '제안 빼기'))
+      : entry.kind === 'confirm' ? confirmationCard(entry, shell) : null;
+  return h('section', { class: 'panel morning-card' },
+    h('h3', {}, `${titles.get(entry.project) ?? entry.project} · ${entry.diagram_name}`),
+    h('p', { class: 'small' }, `${KINDS[entry.kind]?.text ?? '할 일'} · ${stageOf(entry.stage)?.name ?? entry.stage}`, ' · ', shell.since(entry.since)),
+    h('p', { class: 'question-copy' }, question || entry.proposal_summary || (entry.kind === 'confirm' ? REASONS[entry.reason] ?? '확인할 그림이 있어요.' : '그림에서 내용을 확인해 주세요.')),
+    actions, notice, h('a', { href: target, class: 'btn tertiary' }, entry.kind === 'confirm' ? '이 그림 확인하기' : '그림에서 보기'));
+}
+
+function confirmationCard(entry, shell) {
+  const area = h('div');
+  const path = diagramApi(entry.project, entry.diagram);
+  let busy = false;
+  const open = async () => {
+    if (busy) return;
+    busy = true;
+    fill(area, h('p', { role: 'status' }, '그림을 불러오고 있어요.'));
+    const result = await shell.read(path);
+    busy = false;
+    const diagram = result.body;
+    if (result.status !== 200 || !diagram) {
+      fill(area, h('p', { role: 'alert' }, '그림을 불러오지 못했어요. 그림에서 다시 확인해 주세요.'));
+      return;
     }
-    if (entry.kind === 'confirm' || entry.kind === 'proposal') count.reviews += 1;
-    counts.set(entry.project, count);
-  }
-  const warning = data.todo?.backup ? backupWarning(data.todo.backup) : null;
-  const missing = entries === null ? [h('p', {}, '할 일 수를 불러오지 못했어요.'),
-    ...(failure ? shell.errorNotice(failure, () => shell.reload()) : [])] : null;
-  const stale = entries !== null && failure ? oldTodoNotice(shell, failure) : null;
-  if (projects.length === 0) return [warning, missing, stale, h('div', { class: 'empty' },
-    h('h2', {}, '아직 프로젝트가 없어요'),
-    h('p', {}, '함께 일하는 AI에게 프로젝트를 NEXUS로 보내 달라고 요청해 주세요.'),
-    h('a', { href: PROJECTS_HREF, class: 'btn tertiary' }, '프로젝트 설정'))];
-  return [warning, missing, stale,
-    h('section', { class: 'group', 'aria-label': '프로젝트' }, h('div', { class: 'list' }, projects.map((project) => {
-      const { questions, reviews, firstQuestion } = counts.get(project.name) ?? { questions: 0, reviews: 0, firstQuestion: null };
-      const number = (value) => capped ? `${value}개 이상` : `${value}개`;
-      return h('div', { class: 'li keep project-card' },
-        h('a', { class: 'project-card-main', href: projectHref(project.name) },
-          h('span', { class: 'grow' }, h('b', {}, project.title || project.name),
-          h('span', { class: 'sec' }, entries === null ? '할 일 수를 읽지 못했어요' : `답할 질문 ${number(questions)} · 확인할 내용 ${number(reviews)}`),
-          h('span', { class: 'sec' }, `${STAGES.length}단계 중 ${project.stages_passed} 통과`)), icon('next', 'ic chev')),
-        firstQuestion === null ? null : h('a', { class: 'btn primary sm',
-          href: stageHref(firstQuestion.project, firstQuestion.part, firstQuestion.stage, { diagram: firstQuestion.diagram, thread: firstQuestion.thread }),
-          'aria-label': `${project.title || project.name}의 최근 질문에 답하기` }, '최근 질문에 답하기'));
-    }))), h('a', { class: 'btn tertiary', href: TODO_HREF }, '모든 할 일 보기'),
-    h('a', { class: 'btn tertiary', href: PROJECTS_HREF }, '프로젝트 설정')];
+    if (diagram.removed || diagram.drawing?.status !== 'drawn' || diagram.confirmation?.state === 'confirmed'
+        || (diagram.overlays ?? []).some((set) => set.state === 'accepted')) {
+      fill(area, h('p', { role: 'alert' }, '지금은 이 그림을 확정할 수 없어요. 그림에서 상태를 확인해 주세요.'));
+      return;
+    }
+    const changed = diagram.since_confirmation;
+    const count = changed ? (changed.added?.length ?? 0) + (changed.changed?.length ?? 0) + (changed.removed?.length ?? 0) : 0;
+    const summary = changed == null ? '처음 확정하는 그림이에요.' : `지난 확정 뒤 바뀐 곳이 ${count}개예요.`;
+    const yes = h('button', { type: 'button', class: 'btn primary', on: { click: async () => {
+      if (busy) return;
+      busy = true; yes.setAttribute('disabled', '');
+      const outcome = await shell.write('POST', `${path}/confirmation`, { drawing: diagram.drawing.id }, newRequestKey());
+      busy = false;
+      if (outcome.status === 200 || outcome.status === 201) { shell.announce('이 그림을 확정했어요. 함께 일하는 AI가 기록할 차례예요.'); shell.reload(); return; }
+      fill(area, h('p', { role: 'alert' }, '확정하지 못했어요. 그림의 현재 상태를 다시 확인해 주세요.'));
+    } } }, '네, 확정할게요');
+    fill(area, h('p', {}, summary), h('p', {}, '확정하면 함께 일하는 AI가 기록해요. 모든 그림과 표의 기록이 끝나면 단계가 통과돼요.'),
+      yes, h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
+  };
+  const reset = () => fill(area, h('button', { type: 'button', class: 'btn primary', on: { click: open } }, '이 그림 확정하기'));
+  reset();
+  return area;
 }
 
 // The entries by project, the projects in the order of their first entry and each one's entries in their order.

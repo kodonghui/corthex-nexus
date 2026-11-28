@@ -71,7 +71,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-049 | When the owner confirms a step, the system shall add writing that step into the domain document to the agent's to-do. | functional | Should | CTX-040 | CTX-040 table | active |
 | REQ-050 | When an agent reports the domain document updated after the last step is confirmed, the system shall close the workshop. | functional | Should | CTX-040 | CTX-040 table | active |
 | REQ-051 | When the owner imports a Miro board, the system shall copy its sticky notes' text, colour and position into the workshop board. | functional | Could | CTX-040 | Redesign decision on event storming | active |
-| REQ-052 | The system shall open on projects, showing each project's counts of questions to answer and items to review, offering a direct link to its newest question, and keeping the owner's full to-do available. | functional | Must | CTX-041 | Redesign recommendations | active |
+| REQ-052 | The system shall open on a morning report showing up to five owner to-do cards, prioritizing questions and proposals on diagrams awaiting confirmation and then older items, with direct actions, a full to-do and a link to all projects. | functional | Must | CTX-041 | Redesign recommendations | active |
 | REQ-053 | The system shall give agents an agent to-do of open comments, change sets to reflect, confirmations to record and domain documents to write. | functional | Must | CTX-041 | CTX-041 read models | active |
 | REQ-054 | When an agent session claims a to-do, the system shall hold it for that session alone. | functional | Must | CTX-041 | CTX-041 rule | active |
 | REQ-055 | If a session claims a to-do that another session holds, then the system shall refuse the claim. | functional | Must | CTX-041 | CTX-041 rule | active |
@@ -87,7 +87,7 @@ The first release proves one loop end to end: a stage document in Git is drawn, 
 | REQ-065 | When the owner revokes an agent credential, the system shall refuse the credential's next request. | functional | Must | CTX-043 | CTX-043 rule | active |
 | REQ-066 | If a request carries neither the owner's sign-in nor a valid agent credential, then the system shall refuse it. | functional | Must | CTX-043 | CTX-043 | active |
 | REQ-067 | While the owner uses a phone, the system shall show diagrams, item tables and comments. | functional | Must | none | Redesign decision on mobile | active |
-| REQ-068 | While the owner uses a phone, the system shall offer diagram confirmation and accepting or rejecting AI proposals after a confirmation question, while direct editing and moving remain unavailable. | functional | Must | none | Redesign decision on mobile; stage-01 hotspot 5 (answered 2026-11-23) | active |
+| REQ-068 | While the owner uses a phone, the system shall ask again before diagram confirmation, offer proposal decisions with a 10-second undo period, and keep direct editing and moving unavailable. | functional | Must | none | Redesign decision on mobile; stage-01 hotspot 5 (answered 2026-11-23) | active |
 | REQ-069 | The system shall show its interface in Korean. | non-functional | Must | none | Owner profile | active |
 | REQ-070 | The system shall open a diagram of up to 300 elements within 2 seconds at the 95th percentile (P95), with one user, measured in the browser on a PC against the deployed server. | non-functional | Must | CTX-037 | Inferred | active |
 | REQ-071 | The system shall draw the diagrams of a snapshot of up to 1 MB within 10 seconds at P95 of the push answer, with one push at a time, measured on the deployed server. | non-functional | Should | CTX-037 | Inferred | active |
@@ -150,3 +150,7 @@ The maintainer chose to draw user flows, screen states and mockups from the firs
 A removed diagram keeps what waits on it: it stays listed and opens while it has an open thread, a proposed AI proposal or a direct edit waiting for reflection (section 6 of the functional spec). No change in this stage: no requirement lists or opens a removed diagram. REQ-024 (a rejected proposal's thread stays open), REQ-028 (cancelling a direct edit not yet reflected) and REQ-033 (an element's threads move to the diagram) keep their words; the change lets the owner reach the first two on a removed diagram. This part passed its own checkpoint on 2026-11-24 through the same delegate.
 
 The maintainer selected project-first navigation and approved the phone decision change on 2026-11-27; the delegate passed stages 02–08 with the project-first choice conditional on that answer. The answers are in the project records. Earlier phone and first-screen choices remain historical.
+
+## Item 240
+
+Item 240 changes REQ-052 and REQ-068 as described above. The checkpoint delegate approved the listed changes individually on 2026-11-28; the answers are in the project records.

@@ -15,10 +15,10 @@ export function read(path) {
 // body when it is null, and the request key, a write ID that newRequestKey() made, in double quotes as the contract's
 // Idempotency-Key takes it. With raw, body is a text that goes as it is, as JSON: a Miro export the owner chose, which
 // only the server reads (API-292). The shell's write (shell.js) sends a 401 or 403 through the permission rule.
-export function write(method, path, body, key, { raw = false } = {}) {
+export function write(method, path, body, key, { raw = false, keepalive = false } = {}) {
   const headers = { accept: 'application/json', 'idempotency-key': `"${key}"` };
   if (body !== null) headers['content-type'] = 'application/json';
-  return request(path, { method, headers, body: body === null ? undefined : raw ? body : JSON.stringify(body) });
+  return request(path, { method, headers, keepalive, body: body === null ? undefined : raw ? body : JSON.stringify(body) });
 }
 
 // The contract's write ID, the request key's value: nw_ and 12 random characters of its base 32. The caller keeps a

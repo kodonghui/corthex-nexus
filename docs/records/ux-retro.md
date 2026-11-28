@@ -178,6 +178,28 @@ Resolved conversations could not be reopened → added the result, record link a
 - A local synthetic v3 browser walk at 360 × 800 showed the source, timestamp and both original-text lines; reopening changed the conversation to waiting on the agent and kept the evidence visible. It used a test issuer and simulated data; a real person's comprehension and production outcome remain to be checked.
 - Safety review found that a rejection could be mistaken for an approval → only an external answer matching the decision, allowing whitespace runs and final sentence punctuation differences, supports automatic resolution; otherwise show a bot summary request with the unchanged original and offer the owner one-click confirmation and close → focused tests cover a rejection, a short affirmative and the phone button → the tests do not establish a human comprehension pass → test with a real owner after release.
 
+## Item 240 — local comparison (2026-11-28)
+
+A synthetic single-project fixture was opened locally in headless Chromium at 1440 pixels. From the first screen, confirming the same drawn diagram took three clicks on the baseline (open the newest question's diagram, choose confirm, confirm again) and two on the working tree (open the card's preview, confirm again). The local API showed the confirmation as confirmed after the working-tree attempt; its first render did not provide a success message, so the working tree was amended to show one and needs a repeat check. Answering the fixture question took three clicks on the baseline (open its thread, focus the reply, send) and one on the working tree (choose an explicit option); the latter was queued for ten seconds, not yet sent, at the measured endpoint. Typing itself is not a click. The fixture is not a usability study.
+
+A first 360-pixel render had no page-level horizontal overflow; the 13-step line is horizontally scrollable. A question pin on a synthetic positioned element opened its thread. At that point the changed-place edit task, complete phone walk, contrast and target-size checks had not yet been measured; subsequent checks are recorded below. Every screen state and a complete phone walk remain unmeasured.
+
+For the project progress summary in the same local fixture, the baseline took one click from home to the project, while the working tree showed the 13-step line on home with zero clicks. The baseline's individual stage groups were collapsed, so this is a comparison of reaching the summary, not a measurement of opening every stage. The working-tree line requires horizontal scrolling to reach its far end at narrower widths.
+
+A separate local browser check selected an answer, closed the tab during the undo window and then read the local API; the question had left the owner to-do. This covers that one normal tab-close path. A browser process terminated without a pagehide instead left an unconfirmed-action notice on the next visit; that case does not establish whether the server received the request.
+
+Stage 01 difference: no domain rule changes. The morning priority only orders existing owner work; questions and proposals do not gain a new confirmation-blocking effect, and SPEC-029 remains the confirmation gate.
+
+A later synthetic changed-diagram fixture exercised editing an added element. The baseline took three clicks: open the question's diagram, select the marked element, and focus its name; pressing Enter saved the typed edit. The working tree took four: open the diagram, start the change tour, focus the selected name, and click “Edit name”; the local API showed the direct edit waiting for reflection. This measures one known element and excludes typing and the baseline Enter key. The tour adds a click here, while the explicit save button makes the action visible; neither result establishes whether a first-time user can complete it unaided.
+
+The CORTHEX page checker on the local morning report's normal state reported zero errors, warnings and informational findings at both 1440 and 360 pixels after the mobile theme control was widened. This is a measurement of that state only; it does not cover the other screens or states.
+
+After adding the success message, the local confirmation path was repeated: two clicks produced the visible confirmed message. The one-click answer reached the queued state in the same repeat; delivery was not the endpoint of that count.
+
+The extra click came from focusing the selected name after starting the tour. The tour now focuses and selects that field on a PC. Repeating the same local edit took three clicks and the API showed the direct edit waiting for reflection: open the diagram, start the tour, then save the typed name. This matches the baseline's three mouse clicks while keeping an explicit save button; typing and the baseline Enter key are excluded in both counts.
+
+The workbench's selected-thread state initially reported two placeholder contrast errors at both widths and small controls. The placeholder now uses the secondary text token; the numbered pin, small buttons, zoom controls and breadcrumb link have larger targets. Rechecking the same local state with desktop and touch emulation reported zero errors, warnings and informational findings at 1440 and 360 pixels. This is not a check of every workbench state.
+
 ## Item 240 — selected mockup (2026-11-28)
 
 The selected combination brings the morning report, inbox, numbered question pins, changes tour and 13-step timeline together. The normal home state was checked locally at desktop and phone widths; this does not establish that every state or a first-time person’s tasks have been checked.

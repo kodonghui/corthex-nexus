@@ -54,3 +54,7 @@ Passed on 2026-11-23. The maintainer approved every recommendation through the d
 ### Feature change of 2026-11-24
 
 A removed diagram keeps what waits on it (section 6 of the functional spec). No change in this stage: no flow walks a removed diagram. FL-007 moves the threads of a removed element (REQ-033) and stands as drawn, and FL-003's rejection (REQ-024) and FL-004's cancel before reflection (REQ-028) do not depend on whether the diagram is removed. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+## Item 240
+
+Item 240 changes the entry to FL-002, proposal decisions in FL-003, the confirmation entry in FL-006 and the phone decision in FL-008. The checkpoint delegate approved the listed changes individually on 2026-11-28; the answers are in the project records.

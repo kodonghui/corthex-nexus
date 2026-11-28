@@ -18,7 +18,7 @@ import { listedResponses, responseRecord } from './responses.js';
 import { GATE, json, message, openPage, problem } from './screen-page.js';
 import { seed } from './seed.js';
 import { FORMAT_03, repositorySnapshot } from './snapshots.js';
-import { localGate, startServer } from './support.js';
+import { localGate, startServer, waitFor } from './support.js';
 
 // The modules that import ./layout.js load once screen-page.js has taught the import where the server serves it from.
 const { WORKBENCH_WORDS } = await import('../web/workbench.js');
@@ -1679,6 +1679,7 @@ describe('SCR-145 threads against the server', () => {
         const page = await openOn(`?d=${erd.id}&thread=${open.id}`);
         try {
           await send(page, id, '페이지에서 단 답');
+          await waitFor(() => textsIn(shownThread(page), 'span', 'tx').at(-1) === '페이지에서 단 답');
           assert.deepEqual(textsIn(shownThread(page), 'span', 'tx').at(-1), '페이지에서 단 답');
           assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
         } finally {

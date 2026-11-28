@@ -55,6 +55,8 @@ export async function openPage(pathname, { search = '', answers = {}, session = 
     }
   };
   page.settle = async () => {
+    // Let zero-delay queued actions start before waiting for their requests.
+    await delay(2);
     await waitFor(() => pending === 0);
     await delay(10);
   };
@@ -64,7 +66,7 @@ export async function openPage(pathname, { search = '', answers = {}, session = 
   };
   const address = parseAddress(pathname, search);
   try {
-    page.shell = startShell(page.app, address === null ? MISSING : SCREENS[address.screen], address ?? {});
+    page.shell = startShell(page.app, address === null ? MISSING : SCREENS[address.screen], address ?? {}, { pendingOptions: { schedule: (fn) => setTimeout(fn, 0) } });
     await page.settle();
   } catch (error) {
     page.close();

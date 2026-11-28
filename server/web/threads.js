@@ -547,6 +547,24 @@ async function write(state, what, text, action, kept = null) {
     return;
   }
   const { path, body, done } = action(text);
+  if (what.startsWith('reply ') && kept === null) {
+    try {
+      if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+      t.sending.add(what);
+      const clear = () => { t.sending.delete(what); if (t.host.live()) redraw(state, what); };
+      state.ctx.shell.pending.enqueue(path, body, {
+        done: (answer) => { t.sending.delete(what); if (t.host.live()) done(answer); },
+        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
+        undone: clear,
+      });
+      redraw(state, what);
+    } catch {
+      t.sending.delete(what);
+      t.errors.set(what, { by: 'other', outcome: { failure: 'network' }, action, kept: null });
+      redraw(state, what);
+    }
+    return;
+  }
   const key = kept !== null && kept.text === text ? kept.key : newRequestKey();
   t.errors.delete(what);
   t.sending.add(what);
@@ -554,6 +572,11 @@ async function write(state, what, text, action, kept = null) {
   const outcome = await state.ctx.shell.write('POST', path, body, key);
   t.sending.delete(what);
   if (!t.host.live()) return;
+  finishWrite(state, what, text, action, done, key, outcome);
+}
+
+function finishWrite(state, what, text, action, done, key, outcome) {
+  const t = state.threads;
   const { status, code = null, failure } = outcome;
   if (status === 200 || status === 201) {
     done(outcome.body);

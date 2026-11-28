@@ -5,7 +5,7 @@
 - id: SCR-142
   name: Owner home and to-do
   path: "/"
-  query: "?view=todo opens the full to-do; without it the project-first home"
+  query: "?view=todo opens the full to-do; without it the morning report"
   access: the owner, signed in through the gate
   status: active
   flows: [FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011]

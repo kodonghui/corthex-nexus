@@ -143,3 +143,7 @@ Nothing else in SCR-146 changes, and the state's response stays API-275#409 (wai
 The 2026-11-27 guidance correction for SCR-142, SCR-145 and SCR-146 is reflected in the wireframe descriptions and representative frames, including the empty-stage next action and the distinction between a confirmed diagram and a passed stage. No state was added or removed by this synchronization.
 
 On 2026-11-27 the maintainer selected a project-first home and passed the stage-01 phone decision; the checkpoint delegate passed the related 02–08 differences. The earlier phone and first-screen decisions in the historical comparison remain as they were. Phone confirmation, proposal acceptance and rejection ask once before a write; direct editing and confirmation cancellation stay on a PC.
+
+## Item 240
+
+Item 240 changes SCR-142 and SCR-145 for the morning report, numbered questions, change tour and ten-second client-side undo; confirmation retains a preview and another question. The checkpoint delegate approved the changes on 2026-11-28; the answers are in the project records.

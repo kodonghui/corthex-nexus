@@ -108,10 +108,14 @@ export const SCREENS = Object.freeze({
     layout: 'list',
     // API-262 for the projects' titles and the empty state's list; the header reads the same two, in one request each.
     reads: () => ({ todo: '/api/todo', projects: '/api/projects' }),
-    parts: ['todo'],
-    fixedTitle: ({ address }) => address.view === 'todo' ? '내 차례' : '프로젝트',
-    title: ({ address }) => address.view === 'todo' ? '내 차례' : '프로젝트',
-    description: ({ address }) => address.view === 'todo' ? '모든 프로젝트에서 나를 기다리는 일이에요. 최근 것부터 보여요.' : '프로젝트를 고르면 지금 할 일과 진행 상황을 볼 수 있어요.',
+    parts: ['todo', 'progress'],
+    follow: ({ address, data }) => {
+      const first = address.view !== 'todo' ? data.todo?.morning?.[0] : null;
+      return first ? { progress: projectApi(first.project) } : {};
+    },
+    fixedTitle: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',
+    title: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',
+    description: ({ address }) => address.view === 'todo' ? '모든 프로젝트에서 나를 기다리는 일이에요. 오래된 일부터 보여요.' : '오늘 할 일을 확인해 주세요.',
     skeleton: () => [skeletonGroup(2), skeletonGroup(2)],
     render: todoBody,
   },

@@ -2,7 +2,7 @@
 
 [한국어](FL-002-read-a-stage-from-the-to-do.ko.md)
 
-Goal: The owner opens NEXUS on projects, sees pending counts, picks a project and reads its stage or opens the full to-do.
+Goal: The owner opens the morning report, acts on a card, opens the full to-do or chooses a project and stage.
 
 Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-081, REQ-082, REQ-083
 
@@ -10,7 +10,7 @@ Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, 
 flowchart TD
   A(["Owner opens NEXUS"])
   B{"Signed in through the<br/>gate?<br/>REQ-062, REQ-063"}
-  C["Show projects and counts<br/>REQ-052, REQ-082"]
+  C["Show the morning report<br/>REQ-052, REQ-082"]
   D["Owner picks a project and<br/>a stage"]
   E{"Does the stage have a<br/>picture?<br/>REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010"}
   F["Open the diagram with<br/>names, IDs hidden<br/>REQ-004, REQ-005, REQ-011, REQ-070"]
@@ -23,14 +23,14 @@ flowchart TD
   N["Undo or redo a move<br/>REQ-083"]
   R1["Not admitted<br/>REQ-062, REQ-066"]
   Q0{"Where next?"}
-  Q["Open the newest question<br/>and its reply<br/>REQ-052"]
+  Q["Act on a card or open<br/>the full to-do<br/>REQ-052"]
   Z(["End"])
   A e1@--> B
   B e2@-->|no| R1
   B e3@-->|yes| C
   C e4@--> Q0
   Q0 e21@-->|project and stage| D
-  Q0 e22@-->|newest question| Q
+  Q0 e22@-->|card or full to-do| Q
   Q e23@--> Z
   D e5@--> E
   E e6@-->|yes| F

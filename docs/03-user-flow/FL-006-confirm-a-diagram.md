@@ -8,7 +8,7 @@ Serves: REQ-035, REQ-036, REQ-037, REQ-038, REQ-039, REQ-041, REQ-042, REQ-052, 
 
 ```mermaid
 flowchart TD
-  A(["Owner opens a diagram to<br/>confirm<br/>REQ-052"])
+  A(["Owner opens confirmation from<br/>a card or diagram<br/>REQ-052"])
   B["Show changes and explain<br/>what confirmation does<br/>REQ-041, REQ-082"]
   C{"Who asks?"}
   D{"Confirm or cancel?"}

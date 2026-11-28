@@ -1,7 +1,7 @@
 {
  "about": "The pinned hub's stage-07 picture of docs/07-sitemap/nexus.yaml, as its sitemap.py makes it, and the SHA-256 of the file. tests/test_sitemap_picture.py checks it against the pinned hub and says how to make it again.",
  "source": "docs/07-sitemap/nexus.yaml",
- "sha256": "abd2707ab90b6a7d81b4b741597294832cb1db2fc3ea574669f1e67d670a708e",
+ "sha256": "5a486cff191067cadf261e5121ceaa83c7915edb332d959ff74bbc063dc0c8bd",
  "part": "nexus",
  "checks": [],
  "picture": {

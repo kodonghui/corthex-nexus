@@ -2,7 +2,7 @@
 
 [한국어](FL-008-read-and-comment-on-a-phone.ko.md)
 
-Goal: The owner reads diagrams and comments on a phone and leaves comments; confirmation and proposal decisions ask once more, while direct edits wait for a PC.
+Goal: The owner reads diagrams and comments on a phone and leaves comments; confirmation asks once more, proposal decisions offer undo, and direct edits wait for a PC.
 
 Serves: REQ-020, REQ-021, REQ-062, REQ-067, REQ-068, REQ-079
 
@@ -12,7 +12,7 @@ flowchart TD
   B["Show diagrams, item tables<br/>and comments<br/>REQ-067"]
   C{"What does the owner do?"}
   D["Add the comment or reply<br/>REQ-079, REQ-020, REQ-021"]
-  P["Ask again, then confirm<br/>or answer the proposal<br/>REQ-068"]
+  P["Confirm after another question;<br/>proposal decisions allow undo<br/>REQ-068"]
   R1["Not offered on a phone, do<br/>it on a PC<br/>REQ-068"]
   Z(["End"])
   A e1@--> B

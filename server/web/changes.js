@@ -50,7 +50,7 @@ export const CHANGE_WORDS = Object.freeze({
   confirm: '이 그림 확정하고 기록 요청',
   cancelEdit: '편집 취소',
   acceptedProposal: 'AI 제안 수락',
-  nameLabel: '이름 · F2 또는 100% 이상에서 두 번 누르기',
+  nameLabel: '이름',
   connect: '잇기',
   pick: '이을 요소를 고르세요.',
   connected: '이미 이어져 있어요.',
@@ -306,7 +306,15 @@ function sinceParts(state, heading) {
   const before = () => h('span', { class: 'tag gray' }, CONFIRM_WORDS.notConfirmed);
   if (since === null) return [heading(before()), h('p', { class: 'sec' }, CONFIRM_WORDS.neverConfirmed)];
   const count = since.rows.length;
+  const visitable = since.rows.filter((row) => row.mark !== 'del');
+  const tour = visitable.length && state.selectChanged ? h('button', { type: 'button', class: 'btn tertiary', on: { click: () => {
+    const index = (state.changeTourIndex ?? -1) + 1;
+    state.changeTourIndex = index % visitable.length;
+    state.selectChanged(visitable[state.changeTourIndex].key);
+    drawChanges(state);
+  } } }, state.changeTourIndex === undefined ? '바뀐 곳 둘러보기' : `다음 바뀐 곳 (${state.changeTourIndex + 1}/${visitable.length})`) : null;
   const rows = count === 0 ? null : [
+    tour,
     h('ul', { class: 'chg' }, since.rows.slice(0, SHOWN_CHANGES).map(panelRow)),
     count > SHOWN_CHANGES ? h('a', { class: 'small', href: changesFor(state) }, moreChanges(count - SHOWN_CHANGES)) : null,
   ];
@@ -521,11 +529,23 @@ function answers(state, set) {
 
 function ask(state, set, verb) {
   const changes = state.changes;
-  if (changes.busy !== null) return;
-  if (verb === 'accept' && state.ctx.data.diagram.removed) return;
-  changes.asking = { id: set.id, verb };
-  changes.focus = `p-${set.id}-stop`;
-  drawChanges(state);
+  if (changes.busy !== null || (verb === 'accept' && state.ctx.data.diagram.removed)) return;
+  const path = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/${verb}`;
+  try {
+    if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+    const retry = () => {
+      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.path === path);
+      if (item) state.ctx.shell.pending.retry(item, hooks);
+    };
+    const hooks = {
+      done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
+      failed: (outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
+    };
+    state.ctx.shell.pending.enqueue(path, {}, hooks);
+  } catch {
+    changes.said = { kind: 'error', outcome: { failure: 'network' }, retry: () => ask(state, set, verb) };
+    drawChanges(state);
+  }
 }
 
 function stopAsking(state, set) {
@@ -689,7 +709,7 @@ function drawName(state, element) {
     on: {
       input: () => typed(state, element, field),
       keydown: (event) => nameKey(state, element, field, event),
-      blur: () => left(state, element, field),
+      blur: (event) => { if (event.relatedTarget?.id !== 'save-element-name') left(state, element, field); },
     },
   });
   field.value = draft?.name ?? shown;
@@ -697,6 +717,9 @@ function drawName(state, element) {
   fill(changes.nameBox,
     h('label', { class: 'l', for: 'element-name' }, CHANGE_WORDS.nameLabel),
     field,
+    own(state, 'save-element-name', h('button', { type: 'button', class: 'btn tertiary', id: 'save-element-name',
+      'aria-disabled': off(state), on: { pointerdown: (event) => event.preventDefault(),
+        click: () => nameKey(state, element, field, { key: 'Enter', preventDefault() {} }) } }, '이름 고치기')),
     refused === null ? null : [
       // A div, not a p: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
       h('div', { class: 'err-text', id: 'element-name-err', role: 'alert' }, state.ctx.shell.message(refused.code)),

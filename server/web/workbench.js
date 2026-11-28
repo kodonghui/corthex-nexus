@@ -187,6 +187,12 @@ function build(ctx, row) {
   state.pictureBox = h('div', { class: 'wb-picture', on: { keydown: (event) => escape(state, event) } });
   state.selectedBox = h('section', { class: 'panel', 'aria-label': WORKBENCH_WORDS.selected, on: { keydown: (event) => escape(state, event) } });
   state.tokenBox = null;
+  state.selectChanged = (key) => {
+    stopConnecting(state);
+    select(state, key);
+    state.view?.nodes.get(key)?.scrollIntoView?.({ block: 'center', inline: 'center' });
+    if (!state.phone) { state.changes?.field?.focus(); state.changes?.field?.select?.(); }
+  };
   const changes = changesOf(state);
   threadsOpened(state, {
     // A thread's element is chosen as itself, never as the other end of a connection: 잇기 stops first (changes.js).

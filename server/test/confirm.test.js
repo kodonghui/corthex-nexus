@@ -223,7 +223,10 @@ describe('SCR-145 "이 그림"', () => {
       assert.deepEqual([more.textContent, more.getAttribute('href')], [moreChanges(2), `/p/${P}/_/05-erd/changes?d=${ID.erd}`]);
       assert.equal(moreChanges(2), '+2개 더 · 바뀐 곳 모두 보기');
       assert.deepEqual(shownTexts(section, 'p', 'small'), [CONFIRM_WORDS.leftOut]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
+      assert.deepEqual(buttonsIn(section), ['바뀐 곳 둘러보기', '이 그림 확정하고 기록 요청']);
+      section.all('button').find((button) => button.textContent === '바뀐 곳 둘러보기').click();
+      assert.ok(page.app.all('button').some((button) => button.getAttribute('aria-pressed') === 'true' && button.textContent.includes(A.name)));
+      assert.equal(page.document.activeElement?.getAttribute('id'), 'element-name');
     } finally {
       page.close();
     }
@@ -255,7 +258,7 @@ describe('SCR-145 "이 그림"', () => {
       assert.deepEqual(tagsIn(section), ['확정 전', '바뀜']);
       assert.deepEqual(shownTexts(section, 'p', 'sec'), ['확정을 취소했어요. 다시 확정할 때까지 할 일에 남아요.']);
       assert.deepEqual(section.all('li').map((li) => li.all('span', 'grow')[0].textContent), [D.name]);
-      assert.deepEqual(buttonsIn(section), ['이 그림 확정하고 기록 요청']);
+      assert.deepEqual(buttonsIn(section), ['바뀐 곳 둘러보기', '이 그림 확정하고 기록 요청']);
     } finally {
       cancelled.close();
     }

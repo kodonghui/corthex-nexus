@@ -2,7 +2,7 @@
  "about": "The pinned hub's items of this repository's stage 02, as its build_items makes them and its snapshot orders them, and the SHA-256 of the stage's source. tests/test_item_table_items.py checks them against the pinned hub and says how to make them again.",
  "stage": "02-prd",
  "source": "docs/02-prd/requirements.md",
- "sha256": "e912f62c72a12e0a6bca80c24d9f37c2e0eadb6687927fcf59faf6f439c1d6ef",
+ "sha256": "90552675757eb127d95ee5af0f593c9200724949fd05231e2373896f3db9d0fc",
  "items": [
   {
    "id": "REQ-001",
@@ -672,7 +672,7 @@
    "kind": "requirement",
    "stage": "02-prd",
    "where": "docs/02-prd/requirements.md:74",
-   "title": "The system shall open on projects, showing each project's counts of questions to answer and items to review, offering a…",
+   "title": "The system shall open on a morning report showing up to five owner to-do cards, prioritizing questions and proposals on…",
    "status": "active",
    "type": "functional",
    "priority": "Must",
@@ -877,7 +877,7 @@
    "kind": "requirement",
    "stage": "02-prd",
    "where": "docs/02-prd/requirements.md:90",
-   "title": "While the owner uses a phone, the system shall offer diagram confirmation and accepting or rejecting AI proposals after…",
+   "title": "While the owner uses a phone, the system shall ask again before diagram confirmation, offer proposal decisions with a 1…",
    "status": "active",
    "type": "functional",
    "priority": "Must"

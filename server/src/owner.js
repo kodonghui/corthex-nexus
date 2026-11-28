@@ -10,9 +10,8 @@
 // (SPEC-015; see store.js), so it lists none.
 //
 // API-263 lists the open entries of the owner's to-do as the contract's OwnerTodo (SPEC-042): the diagrams to confirm,
-// the AI proposals to answer and the agent questions, from TBL-166, which entries.js opens and closes. It takes the
-// newest 5000 and groups them by project: the projects in the order of their newest entry, each one's entries newest
-// first, so the first entry is the newest of all. An entry of a removed diagram stays as entries.js leaves it: its
+// the AI proposals to answer and the agent questions, from TBL-166, which entries.js opens and closes. It returns the oldest 5000 across projects, plus a separately selected set of up to five morning cards. Questions
+// and proposals on a diagram awaiting confirmation come first, then oldest first within each priority. An entry of a removed diagram stays as entries.js leaves it: its
 // questions and proposals still wait on the owner, and its confirm entry was withdrawn (note 4 of the WBS).
 
 import { backupWarning } from './backups.js';
@@ -26,6 +25,7 @@ const LISTED_PROJECTS = 1000;
 const COUNT = 1_000_000;
 const LISTED_ENTRIES = 5000;
 const STAGE_SET = new Set(STAGES);
+const STAGE_PARAMS = STAGES.map(() => '?').join(', ');
 
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
@@ -47,15 +47,29 @@ function statementsOf(store) {
       // entry names the last confirmation of the diagram that ended, or none.
       entries: store.prepare(
         `SELECT t.id, t.kind, t.thread_id, t.change_set_id, t.created_at, p.name AS project,
-                d.id AS diagram_id, d.stage, d.kind AS diagram_kind, d.source_key, d.name AS diagram_name,
-                c.thread_id AS proposal_thread, k.state AS ended
+                d.id AS diagram_id, d.stage, d.kind AS diagram_kind, d.source_key, d.name AS diagram_name, d.removed_at,
+                c.thread_id AS proposal_thread, c.detail AS proposal_detail, k.state AS ended,
+                (SELECT body FROM comments WHERE thread_id = t.thread_id ORDER BY seq DESC LIMIT 1) AS question_text
          FROM todos t
          JOIN project_spaces p ON p.id = t.project_id
          JOIN diagrams d ON d.id = t.diagram_id
          LEFT JOIN change_sets c ON c.id = t.change_set_id
          LEFT JOIN confirmations k ON k.id = t.confirmation_id
-         WHERE t.side = 'owner' AND t.closed_at IS NULL
-         ORDER BY t.created_at DESC, t.id DESC LIMIT ${LISTED_ENTRIES}`,
+         WHERE t.side = 'owner' AND t.closed_at IS NULL AND d.stage IN (${STAGE_PARAMS})
+         ORDER BY t.created_at, t.id LIMIT ${LISTED_ENTRIES}`,
+      ),
+      morning: store.prepare(
+        `SELECT t.id, t.kind, t.thread_id, t.change_set_id, t.created_at, p.name AS project,
+                d.id AS diagram_id, d.stage, d.kind AS diagram_kind, d.source_key, d.name AS diagram_name, d.removed_at,
+                c.thread_id AS proposal_thread, c.detail AS proposal_detail, k.state AS ended,
+                (SELECT body FROM comments WHERE thread_id = t.thread_id ORDER BY seq DESC LIMIT 1) AS question_text
+         FROM todos t JOIN project_spaces p ON p.id = t.project_id JOIN diagrams d ON d.id = t.diagram_id
+         LEFT JOIN change_sets c ON c.id = t.change_set_id LEFT JOIN confirmations k ON k.id = t.confirmation_id
+         WHERE t.side = 'owner' AND t.closed_at IS NULL AND d.stage IN (${STAGE_PARAMS})
+         ORDER BY CASE WHEN t.kind IN ('question', 'proposal') AND EXISTS (
+           SELECT 1 FROM todos pending WHERE pending.side = 'owner' AND pending.kind = 'confirm'
+             AND pending.diagram_id = t.diagram_id AND pending.closed_at IS NULL
+         ) THEN 0 ELSE 1 END, t.created_at, t.id LIMIT 5`,
       ),
     };
     prepared.set(store, statements);
@@ -89,30 +103,35 @@ export function confirmReason(ended) {
   return ended === 'invalidated' || ended === 'cancelled' ? ended : 'new';
 }
 
+// Only explicitly marked choices are offered; ordinary numbered prose is not assumed to be a choice.
+export function questionChoices(text) {
+  if (typeof text !== 'string' || !/(?:고르|선택|choose|select)/i.test(text)) return [];
+  const choices = text.split(/\r?\n/).filter((line) => /^\s*[-*]\s+\[ \]/.test(line))
+    .map((line) => line.replace(/^\s*[-*]\s+\[ \]\s*/, '').trim());
+  return choices.length >= 2 && choices.length <= 10 && choices.every((value) => value && [...value].length <= 200) ? choices : [];
+}
+
 // The contract's OwnerTodo.
 export function ownerTodo(store) {
   const parts = new Map();
-  const groups = new Map();
-  for (const row of statementsOf(store).entries.all()) {
-    if (!STAGE_SET.has(row.stage)) continue;
+  const convert = (rows) => rows.filter((row) => STAGE_SET.has(row.stage)).map((row) => {
     const diagram = { id: Number(row.diagram_id), stage: row.stage, kind: row.diagram_kind, source_key: row.source_key };
     const thread = row.kind === 'question' ? row.thread_id : row.kind === 'proposal' ? row.proposal_thread : null;
-    const entry = {
-      kind: row.kind,
-      project: row.project,
-      part: diagramPart(store, diagram, parts),
-      stage: row.stage,
-      diagram: idOf('dg', diagram.id),
-      diagram_name: row.diagram_name,
+    const detail = row.proposal_detail === null ? {} : JSON.parse(row.proposal_detail);
+    return {
+      kind: row.kind, project: row.project, part: diagramPart(store, diagram, parts), stage: row.stage,
+      diagram: idOf('dg', diagram.id), diagram_name: row.diagram_name,
       thread: thread === null ? null : idOf('nc', Number(thread)),
       change_set: row.kind === 'proposal' ? idOf('np', Number(row.change_set_id)) : null,
-      reason: row.kind === 'confirm' ? confirmReason(row.ended) : null,
-      since: row.created_at,
+      reason: row.kind === 'confirm' ? confirmReason(row.ended) : null, since: row.created_at,
+      removed: row.removed_at !== null,
+      question_text: row.kind === 'question' ? row.question_text : null,
+      question_choices: row.kind === 'question' ? questionChoices(row.question_text) : [],
+      proposal_summary: row.kind === 'proposal' && typeof detail.change === 'string' ? detail.change : null,
     };
-    if (!groups.has(entry.project)) groups.set(entry.project, []);
-    groups.get(entry.project).push(entry);
-  }
-  return { entries: [...groups.values()].flat(), backup: backupWarning(store) };
+  });
+  const statements = statementsOf(store);
+  return { entries: convert(statements.entries.all(...STAGES)), morning: convert(statements.morning.all(...STAGES)), backup: backupWarning(store) };
 }
 
 // The routes of API-262 and API-263 (see router.js), of the owner family.
