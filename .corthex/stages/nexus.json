@@ -425,10 +425,15 @@
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 242 audit clarification: existing comment and resolution-event detail objects retain the authenticated evidence submitter, resolving credential and server-generated request ID. No schema or migration changes. The checkpoint delegate conveyed the maintainer’s decision in an Orca reply.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
-      "updated": "2026-11-28T04:55:57+00:00",
+      "updated": "2026-11-28T06:33:20+00:00",
       "checks": [
         {
           "level": "info",
@@ -652,7 +657,7 @@
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
-      "updated": "2026-11-28T05:52:10+00:00"
+      "updated": "2026-11-28T06:33:20+00:00"
     },
     "07-sitemap": {
       "state": "done",
@@ -921,7 +926,7 @@
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",
-      "updated": "2026-11-28T05:52:10+00:00"
+      "updated": "2026-11-28T06:33:20+00:00"
     },
     "09-mockup": {
       "state": "done",
