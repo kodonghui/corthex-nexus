@@ -5,6 +5,11 @@
 //   'network', or 'answer' for a success that is not a JSON object.
 // The page holds nothing of a project before the API answers it, and keeps none of it after (see storage.js).
 
+// Outcomes whose write may need a retry using the same key, including temporary gate and service limits.
+export function isRetryableOutcome(outcome) {
+  return !Number.isInteger(outcome?.status) || outcome.status >= 500 || [401, 408, 429].includes(outcome.status);
+}
+
 export const READ_TIMEOUT_MS = 30_000;
 
 export function read(path) {

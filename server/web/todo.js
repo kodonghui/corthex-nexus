@@ -8,7 +8,7 @@
 // - Questions and proposal decisions use the shell's ten-second undo; confirmation is previewed and asked again.
 
 import { PROJECTS_HREF, TODO_HREF, diagramApi, projectApi, projectHref, stageHref } from './address.js';
-import { newRequestKey } from './api.js';
+import { isRetryableOutcome, newRequestKey } from './api.js';
 import { fill, h, icon } from './dom.js';
 import { STAGES, stageOf } from './stages.js';
 import { dayOf, sentWords } from './states.js';
@@ -107,15 +107,15 @@ function morningCard(entry, shell, titles = new Map()) {
   const question = entry.question_choices?.length && entry.question_text
     ? entry.question_text.split(/\r?\n/).filter((line) => !/^\s*[-*]\s+\[ \]/.test(line)).join('\n').trim()
     : entry.question_text;
-  const draftKey = `todo:${entry.project}:${entry.thread}:${entry.since}:${entry.question_text ?? ""}`;
+  const draftKey = `todo:${entry.project}:${entry.thread}:${entry.since}`;
   const queue = (url, body, submittedDraft = null) => {
     try {
       if (!shell.pending) throw new Error('storage unavailable');
       shell.pending.enqueue(url, body, {
         done: () => { if (submittedDraft !== null && shell.draftOf(draftKey) === submittedDraft) shell.keepDraft(draftKey, ''); shell.reload(); },
         undone: () => { notice.textContent = '되돌렸어요. 아직 보내지 않았어요.'; },
-        failed: (outcome) => { notice.textContent = outcome.status >= 400 && outcome.status < 500
-          ? '보내지 못했어요. 위의 안내를 확인해 주세요.' : '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.'; },
+        failed: (outcome) => { notice.textContent = isRetryableOutcome(outcome)
+          ? '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.' : '보내지 못했어요. 위의 안내를 확인해 주세요.'; },
       });
       notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
     } catch (error) { notice.textContent = error.message === 'already pending' ? '이 항목은 처리 중이에요. 위 안내를 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }

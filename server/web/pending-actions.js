@@ -1,6 +1,6 @@
 // The owner's ten-second undo window. Requests are persisted until their outcome is known so a pagehide send that
 // loses its response can be retried with the same idempotency key on the next visit.
-import { newRequestKey, write } from './api.js';
+import { isRetryableOutcome, newRequestKey, write } from './api.js';
 
 const PREFIX = 'nexus-pending-action:';
 const PATH = /^\/api\/projects\/[a-z0-9-]+\/(?:threads\/nc_[0-9a-hjkmnp-tv-z]{12}\/comments|change-sets\/np_[0-9a-hjkmnp-tv-z]{12}\/(?:accept|reject))$/;
@@ -29,13 +29,17 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     if (result.status === 200 || result.status === 201) {
       try {
         forget(item);
-        for (const old of recovered()) if (old.state === 'failed' && targetOf(old.path) === targetOf(item.path)) forget(old);
+        for (const old of recovered()) {
+          const sameTarget = targetOf(old.path) === targetOf(item.path);
+          const sameDecision = item.path.includes('/change-sets/') || old.body.text === item.body.text;
+          if (old.state === 'failed' && sameTarget && sameDecision) forget(old);
+        }
       } catch { /* A retry with the same key remains safe. */ }
       live.delete(item.key);
       current?.done?.(result.body, result);
     } else {
       // An explicit client refusal remains visible but does not block a new action.
-      if (result.status >= 400 && result.status < 500 && ![401, 408, 429].includes(result.status)) {
+      if (result.status >= 400 && result.status < 500 && !isRetryableOutcome(result)) {
         item.state = 'failed';
         try { save(item); } catch { /* Keep the previous persisted marker. */ }
       } else {

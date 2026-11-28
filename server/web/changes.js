@@ -3,7 +3,7 @@
 // its work panel, its Selected panel and its keys meet a change; overlays.js reads what lies over the picture (API-265).
 //
 // - "AI 제안" (PC and phone): each proposal still proposed, with its kind, its text and its reason, and 수락 and 거절. Each asks
-//   once, "수락할까요?" or "거절할까요?" with 취소, before it is sent (API-270, API-271). A removed diagram's proposals
+//   once, then gives a ten-second Undo before sending (API-270, API-271). A removed diagram's proposals
 //   show 거절 only (SPEC-027). An accepted proposal stays there, "수락했어요. …" with 반영 대기, until it is reflected.
 // - "이 그림" while anything waits (SCR-145#waiting): 반영 대기 N, why confirming waits, the list of what waits (newest
 //   accepted first, as API-265 gives it), each direct edit with 편집 취소 (API-273), and the confirm button off. On a
@@ -25,7 +25,7 @@
 // What this module keeps is in the workbench's state of the diagram (state.changes), never in the browser's storage.
 
 import { changesHref, diagramApi, projectApi } from './address.js';
-import { newRequestKey } from './api.js';
+import { isRetryableOutcome, newRequestKey } from './api.js';
 import {
   changedSentence, changedSince, changedTag, CONFIRM_WORDS, isDrawn, liveConfirmation, moreChanges, panelRow, recordPullRequest,
   SHOWN_CHANGES,
@@ -539,12 +539,13 @@ function ask(state, set, verb) {
     const retry = () => {
       const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey);
       if (item) state.ctx.shell.pending.retry(item, hooks);
+      else { changes.said = null; ask(state, set, verb); }
     };
     const hooks = {
       done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
       failed: (outcome) => {
         if (!state.live()) return;
-        const again = !outcome.status || outcome.status >= 500 || [401, 408, 429].includes(outcome.status) ? retry : () => ask(state, set, verb);
+        const again = isRetryableOutcome(outcome) ? retry : () => ask(state, set, verb);
         met(state, outcome, { verb, retry: again, focus: 'proposals-heading' });
       },
       undone: () => { if (state.live()) drawChanges(state); },

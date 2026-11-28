@@ -215,3 +215,5 @@ A further mockup review raised a possible double announcement when a live status
 The next implementation review also raised possible cost from rereading browser storage for each proposal and maintenance drift between the timeline's plain-language names and the stage registry. Measure the former with many proposals and consider a shared stage-label source in a later change; neither was measured as a current user-visible failure.
 
 The mockup review also raised unverified focus and announcement ordering when the preview changes to a restricted state during a pending timer, and a possible duplicate announcement when the last decision finishes after confirmation. Check these sequences with assistive technology in the later full-state mockup pass.
+
+The final mockup follow-up review found no defect in hiding an answered pin or keeping the pending confirmation in the inbox. It raised unverified demo focus behavior when a mouse or keyboard user reaches confirmation from the inbox, and the lack of a repeatable browser test for those mockup interactions; the local Chromium checks were manual. Include these in the later full-state and assistive-technology pass.

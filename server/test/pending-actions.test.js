@@ -108,3 +108,15 @@ test('a later successful decision clears earlier failed records for the same pro
   queue.enqueue(path.replace('/accept', '/reject'), {}); await timers[1]();
   assert.equal(queue.recovered().length, 0);
 });
+
+
+test('a later different reply does not erase a failed answer to the same thread', async () => {
+  const store = storage(); const timers = []; let status = 409;
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+    cancelTimer: () => {}, send: async () => ({ status }) });
+  const path = '/api/projects/demo/threads/nc_000000000001/comments';
+  queue.enqueue(path, { text: '첫 답변' }); await timers[0]();
+  status = 201;
+  queue.enqueue(path, { text: '다른 답변' }); await timers[1]();
+  assert.deepEqual(queue.recovered().map((item) => [item.state, item.body.text]), [['failed', '첫 답변']]);
+});

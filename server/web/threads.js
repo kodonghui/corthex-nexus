@@ -19,7 +19,7 @@
 //   and an element's key only as a hash, so no text of a document is kept.
 
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
-import { newRequestKey, read } from './api.js';
+import { isRetryableOutcome, newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
 import { exactExternalAnswer, sameDecisionAnswer } from './decision-match.js';
 
@@ -622,7 +622,7 @@ function finishWrite(state, what, text, action, done, key, outcome) {
   else if (!closing(what) && (status === 400 || status === 413 || (status === 409 && code === 'request_key_reused'))) {
     t.errors.set(what, { by: 'field', text: shell.message(code), limit: code === 'text_too_long' || code === 'body_too_large' });
   } else {
-    const retry = failure === 'timeout' || failure === 'network' || status >= 500 || [408, 429].includes(status) ? { key, text } : null;
+    const retry = isRetryableOutcome(outcome) ? { key, text } : null;
     t.errors.set(what, { by: 'notice', outcome, action, kept: retry });
   }
   redraw(state, what);

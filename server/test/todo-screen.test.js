@@ -198,10 +198,23 @@ describe('SCR-142', () => {
     const page = await openPage('/', { answers });
     try {
       const field = mainOf(page).all('textarea')[0]; field.value = '지난 답변'; field.dispatch('input');
-      const next = { ...question, question_text: '다음 질문이에요.' };
+      const next = { ...question, since: earlier(1), question_text: '다음 질문이에요.' };
       answers['/api/todo'] = json(200, { entries: [next], morning: [next], backup: null });
       await page.shell.reload(); await page.settle();
       assert.equal(mainOf(page).all('textarea')[0].value, '');
+    } finally { page.close(); }
+  });
+
+  test('a clarification in the same unanswered question keeps its draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '첫 질문이에요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const page = await openPage('/', { answers });
+    try {
+      const field = mainOf(page).all('textarea')[0]; field.value = '적고 있는 답'; field.dispatch('input');
+      const clarified = { ...question, question_text: '질문에 대한 설명이에요.' };
+      answers['/api/todo'] = json(200, { entries: [clarified], morning: [clarified], backup: null });
+      await page.shell.reload(); await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '적고 있는 답');
     } finally { page.close(); }
   });
 
