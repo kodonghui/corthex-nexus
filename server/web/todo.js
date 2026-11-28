@@ -10,6 +10,7 @@
 import { PROJECTS_HREF, TODO_HREF, diagramApi, projectApi, projectHref, stageHref } from './address.js';
 import { isRetryableOutcome, newRequestKey } from './api.js';
 import { fill, h, icon } from './dom.js';
+import { CLOCK_SKEW_MS, RETRY_LIMIT_MS } from './pending-actions.js';
 import { STAGES, stageOf } from './stages.js';
 import { dayOf, sentWords } from './states.js';
 
@@ -83,7 +84,7 @@ function projectHome(data, shell) {
 function timeline(data, shell) {
   const first = data.todo?.morning?.[0] ?? (data.projects?.projects?.[0] ? { project: data.projects.projects[0].name, part: null } : null);
   if (!first) return null;
-  if (!data.progress) return h('p', { class: 'sec' }, '진행 상황을 불러오지 못했어요.');
+  if (!data.progress || data.progress.name !== first.project) return h('p', { class: 'sec' }, '진행 상황을 불러오지 못했어요.');
   const project = data.progress;
   const words = { passed: '통과', changed_since_pass: '통과 뒤 바뀜', open: '진행 중', not_sent: '시작 전' };
   const part = first.part ?? project.stages?.[0]?.part ?? '';
@@ -116,7 +117,7 @@ function morningCard(entry, shell, titles = new Map()) {
         draftText: submittedDraft,
         done: () => { if (submittedDraft !== null && shell.draftOf(draftKey) === submittedDraft) shell.keepDraft(draftKey, ''); shell.reload(); },
         undone: (reason) => { notice.textContent = reason === 'elsewhere' ? '다른 화면에서 상태가 바뀌었어요. 현재 내용을 확인해 주세요.' : '되돌렸어요. 아직 보내지 않았어요.'; },
-        failed: (outcome) => { notice.textContent = isRetryableOutcome(outcome)
+        failed: (outcome) => { notice.textContent = outcome.failure === 'expired' ? '오래된 답변이나 결정은 현재 내용을 확인해 주세요.' : isRetryableOutcome(outcome)
           ? '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.' : '보내지 못했어요. 위의 안내를 확인해 주세요.'; },
       });
       notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
@@ -154,6 +155,7 @@ function confirmationCard(entry, shell) {
     fill(area, h('p', { role: 'status' }, '그림을 불러오고 있어요.'));
     const result = await shell.readFresh(path);
     busy = false;
+    if (result.status === 401 || result.status === 403 || result.failure === 'gate') return;
     const diagram = result.body;
     if (result.status !== 200 || !diagram) {
       fill(area, h('p', { role: 'alert' }, '그림을 불러오지 못했어요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 시도'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
@@ -173,8 +175,13 @@ function confirmationCard(entry, shell) {
       names.length > 6 ? h('p', {}, `이 밖에 ${names.length - 6}개가 더 있어요.`) : null,
       h('a', { href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram }), class: 'btn tertiary' }, '전체 그림 보기'));
     const requestKey = newRequestKey();
+    const createdAt = Date.now();
     const confirm = async () => {
       if (busy) return;
+      if (Date.now() + CLOCK_SKEW_MS < createdAt || Date.now() - createdAt >= RETRY_LIMIT_MS) {
+        fill(area, h('p', { role: 'alert' }, '오래된 확정 요청이에요. 그림의 현재 상태를 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '그림 다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
+        return;
+      }
       busy = true; fill(area, h('p', { role: 'status' }, '확정 결과를 확인하고 있어요.'));
       const outcome = await shell.write('POST', `${path}/confirmation`, { drawing: diagram.drawing.id }, requestKey);
       busy = false;

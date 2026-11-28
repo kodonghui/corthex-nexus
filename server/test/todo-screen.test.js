@@ -17,7 +17,7 @@ import { REASONS } from '../web/todo.js';
 import { contract } from './contract.js';
 import { fakePage } from './fake-dom.js';
 import { listedResponses, responseRecord } from './responses.js';
-import { errorShown, headerOf, json, openPage, problem, SCREENS, startShell, texts, TRACE } from './screen-page.js';
+import { errorShown, GATE, headerOf, json, openPage, problem, SCREENS, startShell, texts, TRACE } from './screen-page.js';
 import { seed } from './seed.js';
 import { localGate, startServer, waitFor } from './support.js';
 
@@ -155,6 +155,25 @@ describe('SCR-142', () => {
     } finally { page.close(); }
   });
 
+  test('a failed progress refresh cannot show a different project as the current one', async () => {
+    let switched = false;
+    const first = ENTRIES.find((entry) => entry.project === 'reading-club');
+    const second = ENTRIES.find((entry) => entry.project === 'demo');
+    const page = await openPage('/', { answers: (path, init) => {
+      if (path === '/api/todo') return json(200, { entries: [switched ? second : first], morning: [switched ? second : first], backup: null })();
+      if (path === '/api/projects') return json(200, PROJECTS)();
+      if (path === '/api/projects/reading-club') return json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] })();
+      if (path === '/api/projects/demo') return problem(500, 'internal')();
+      throw new Error(`unexpected ${path}`);
+    } });
+    try {
+      assert.match(mainOf(page).textContent, /독서 모임 앱 진행 상황/);
+      switched = true; await page.shell.reload(); await page.settle();
+      assert.doesNotMatch(mainOf(page).textContent, /독서 모임 앱 진행 상황/);
+      assert.match(mainOf(page).textContent, /진행 상황을 불러오지 못했어요/);
+    } finally { page.close(); }
+  });
+
   test('confirmation retries a failed preview and reopens with a fresh read', async () => {
     const entry = ENTRIES.find((each) => each.kind === 'confirm');
     const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
@@ -176,6 +195,19 @@ describe('SCR-142', () => {
       assert.match(mainOf(page).textContent, /처음 확정하는 그림이에요/);
       click('취소'); click('이 그림 확정하기'); await page.settle();
       assert.equal(reads, 3);
+    } finally { page.close(); }
+  });
+
+  test('a confirmation preview gate response uses the shell permission flow', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    const answers = { ...answersOf({ todo: { entries: [entry], morning: [entry], backup: null } }), [path]: GATE };
+    const page = await openPage('/', { answers });
+    try {
+      mainOf(page).all('button').find((button) => button.textContent === '이 그림 확정하기').click();
+      await page.settle();
+      assert.equal(page.location.reloads, 1);
+      assert.notEqual(page.session.getItem(GATE_KEY), null);
     } finally { page.close(); }
   });
 

@@ -21,6 +21,7 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { isRetryableOutcome, newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
+import { UNDO_MS } from './pending-actions.js';
 import { exactExternalAnswer, sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
@@ -566,18 +567,22 @@ async function write(state, what, text, action, kept = null) {
       return;
     }
     const item = pending.recovered().find((candidate) => candidate.key === kept.key)
-      ?? { key: kept.key, path, body, draft: draftKey(state.ctx.data.diagram, what), state: 'unconfirmed' };
+      ?? { key: kept.key, path, body, draft: draftKey(state.ctx.data.diagram, what), created_at: kept.created_at, state: 'unconfirmed' };
     t.errors.delete(what);
     t.sending.add(what);
     redraw(state, what);
     const result = await pending.retry(item, {
       active: () => t.host.live(),
       done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
-      failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
+      failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome, kept.created_at); },
     });
     if (result?.failure === 'pending') {
       t.sending.delete(what);
       if (t.host.live()) { t.errors.set(what, { by: 'field', text: '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.', action, kept }); redraw(state, what); }
+    }
+    if (result?.failure === 'expired') {
+      t.sending.delete(what);
+      if (t.host.live()) { t.errors.set(what, { by: 'field', text: '오래된 답변은 다시 보내기 전에 대화의 현재 내용을 확인해 주세요.' }); redraw(state, what); }
     }
     return;
   }
@@ -586,12 +591,13 @@ async function write(state, what, text, action, kept = null) {
       if (!state.ctx.shell.pending) throw new Error('storage unavailable');
       t.errors.delete(what);
       t.sending.add(what);
+      const createdAt = Date.now();
       const clear = () => { t.sending.delete(what); if (t.host.live()) redraw(state, what); };
       state.ctx.shell.pending.enqueue(path, body, {
         draft: draftKey(state.ctx.data.diagram, what),
         active: () => t.host.live(),
         done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
-        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
+        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome, createdAt); },
         undone: clear,
       });
       redraw(state, what);
@@ -617,11 +623,16 @@ async function write(state, what, text, action, kept = null) {
   finishWrite(state, what, text, action, done, key, outcome);
 }
 
-function finishWrite(state, what, text, action, done, key, outcome) {
+function finishWrite(state, what, text, action, done, key, outcome, createdAt = null) {
   const t = state.threads;
   const { status, code = null, failure } = outcome;
   if (status === 200 || status === 201) {
     done(outcome.body);
+    return;
+  }
+  if (failure === 'expired') {
+    t.errors.set(what, { by: 'field', text: '오래된 답변은 다시 보내기 전에 대화의 현재 내용을 확인해 주세요.' });
+    redraw(state, what);
     return;
   }
   // A 401 or a 403 went through the permission rule, which took the page; the text stays kept in this tab.
@@ -641,7 +652,11 @@ function finishWrite(state, what, text, action, done, key, outcome) {
   else if (!closing(what) && (status === 400 || status === 413 || (status === 409 && code === 'request_key_reused'))) {
     t.errors.set(what, { by: 'field', text: shell.message(code), limit: code === 'text_too_long' || code === 'body_too_large' });
   } else {
-    const retry = isRetryableOutcome(outcome) ? { key, text } : null;
+    let stored = null;
+    if (what.startsWith('reply ')) {
+      try { stored = state.ctx.shell.pending?.recovered().find((item) => item.key === key) ?? null; } catch { /* The draft and error remain available. */ }
+    }
+    const retry = isRetryableOutcome(outcome) ? { key, text, created_at: stored?.created_at ?? (Number.isFinite(stored?.expires_at) ? stored.expires_at - UNDO_MS : createdAt) } : null;
     t.errors.set(what, { by: 'notice', outcome, action, kept: retry });
   }
   redraw(state, what);

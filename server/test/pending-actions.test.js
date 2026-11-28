@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { pendingActions, UNDO_MS } from '../web/pending-actions.js';
+import { pendingActions, RETRY_LIMIT_MS, UNDO_MS } from '../web/pending-actions.js';
 function storage() {
   const map = new Map();
   return { get length() { return map.size; }, key: (n) => [...map.keys()][n] ?? null,
@@ -273,4 +273,63 @@ test('explicitly dismissing an orphaned waiting action prevents its owner timer 
   await timers[0]();
   assert.equal(sends, 0);
   assert.equal(reason, 'elsewhere');
+});
+
+test('an old unconfirmed action is not resent after the safe request-key period', async () => {
+  const store = storage(); const timers = []; let time = 10_000; let sends = 0;
+  const queue = pendingActions({ storage: store, now: () => time, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => { sends += 1; return { failure: 'network' }; } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  await timers[0]();
+  const item = queue.recovered()[0];
+  time += RETRY_LIMIT_MS;
+  assert.equal(queue.expired(item), true);
+  assert.equal((await queue.retry(item)).failure, 'expired');
+  assert.equal(queue.hasTarget(item.path), false);
+  assert.equal(sends, 1);
+  assert.equal(queue.discard(item), true);
+  assert.equal((await queue.retry(item, { done: () => {} })).failure, 'expired');
+  assert.equal(sends, 1);
+});
+
+test('a recovery record with unknown age is never sent automatically', async () => {
+  const store = storage(); let sends = 0;
+  const item = { key: 'nw_000000000001', path: '/api/projects/demo/threads/nc_000000000001/comments', body: { text: '답변' }, state: 'unconfirmed' };
+  store.setItem(`nexus-pending-action:${item.key}`, JSON.stringify(item));
+  const queue = pendingActions({ storage: store, send: async () => { sends += 1; return { status: 201 }; } });
+  assert.equal((await queue.retry(item)).failure, 'expired');
+  assert.equal(sends, 0);
+});
+
+test('a small backward clock correction does not expire a fresh queued answer', async () => {
+  const store = storage(); const timers = []; let time = 100_000; let sends = 0;
+  const queue = pendingActions({ storage: store, now: () => time, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => { sends += 1; return { status: 201 }; } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  time -= 2_000; await timers[0]();
+  assert.equal(sends, 1);
+});
+
+test('a long-delayed waiting action is not sent by its timer or pagehide', async () => {
+  const store = storage(); const timers = []; let time = 0; let sends = 0;
+  const queue = pendingActions({ storage: store, now: () => time, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => { sends += 1; return { status: 201 }; } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  time += RETRY_LIMIT_MS;
+  await timers[0](); queue.flush();
+  assert.equal(sends, 0);
+  assert.equal(queue.recovered()[0].state, 'expired');
+});
+
+test('a dismissed six-day-old waiting notice does not return when its old timer runs', async () => {
+  const store = storage(); const timers = []; let time = 100_000;
+  const options = { storage: store, now: () => time, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {} };
+  const first = pendingActions(options); const next = pendingActions(options);
+  first.enqueue('/api/projects/demo/change-sets/np_000000000001/reject', {});
+  const item = next.recovered()[0];
+  time += RETRY_LIMIT_MS;
+  assert.equal(next.canForceDiscard(item), false);
+  assert.equal(next.discard(item), true);
+  await timers[0]();
+  assert.equal(next.recovered().length, 0);
 });

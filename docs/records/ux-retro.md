@@ -225,3 +225,5 @@ The final recovery review found that overlapping retries could leave a reply mar
 If browser storage is blocked or full, the ten-second queue cannot keep its recovery promise and does not send the action; the screen explains why. An accessible recovery path for that case is a candidate for the next pass. The same review also flagged repeated storage scans, a possible large-inbox payload cost, and duplicated confirmation eligibility logic as follow-up work.
 
 The cross-tab recovery tests cover stale notices and a second tab sending during the undo window. They do not establish atomic behavior when two tabs act at exactly the same instant or when the system clock changes abruptly; stronger cross-tab coordination is a follow-up candidate.
+
+The six-day recovery limit protects the new queued answers and proposal decisions and the morning confirmation retry. A review also found that older direct-edit and other thread retry paths can retain keys past the server's seven-day window; bringing those existing paths under the same limit is a separate follow-up.

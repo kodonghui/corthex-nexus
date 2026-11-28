@@ -6,6 +6,10 @@ const PREFIX = 'nexus-pending-action:';
 const PATH = /^\/api\/projects\/[a-z0-9-]+\/(?:threads\/nc_[0-9a-hjkmnp-tv-z]{12}\/comments|change-sets\/np_[0-9a-hjkmnp-tv-z]{12}\/(?:accept|reject))$/;
 const KEY = /^nw_[0-9a-hjkmnp-tv-z]{12}$/;
 export const UNDO_MS = 10_000;
+// Keep a full day of margin before the server forgets a seven-day request key.
+export const RETRY_LIMIT_MS = 6 * 24 * 60 * 60 * 1000;
+// The extra day of key-retention margin also allows a modest backward clock correction.
+export const CLOCK_SKEW_MS = 60 * 60 * 1000;
 
 export function pendingActions({ storage = globalThis.localStorage, send = write, schedule = setTimeout, cancelTimer = clearTimeout, now = Date.now, onChange = () => {} } = {}) {
   const live = new Map();
@@ -21,6 +25,14 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     } catch { return null; }
   };
   const withinWindow = (item) => item.state === 'waiting' && (!Number.isFinite(item.expires_at) || item.expires_at > now());
+  const expired = (item) => {
+    const created = Number.isFinite(item.created_at) ? item.created_at : Number.isFinite(item.expires_at) ? item.expires_at - UNDO_MS : null;
+    return created === null || now() + CLOCK_SKEW_MS < created || now() - created >= RETRY_LIMIT_MS;
+  };
+  const agedOut = (item) => {
+    const created = Number.isFinite(item.created_at) ? item.created_at : Number.isFinite(item.expires_at) ? item.expires_at - UNDO_MS : null;
+    return created !== null && now() - created >= RETRY_LIMIT_MS;
+  };
 
   async function dispatch(item, keepalive = false, hooks = null) {
     const existing = inFlight.get(item.key);
@@ -37,6 +49,18 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
         handle.undone?.('elsewhere'); onChange();
         return { failure: 'discarded' };
       }
+    }
+    if (expired(item)) {
+      item.state = 'expired';
+      try { save(item); } catch { /* Preserve any earlier marker. */ }
+      const handle = live.get(item.key);
+      let viewFailed = false;
+      if (handle) {
+        cancelTimer(handle.timer); live.delete(item.key); remembered.delete(item.key);
+        try { handle.failed?.({ failure: 'expired' }, item.key); } catch { viewFailed = true; }
+      }
+      try { onChange(null, false, viewFailed); } catch { /* The saved notice remains available. */ }
+      return { failure: 'expired' };
     }
     const current = live.get(item.key) ?? hooks ?? remembered.get(item.key);
     let settleFlight;
@@ -98,13 +122,14 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
 
   const targetOf = (path) => path.replace(/\/(?:accept|reject)$/, '');
   const hasOtherTarget = (path, key = null) => [...live.values()].some(({ item }) => item.key !== key && targetOf(item.path) === targetOf(path))
-    || recovered().some((item) => item.key !== key && item.state !== 'failed' && targetOf(item.path) === targetOf(path));
+    || recovered().some((item) => item.key !== key && item.state !== 'failed' && !agedOut(item) && targetOf(item.path) === targetOf(path));
   const hasTarget = (path) => hasOtherTarget(path);
   function enqueue(path, body, { done = null, failed = null, undone = null, active = null, draft = null, draftText = null } = {}) {
     if (!PATH.test(path)) throw new Error('invalid action path');
     try { if (hasTarget(path)) throw new Error('already pending'); }
     catch (error) { if (error.message === 'already pending') throw error; throw new Error('storage unavailable', { cause: error }); }
-    const item = { key: newRequestKey(), path, body, state: 'waiting', expires_at: now() + UNDO_MS };
+    const created_at = now();
+    const item = { key: newRequestKey(), path, body, state: 'waiting', created_at, expires_at: created_at + UNDO_MS };
     if (typeof draft === 'string') item.draft = draft;
     if (typeof draftText === 'string') item.draftText = draftText;
     // If storage is unavailable the UI must not say that the action can be recovered after leaving.
@@ -152,11 +177,11 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
   }
   function canForceDiscard(item) {
     const saved = savedCopy(item);
-    return !!saved && !inFlight.has(item.key) && (saved.state === 'waiting' || saved.state === 'sending');
+    return !!saved && !inFlight.has(item.key) && !agedOut(saved) && (saved.state === 'waiting' || saved.state === 'sending');
   }
   function discard(item, force = false) {
     const saved = savedCopy(item);
-    if (!saved || inFlight.has(item.key) || (!force && (saved.state === 'waiting' || saved.state === 'sending'))) return false;
+    if (!saved || inFlight.has(item.key) || (!force && !agedOut(saved) && (saved.state === 'waiting' || saved.state === 'sending'))) return false;
     try { forget(saved); } catch { return false; }
     remembered.delete(item.key); discarded.add(item.key); onChange(); return true;
   }
@@ -166,8 +191,9 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     // A view's explicit retry can reconstruct a dismissed marker using its original key; a stale banner cannot.
     if (!saved && !hooks && !inFlight.has(item.key)) return Promise.resolve({ failure: 'stale' });
     const candidate = saved ?? item;
+    if (expired(candidate)) return Promise.resolve({ failure: 'expired' });
     if (withinWindow(candidate)) return Promise.resolve({ failure: 'pending' });
     return dispatch(candidate, false, hooks);
   }
-  return { enqueue, undo, flush, recovered, hasTarget, hasOtherTarget, discard, canForceDiscard, retry, wasDiscarded: (key) => discarded.has(key), has: (key) => live.has(key), waiting: () => [...live.values()].filter((item) => !item.sending).map(({ item }) => item) };
+  return { enqueue, undo, flush, recovered, hasTarget, hasOtherTarget, discard, canForceDiscard, retry, expired, wasDiscarded: (key) => discarded.has(key), has: (key) => live.has(key), waiting: () => [...live.values()].filter((item) => !item.sending).map(({ item }) => item) };
 }
