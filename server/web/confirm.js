@@ -42,7 +42,7 @@ export const CONFIRM_WORDS = Object.freeze({
   seeInDiagram: '그림에서 보기',
   noneSince: '확정한 뒤 바뀐 곳이 없어요.',
   noVersion: '아직 확정하지 않아 비교할 버전이 없어요.',
-  phone: '편집 취소와 확정은 PC에서 하세요.',
+  phone: '편집 취소와 확정 취소는 PC에서 하세요.',
 });
 
 export const changedTag = (count) => `바뀐 곳 ${count}`;

@@ -1,7 +1,7 @@
 {
  "about": "The pinned hub's stage-07 picture of docs/07-sitemap/nexus.yaml, as its sitemap.py makes it, and the SHA-256 of the file. tests/test_sitemap_picture.py checks it against the pinned hub and says how to make it again.",
  "source": "docs/07-sitemap/nexus.yaml",
- "sha256": "4af7e27ac053c046b4d615a89297c592a99de74e275ec1b90210fcfd6130c50b",
+ "sha256": "abd2707ab90b6a7d81b4b741597294832cb1db2fc3ea574669f1e67d670a708e",
  "part": "nexus",
  "checks": [],
  "picture": {
@@ -9,7 +9,7 @@
   "screens": [
    {
     "id": "SCR-142",
-    "name": "Owner to-do",
+    "name": "Owner home and to-do",
     "path": "/",
     "access": "the owner, signed in through the gate",
     "flows": [
@@ -41,7 +41,7 @@
     ],
     "context": "CTX-037",
     "removed": false,
-    "where": "docs/07-sitemap/nexus.yaml:13",
+    "where": "docs/07-sitemap/nexus.yaml:14",
     "terms": [
      "TERM-223"
     ],
@@ -64,7 +64,7 @@
     "terms": [
      "TERM-223"
     ],
-    "parent": 1
+    "parent": 0
    },
    {
     "id": "SCR-145",

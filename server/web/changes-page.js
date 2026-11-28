@@ -8,9 +8,9 @@
 // - "바뀐 요소": each element added, changed or removed since the last confirmation, with its tag, its name in the
 //   drawing now, or its key once removed, and its kind; or the empty state when it was never confirmed or nothing
 //   changed since.
-// - The end: 이 그림 확정 on a PC for a diagram not removed and not confirmed now (choice 7), asked once and off while
+// - The end: 이 그림 확정 on PC or phone for a diagram not removed and not confirmed now (choice 7), asked once and off while
 //   something waits or the document does not draw, and 그림으로. After its own confirm the page says so
-//   (SCR-146#confirmed). A phone reads the lists only (SPEC-051).
+//   (SCR-146#confirmed). A phone cannot cancel a direct edit or confirmation (SPEC-051).
 //
 // changes.js sends 편집 취소 and 이 그림 확정 and draws the line of their answers above the body, as on the workbench
 // (state.drawPage); confirm.js holds the words. The page keeps, for the shell it runs in, only what changes.js keeps.
@@ -115,23 +115,24 @@ function changedPart(since, confirmedHere, heading) {
     h('div', { class: 'list' }, since.rows.map(pageRow)));
 }
 
-// The document does not draw (SCR-146#not-drawn), on a PC, where 이 그림 확정 is off for it: what to do, and the
+// The document does not draw (SCR-146#not-drawn), where 이 그림 확정 is off for it: what to do, and the
 // picture where the failure shows.
 function notDrawn(state, live) {
   const diagram = state.ctx.data.diagram;
-  if (state.phone || diagram.removed || live !== null || isDrawn(diagram)) return null;
-  return h('div', { class: 'nt err', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, CONFIRM_WORDS.fixFirst)),
+  if (diagram.removed || live !== null || isDrawn(diagram)) return null;
+  return h('div', { class: 'nt err', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, state.phone ? CONFIRM_WORDS.phoneNotDrawn : CONFIRM_WORDS.fixFirst)),
     h('a', { class: 'btn ghost sm', href: toDiagram(state.ctx) }, CONFIRM_WORDS.seeInDiagram));
 }
 
-// The end of the page: 이 그림 확정 on a PC for a diagram not removed and not confirmed now, off while something waits
-// or the document does not draw, with why when something waits; then 그림으로. A phone adds where to act instead.
+// The end of the page: 이 그림 확정 on a PC or phone for a diagram not removed and not confirmed now, off while something
+// waits or the document does not draw, with why when something waits; then 그림으로.
 function endRow(ctx, state, confirmedHere, waiting) {
   const diagram = ctx.data.diagram ?? null;
   const phone = ctx.shell.isPhone();
-  const offers = state !== null && !phone && !diagram.removed && liveConfirmation(diagram) === null;
+  const offers = state !== null && !diagram.removed && liveConfirmation(diagram) === null;
   const back = h('a', { class: confirmedHere ? 'btn tertiary' : 'btn ghost', href: toDiagram(ctx) }, CONFIRM_WORDS.toDiagram);
   return [
+    offers && confirmable(state) && diagram.kind !== 'mockup' ? h('p', { class: 'small' }, CONFIRM_WORDS.leftOut) : null,
     offers && confirmable(state) ? h('p', {}, CONFIRM_WORDS.beforeConfirm) : null,
     h('div', { class: 'btns mid' },
       offers ? (confirmable(state) ? confirmControl(state, { wide: false }) : pageOffButton()) : null,

@@ -89,6 +89,7 @@ const RENAMED = setOf('np_0000000000e1', 'direct_edit', [{ op: 'rename', element
 const ACCEPTED = setOf('np_0000000000e2', 'proposal', [{ op: 'rename', element: C.key, name: 'snapshot_rows', target: null }], {
   items: ['TBL-148'], change: 'Rename snapshots to snapshot_rows.', reason: 'Rows, as the other tables.',
 });
+const PROPOSED = { ...ACCEPTED, state: 'proposed', decided_at: null };
 
 const STAGE_IDS = ['01-domain', '02-prd', '03-user-flow', '04-functional-spec', '05-erd', '06-api', '07-sitemap', '08-screen-states', '09-mockup', '10-wbs', '11-development', '12-qa', '13-presentation'];
 const summaryOf = (which) => {
@@ -174,7 +175,7 @@ const groupNamed = (page, heading) => mainOf(page).all('section', 'group').find(
 const kindOf = (element) => tagWord({ kind: 'erd' }, asElement(element));
 
 describe('SCR-145 "이 그림"', () => {
-  test('never confirmed: 확정 전, that nothing is marked, the note on AI proposals and 이 그림 확정; a phone shows guidance without the action', async () => {
+  test('never confirmed: a phone also offers confirmation with a second question', async () => {
     const page = await openAt('erd');
     try {
       const section = diagramSection(page);
@@ -189,11 +190,20 @@ describe('SCR-145 "이 그림"', () => {
     } finally {
       page.close();
     }
-    const phone = await openAt('erd', { phone: true });
+    const phone = await openAt('erd', { phone: true, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
     try {
       assert.equal(diagramSection(phone).hidden, false);
-      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
-      assert.ok(byId(phone, 'confirm') === null);
+      assert.deepEqual(shownTexts(diagramSection(phone), 'p'), [CONFIRM_WORDS.neverConfirmed, CONFIRM_WORDS.leftOut, CONFIRM_WORDS.beforeConfirm, CONFIRM_WORDS.phone]);
+      assert.ok(byId(phone, 'confirm') !== null);
+      press(byId(phone, 'confirm'));
+      assert.equal(phone.sent.length, 0);
+      assert.ok(byId(phone, 'confirm-yes') !== null);
+      press(byId(phone, 'confirm-stop'));
+      assert.equal(phone.sent.length, 0);
+      press(byId(phone, 'confirm'));
+      press(byId(phone, 'confirm-yes'));
+      await phone.settle();
+      assert.equal(phone.sent.length, 1);
     } finally {
       phone.close();
     }
@@ -540,6 +550,17 @@ describe('SCR-145 "이 그림"', () => {
 });
 
 describe('SCR-146', () => {
+  test('both widths explain that open proposals are excluded before confirmation', async () => {
+    for (const phone of [true, false]) {
+      const page = await openAt('erd', { screen: 'changes', phone, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
+      try {
+        assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.leftOut));
+        press(byId(page, 'confirm'));
+        assert.equal(page.sent.length, 0);
+        assert.ok(shownTexts(mainOf(page), 'p').includes(CONFIRM_WORDS.leftOut));
+      } finally { page.close(); }
+    }
+  });
   test('the recording explanation stays visible while confirming', async () => {
     const page = await openAt('erd', { screen: 'changes', diagram: confirmedWith('erd', 'invalidated') });
     try {
@@ -587,16 +608,42 @@ describe('SCR-146', () => {
     }
   });
 
-  test('a phone reads the lists only, with "편집 취소와 확정은 PC에서 하세요."', async () => {
+  test('a phone cannot cancel an edit and cannot confirm while it waits', async () => {
     const page = await openAt('erd', { screen: 'changes', phone: true, diagram: { ...confirmedWith('erd', 'invalidated'), overlays: [RENAMED] } });
     try {
-      assert.deepEqual(texts(page, 'button').filter((text) => text === '이 그림 확정하고 기록 요청' || text === '편집 취소'), []);
+      assert.equal(byId(page, 'confirm'), null);
+      assert.equal(texts(page, 'button').includes('편집 취소'), false);
       assert.deepEqual(pageRows(groupNamed(page, '반영을 기다리는 변경')), [['반영 대기', 'project_rooms', `이름 바꾸기 · ${B.name}에서`]]);
       const note = mainOf(page).all('div', 'info')[0];
-      assert.deepEqual([note.textContent, note.getAttribute('role')], ['편집 취소와 확정은 PC에서 하세요.', 'status']);
+      assert.deepEqual([note.textContent, note.getAttribute('role')], ['편집 취소와 확정 취소는 PC에서 하세요.', 'status']);
     } finally {
       page.close();
     }
+  });
+
+  test('a phone can request a confirmation from the changes page after the second question', async () => {
+    const page = await openAt('erd', { screen: 'changes', phone: true, diagram: confirmedWith('erd', 'invalidated') });
+    try {
+      press(byId(page, 'confirm'));
+      assert.equal(page.sent.length, 0);
+      assert.ok(byId(page, 'confirm-stop'));
+      press(byId(page, 'confirm-yes'));
+      await page.settle();
+      assert.equal(page.sent.length, 1);
+      assert.equal(page.sent[0].path, `${diagramPath('erd')}/confirmation`);
+    } finally { page.close(); }
+  });
+
+  test('a phone explains why a failed drawing cannot be confirmed on the changes page', async () => {
+    const failed = { ...diagramOf('erd').drawing, status: 'failed', failed_at: 'docs/example.md:1' };
+    const page = await openAt('erd', { screen: 'changes', phone: true, diagram: diagramOf('erd', { drawing: failed }) });
+    try {
+      assert.match(mainOf(page).textContent, /문서가 그려지지 않았어요/);
+      assert.ok(mainOf(page).all('a').some((link) => link.textContent === CONFIRM_WORDS.seeInDiagram));
+      const button = mainOf(page).all('button').find((item) => item.textContent === CHANGE_WORDS.confirm);
+      assert.notEqual(button.getAttribute('disabled'), null);
+      assert.equal(page.sent.length, 0);
+    } finally { page.close(); }
   });
 
   test('waiting (SCR-146#waiting): every change set that waits comes first under "반영을 기다리는 변경", a direct edit with 편집 취소; the button is off with why', async () => {

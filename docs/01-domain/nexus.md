@@ -26,9 +26,9 @@ NEXUS is a workbench where one person sees each project's CORTHEX stage outputs 
 | In | Direct edit: a free canvas on the stage-01 board; move, rename and connect on the other pictures | Redesign decision on direct edit |
 | In | A confirm button per picture, and a view of what changed since the last confirmation | Redesign decision on confirmation |
 | In | Event storming inside NEXUS, with an import of the earlier Miro board | Redesign decision on event storming |
-| In | The owner's to-do as the first screen | Redesign recommendations |
+| In | Projects first, with each project's pending questions and decisions; the owner's full to-do remains available | Navigation decision, 2026-11-27 |
 | In | Notion and Jira as links only, with their status | Redesign decision on other tools |
-| In | View and comment only on a phone | Redesign decision on mobile |
+| In | Read, comment, confirm and answer AI proposals on a phone; direct editing remains on a PC | Mobile decision, 2026-11-27 |
 | Out | Several people, sign-up, public publishing | Redesign decision "solo first", which replaces the public-service decision of 2026-11-18 |
 | Out | Handling the content of Notion or Jira | Redesign decision on other tools |
 | Out | A canvas engine of our own; an existing one is used | Redesign recommendations |
@@ -40,7 +40,7 @@ The first version starts with two pictures, the stage-01 DDD board and the stage
 
 ### People and external systems
 
-- Owner: the one person who uses NEXUS, the maintainer. Does everything on a PC; only views and comments on a phone.
+- Owner: the one person who uses NEXUS, the maintainer. Uses a phone to read, comment, confirm a diagram and accept or reject AI proposals; direct editing remains on a PC.
 - Agent: a Claude Code or Codex session. Sends snapshots through corthex-hub, takes to-dos, and posts replies, AI proposals, reflection pull requests and confirmation records.
 - Git host (GitHub, external system): holds the stage documents and the reflection pull requests.
 - Notion and Jira (external systems): project records and work items. NEXUS reads only their links and status.
@@ -141,8 +141,8 @@ Purpose: gather comments and replies on a diagram, AI proposals and direct edits
 | Owner, Agent | Diagram view | Add comment | Comment thread | Comment added |
 | Owner, Agent | Diagram view | Add reply | Comment thread | Reply added |
 | Agent | Agent to-do | Post AI proposal | Change set | AI proposal posted |
-| Owner (PC) | Diagram view | Accept proposal | Change set | Proposal accepted |
-| Owner (PC) | Diagram view | Reject proposal | Change set | Proposal rejected |
+| Owner | Diagram view | Accept proposal | Change set | Proposal accepted |
+| Owner | Diagram view | Reject proposal | Change set | Proposal rejected |
 | Owner (PC) | Diagram view | Rename element | Change set | Element renamed |
 | Owner (PC) | Diagram view | Connect line | Change set | Line connected |
 | Owner (PC) | Diff view | Cancel edit | Change set | Edit cancelled |
@@ -168,7 +168,7 @@ Purpose: the owner passes one picture or table at its document version, and the 
 
 | Given by | Read model | Command | Aggregate | Events |
 | --- | --- | --- | --- | --- |
-| Owner (PC) | Diagram view, Diff view | Confirm diagram | Confirmation | Diagram confirmed |
+| Owner | Diagram view, Diff view | Confirm diagram | Confirmation | Diagram confirmed |
 | Owner (PC) | Diagram view | Cancel confirmation | Confirmation | Confirmation cancelled |
 | Agent | Agent to-do | Record confirmation | Confirmation | Confirmation recorded |
 | Policy: when Diagram drawn changes a confirmed diagram without proof of a decision record |  | Invalidate confirmation | Confirmation | Confirmation invalidated |
@@ -301,7 +301,7 @@ The Diagram context holds the document version in the middle: Review and Confirm
 | 2. When the document changes after a confirmation, is the confirmation lifted? | CTX-039 | answered | Keep it only for verified records of already approved decisions; otherwise confirm again (item 242, 2026-11-27). |
 | 3. When an element leaves the document, where do its comments stay? | CTX-038 | answered | Move them to the diagram's comments, marked as from a removed element (stage 02, REQ-033) |
 | 4. Does v3 accept the current corthex-hub commands (push, todo, claim, comment, decide, reflect, status, record) as they are? | CTX-037, CTX-041 | answered | Accept them as they are (stage 02, REQ-018) |
-| 5. Can the confirm button work on a phone? | CTX-039 | answered | No: view and comment only (stage 02, REQ-068) |
+| 5. Can the confirm button work on a phone? | CTX-039 | answered | Yes: confirm and answer AI proposals after a second question; direct editing stays on a PC (stage 02, REQ-068). The earlier answer was no: view and comment only. |
 | 6. Does each direct edit go out as its own pull request, or several together? | CTX-038 | answered | Several together, per diagram (stage 02, REQ-032, a Should requirement after the first release; in the first release an agent may still link one pull request to several change sets, SPEC-024) |
 | 7. Is the layout (element positions) kept in NEXUS or in Git? | CTX-037 | answered | In NEXUS (stage 02, REQ-015; stage 05 shows its table) |
 | 8. Are the comments and checkpoint records of the running NEXUS moved to v3? | CTX-040, CTX-039 | answered | No; they stay in the archive tag and the Git records (stage 02, REQ-019) |
@@ -383,3 +383,5 @@ Checked for gaps against four similar products: GitHub pull request review, Figm
 - Then stage 02, the PRD. Hotspots 3 to 9, 12 and 13 are settled in stage 02 or 05.
 
 Feature change, item 242, 2026-11-27: the maintainer said ‘둘 다 바꿔’ for retaining confirmations and automatically resolving conversations. Each changed value must match normalized decision text linked to the same diagram and decided after its confirmation; the conservative implementation requires evidence attached to that same hotspot. A verified decision record with no unhandled proposal or further question resolves the conversation; its result and record remain visible and the owner can reopen it. A link alone proves neither the decision nor its record.
+
+The maintainer passed the stage-01 checkpoint on 2026-11-27: the earlier phone answer above remains historical; the later decision allows confirmation and accepting or rejecting AI proposals on a phone after one more question, while direct editing remains on a PC. The answer is in the project records.

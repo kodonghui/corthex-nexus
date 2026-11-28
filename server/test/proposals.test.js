@@ -44,24 +44,24 @@ const PICTURES = [
   { stage: '08-screen-states', key: SCR, part: 'nexus' },
 ];
 const ACTIONS = ['makeProposal', 'withdrawProposal'];
-// The proposed flow: J renamed, a box W with two arrows added, and R2 removed with its two arrows.
+// The proposed flow: J renamed, a box W with two arrows added, and R3 removed with its two arrows.
 const FL3_TEXT = read(FL3);
 const FL3_PROPOSED = FL3_TEXT
   .replace('J["Mark it rejected, thread<br/>stays open<br/>REQ-024"]', 'J["Mark it rejected, the thread<br/>stays open<br/>REQ-024"]')
   .replace('  Y(["Reflect it: FL-005"])\n', '  Y(["Reflect it: FL-005"])\n  W["Agent withdraws the proposal<br/>REQ-022"]\n')
-  .replace('  R2["Not offered on a phone<br/>REQ-068"]\n', '')
-  .replace('  G e10@-->|owner on a phone| R2\n', '  G e20@-->|the agent withdraws| W\n  W e21@--> K\n')
-  .replace('  R2 e18@--> Z\n', '')
-  .replace('class B,E,F,I,J,K,R1,R2,R3 proc', 'class B,E,F,I,J,K,R1,R3,W proc')
-  .replace(/e10,|e18,/g, '');
+  .replace('  R3["Refuse the agent<br/>credential<br/>REQ-025"]\n', '')
+  .replace('  G e11@-->|an agent| R3\n', '  G e20@-->|the agent withdraws| W\n  W e21@--> K\n')
+  .replace('  R3 e19@--> Z\n', '')
+  .replace('class B,E,F,I,J,K,R1,R3 proc', 'class B,E,F,I,J,K,R1,W proc')
+  .replace(/e11,|,e19/g, '');
 const FL3_CHANGES = [
   { op: 'rename', element: 'J', name: 'Mark it rejected, the thread stays open', target: null },
   { op: 'add', element: 'W', name: 'Agent withdraws the proposal', target: null },
   { op: 'connect', element: 'G', name: 'the agent withdraws', target: 'W' },
   { op: 'connect', element: 'W', name: null, target: 'K' },
-  { op: 'remove', element: 'R2', name: null, target: null },
-  { op: 'remove', element: 'G->R2', name: null, target: null },
-  { op: 'remove', element: 'R2->Z', name: null, target: null },
+  { op: 'remove', element: 'R3', name: null, target: null },
+  { op: 'remove', element: 'G->R3', name: null, target: null },
+  { op: 'remove', element: 'R3->Z', name: null, target: null },
 ];
 const SCR_TEXT = read(SCR);
 // TASK-466: the pinned hub's pictures of this repository's schema and sitemap, and their texts.
@@ -143,8 +143,8 @@ const SQL_CHANGES = [
   { op: 'remove', element: 'TBL-171', name: null, target: null },
   { op: 'remove', element: 'TBL-171/line:backup_id', name: null, target: null },
 ];
-// The proposed sitemap: SCR-146 renamed and moved from under SCR-145 to under SCR-144, and SCR-147 added under SCR-143.
-const SCR146 = YAML_TEXT.slice(YAML_TEXT.indexOf('                - id: SCR-146'));
+// The proposed sitemap: SCR-146 renamed and moved from under SCR-145 to under SCR-144, and SCR-147 added under SCR-144.
+const SCR146 = YAML_TEXT.slice(YAML_TEXT.indexOf('            - id: SCR-146'));
 const YAML_PROPOSED = YAML_TEXT.slice(0, YAML_TEXT.indexOf(SCR146))
   .concat(SCR146.replace(/^ {4}/gmu, '').replace('Changes since the last confirmation', 'Changes since confirmation'))
   .concat('        - id: SCR-147\n          name: Agent sessions\n          path: /p/{project}/sessions\n');
@@ -152,7 +152,7 @@ const YAML_CHANGES = [
   { op: 'rename', element: 'SCR-146', name: 'Changes since confirmation', target: null },
   { op: 'add', element: 'SCR-147', name: 'Agent sessions', target: null },
   { op: 'connect', element: 'SCR-144', name: 'Changes since confirmation', target: 'SCR-146' },
-  { op: 'connect', element: 'SCR-143', name: 'Agent sessions', target: 'SCR-147' },
+  { op: 'connect', element: 'SCR-144', name: 'Agent sessions', target: 'SCR-147' },
   { op: 'remove', element: 'SCR-145/line:SCR-146', name: null, target: null },
 ];
 
@@ -609,7 +609,7 @@ describe('agent proposals', () => {
 
   test('with source_text on stage 07, NEXUS reads the YAML as the pinned hub does: a moved screen moves its line (TASK-466)', async () => {
     clock = START + 3 * MINUTE;
-    assert.ok(YAML_PROPOSED.includes('\n            - id: SCR-146\n              name: Changes since confirmation\n'));
+    assert.ok(YAML_PROPOSED.includes('\n        - id: SCR-146\n          name: Changes since confirmation\n'));
     const answer = await sourceProposal({ stage: '07-sitemap', items: ['SCR-146'], source_text: YAML_PROPOSED });
     assert.equal(answer.status, 201);
     assert.deepEqual([answer.json.items, answer.json.changes], [['SCR-146'], YAML_CHANGES]);

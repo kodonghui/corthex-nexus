@@ -1260,7 +1260,7 @@
    "name": "Accept proposal",
    "parent": "CTX-038",
    "detail": {
-    "actor": "Owner (PC)",
+    "actor": "Owner",
     "where": "docs/01-domain/nexus.md:144",
     "box": {
      "x": 742,
@@ -1323,7 +1323,7 @@
    "name": "Reject proposal",
    "parent": "CTX-038",
    "detail": {
-    "actor": "Owner (PC)",
+    "actor": "Owner",
     "where": "docs/01-domain/nexus.md:145",
     "box": {
      "x": 914,
@@ -1901,7 +1901,7 @@
    "name": "Confirm diagram",
    "parent": "CTX-039",
    "detail": {
-    "actor": "Owner (PC)",
+    "actor": "Owner",
     "where": "docs/01-domain/nexus.md:171",
     "box": {
      "x": 2924,
@@ -2161,7 +2161,7 @@
    "detail": {
     "number": 5,
     "state": "answered",
-    "answer": "No: view and comment only (stage 02, REQ-068)",
+    "answer": "Yes: confirm and answer AI proposals after a second question; direct editing stays on a PC (stage 02, REQ-068). The earlier answer was no: view and comment only.",
     "contexts": [
      "CTX-039"
     ],

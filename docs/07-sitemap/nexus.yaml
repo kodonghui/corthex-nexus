@@ -3,8 +3,9 @@
 # stage tabs and workbench. Each screen names the read model of the domain design it shows.
 # without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page)
 - id: SCR-142
-  name: Owner to-do
+  name: Owner home and to-do
   path: "/"
+  query: "?view=todo opens the full to-do; without it the project-first home"
   access: the owner, signed in through the gate
   status: active
   flows: [FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011]
@@ -17,31 +18,30 @@
       status: active
       flows: [FL-001, FL-002, FL-009, FL-010]
       terms: [CTX-037, TERM-223]
+    - id: SCR-144
+      name: Project
+      path: /p/{project}
+      access: the owner, signed in through the gate
+      status: active
+      flows: [FL-002, FL-006, FL-010, FL-013]
+      terms: [CTX-037, TERM-223]
       children:
-        - id: SCR-144
-          name: Project
-          path: /p/{project}
+        - id: SCR-145
+          name: Stage workbench
+          path: /p/{project}/{part}/{stage}
+          query: "?d={diagram}, optional: one of the stage's diagrams, or a removed one still listed (SPEC-027); without it, the first by name"
           access: the owner, signed in through the gate
           status: active
-          flows: [FL-002, FL-006, FL-010, FL-013]
-          terms: [CTX-037, TERM-223]
+          flows: [FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013]
+          terms: [CTX-037, TERM-222]
           children:
-            - id: SCR-145
-              name: Stage workbench
-              path: /p/{project}/{part}/{stage}
+            - id: SCR-146
+              name: Changes since the last confirmation
+              path: /p/{project}/{part}/{stage}/changes
               query: "?d={diagram}, optional: one of the stage's diagrams, or a removed one still listed (SPEC-027); without it, the first by name"
               access: the owner, signed in through the gate
               status: active
-              flows: [FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013]
-              terms: [CTX-037, TERM-222]
-              children:
-                - id: SCR-146
-                  name: Changes since the last confirmation
-                  path: /p/{project}/{part}/{stage}/changes
-                  query: "?d={diagram}, optional: one of the stage's diagrams, or a removed one still listed (SPEC-027); without it, the first by name"
-                  access: the owner, signed in through the gate
-                  status: active
-                  flows: [FL-002, FL-004, FL-006]
-                  terms: [CTX-039, TERM-224]
+              flows: [FL-002, FL-004, FL-006]
+              terms: [CTX-039, TERM-224]
 
 # Item 242: resolution and reopening stay inside SCR-145; no new route.

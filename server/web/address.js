@@ -2,7 +2,7 @@
 // The server serves the shell for exactly the addresses parseAddress names a screen for (see src/pages.js), and the
 // page reads its screen from the same function, so the two never disagree.
 //
-//   /                                          SCR-142, the owner's to-do
+//   /                                          SCR-142, project home; ?view=todo opens the owner's to-do
 //   /p                                         SCR-143, the projects
 //   /p/{project}                               SCR-144, a project (#data is the page's own)
 //   /p/{project}/{part or _}/{stage}           SCR-145, the stage workbench, with ?d={diagram} and ?thread={thread}
@@ -19,7 +19,8 @@ const DIAGRAM = /^dg_[0-9a-hjkmnp-tv-z]{12}$/;
 const THREAD = /^nc_[0-9a-hjkmnp-tv-z]{12}$/;
 const STAGE_IDS = new Set(STAGES.map((stage) => stage.id));
 
-export const TODO_HREF = '/';
+export const HOME_HREF = '/';
+export const TODO_HREF = '/?view=todo';
 export const PROJECTS_HREF = '/p';
 
 export const isProjectName = (value) => typeof value === 'string' && value.length <= 64 && NAME.test(value);
@@ -31,7 +32,7 @@ export const isThreadId = (value) => typeof value === 'string' && THREAD.test(va
 // The screen pathname and search name: { screen, project, part, stage, diagram, thread } with only the members of
 // that screen, diagram and thread being the query's text or null; or null when the address names no screen.
 export function parseAddress(pathname, search = '') {
-  if (pathname === '/') return { screen: 'SCR-142' };
+  if (pathname === '/') return new URLSearchParams(search).get('view') === 'todo' ? { screen: 'SCR-142', view: 'todo' } : { screen: 'SCR-142' };
   if (pathname === '/p') return { screen: 'SCR-143' };
   const parts = pathname.split('/');
   if (parts[0] !== '' || parts[1] !== 'p' || !isProjectName(parts[2])) return null;

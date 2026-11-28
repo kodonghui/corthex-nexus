@@ -2,7 +2,7 @@
 // the owner makes, and what waits for reflection. workbench.js builds the screen and calls this module where its body,
 // its work panel, its Selected panel and its keys meet a change; overlays.js reads what lies over the picture (API-265).
 //
-// - "AI 제안" (PC): each proposal still proposed, with its kind, its text and its reason, and 수락 and 거절. Each asks
+// - "AI 제안" (PC and phone): each proposal still proposed, with its kind, its text and its reason, and 수락 and 거절. Each asks
 //   once, "수락할까요?" or "거절할까요?" with 취소, before it is sent (API-270, API-271). A removed diagram's proposals
 //   show 거절 only (SPEC-027). An accepted proposal stays there, "수락했어요. …" with 반영 대기, until it is reflected.
 // - "이 그림" while anything waits (SCR-145#waiting): 반영 대기 N, why confirming waits, the list of what waits (newest
@@ -19,7 +19,7 @@
 //   changed name; Escape, or leaving the field, puts the name back and sends nothing. A refused name stays typed.
 // - Connecting (API-272): 잇기 in the Selected panel, and the next element chosen is the other end; 취소 or Escape stops.
 // - The Selected panel lists the chosen element's changes that wait, newest on top (SPEC-022).
-// - A phone shows the marks and what waits, and none of these actions (SPEC-051).
+// - A phone can confirm and answer proposals after a question; direct editing and cancellations stay on a PC (SPEC-051).
 //
 // Every answer that changes something reads the diagram again (shell.reload), so the picture shows what API-265 gives.
 // What this module keeps is in the workbench's state of the diagram (state.changes), never in the browser's storage.
@@ -244,7 +244,7 @@ function readAgain(state) {
 
 // "이 그림" on the workbench's panel (SCR-145): what waits for reflection while anything does (SCR-145#waiting), and
 // otherwise the state of the latest confirmation and its button. A removed diagram has no confirmation part, so what
-// waits stands alone, without the reason (SPEC-027); a phone shows what waits and a live confirmation, without buttons
+// waits stands alone, without the reason (SPEC-027); a phone can confirm but cannot cancel a confirmation or edit
 // (SPEC-051). A mockup takes no overlay and lists its tokens here on a PC (SPEC-009).
 function drawDiagram(state) {
   const box = state.changes.diagramBox;
@@ -275,7 +275,8 @@ function diagramParts(state) {
     if (!isDrawn(diagram)) return [heading(...(live === null ? [] : [confirmedTag()]), h('span', { class: 'tag red' }, CONFIRM_WORDS.notDrawn)),
       h('p', {}, CONFIRM_WORDS.phoneNotDrawn), live === null ? h('p', { class: 'small' }, CONFIRM_WORDS.phone) : confirmedLines(state, live)];
     if (live !== null) return [heading(confirmedTag()), confirmedLines(state, live)];
-    return [sinceParts(state, heading), h('p', {}, CONFIRM_WORDS.beforeConfirm), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
+    return [sinceParts(state, heading), diagram.kind === 'mockup' ? null : h('p', { class: 'small' }, CONFIRM_WORDS.leftOut),
+      h('p', {}, CONFIRM_WORDS.beforeConfirm), confirmControl(state), h('p', { class: 'small' }, CONFIRM_WORDS.phone)];
   }
   if (!isDrawn(diagram)) {
     // SCR-145#not-drawn: nothing to confirm until the document draws; a live confirmation keeps its line and 확정 취소.
@@ -375,11 +376,11 @@ function cancelButton(state, live) {
   }, CONFIRM_WORDS.cancelConfirmation));
 }
 
-// Whether this diagram is confirmed here: on a PC, not removed, drawn, with nothing waiting and no live confirmation
+// Whether this diagram can be confirmed here: not removed, drawn, with nothing waiting and no live confirmation
 // (SPEC-029). The server refuses the rest anyway.
 export function confirmable(state) {
   const diagram = state.ctx.data.diagram;
-  return !state.phone && !diagram.removed && isDrawn(diagram) && liveConfirmation(diagram) === null && waitingOf(diagram).length === 0;
+  return !diagram.removed && isDrawn(diagram) && liveConfirmation(diagram) === null && waitingOf(diagram).length === 0;
 }
 
 function askConfirming(state) {
@@ -457,13 +458,13 @@ export function waitingParts(state, set, where) {
   return { id, title, how, cancel };
 }
 
-// "AI 제안" on a PC: the proposals still proposed and those accepted and waiting, in API-265's order, with the count of
-// those to answer, or "모두 처리함". A mockup takes no proposal, and a phone answers none (SPEC-051).
+// "AI 제안" on PC or phone: the proposals still proposed and those accepted and waiting, in API-265's order, with the count of
+// those to answer, or "모두 처리함". A mockup takes no proposal (SPEC-051).
 function drawProposals(state) {
   const changes = state.changes;
   const diagram = state.ctx.data.diagram;
   const box = changes.proposalBox;
-  if (state.phone || diagram.kind === 'mockup') {
+  if (diagram.kind === 'mockup') {
     box.hidden = true;
     fill(box);
     return;
@@ -520,7 +521,7 @@ function answers(state, set) {
 
 function ask(state, set, verb) {
   const changes = state.changes;
-  if (state.phone || changes.busy !== null) return;
+  if (changes.busy !== null) return;
   if (verb === 'accept' && state.ctx.data.diagram.removed) return;
   changes.asking = { id: set.id, verb };
   changes.focus = `p-${set.id}-stop`;
@@ -539,7 +540,7 @@ function stopAsking(state, set) {
 // API-270 or API-271 on the proposal asked about, or sent again by 다시 시도.
 async function answer(state, set, verb) {
   const changes = state.changes;
-  if (state.phone || changes.busy !== null) return;
+  if (changes.busy !== null) return;
   if (verb === 'accept' && state.ctx.data.diagram.removed) return;
   const path = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/${verb}`;
   const outcome = await post(state, verb, path, {});

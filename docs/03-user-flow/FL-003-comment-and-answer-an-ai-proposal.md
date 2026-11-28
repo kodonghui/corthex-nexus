@@ -15,12 +15,11 @@ flowchart TD
   E["Agent replies in the<br/>thread<br/>REQ-021"]
   F["Agent posts an AI proposal<br/>laid over the diagram<br/>REQ-022"]
   G{"Who answers the proposal?"}
-  H{"Accept?"}
+  H{"Accept after a<br/>confirmation question?"}
   I["Add the reflection to the<br/>agent to-do<br/>REQ-023"]
   J["Mark it rejected, thread<br/>stays open<br/>REQ-024"]
   K["Owner closes the thread<br/>when done<br/>REQ-034"]
   R1["Refuse the claim<br/>REQ-055"]
-  R2["Not offered on a phone<br/>REQ-068"]
   R3["Refuse the agent<br/>credential<br/>REQ-025"]
   Z(["End"])
   Y(["Reflect it: FL-005"])
@@ -33,7 +32,7 @@ flowchart TD
   E e7@--> K
   F e8@--> G
   G e9@-->|owner on a PC| H
-  G e10@-->|owner on a phone| R2
+  G e10@-->|owner on a phone| H
   G e11@-->|an agent| R3
   H e12@-->|yes| I
   H e13@-->|no| J
@@ -41,7 +40,6 @@ flowchart TD
   J e15@--> K
   K e16@--> Z
   R1 e17@--> Z
-  R2 e18@--> Z
   R3 e19@--> Z
   %% legend: below
   classDef term fill:#e7f5ff,stroke:#1c7ed6,color:#212529
@@ -50,9 +48,9 @@ flowchart TD
   classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z,Y term
-  class B,E,F,I,J,K,R1,R2,R3 proc
+  class B,E,F,I,J,K,R1,R3 proc
   class C,D,G,H decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19 pass
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19 pass
 ```
 
 | Shape | Means |
@@ -64,5 +62,4 @@ flowchart TD
 ## Failure paths
 
 - Refuse the claim (REQ-055)
-- Not offered on a phone (REQ-068)
 - Refuse the agent credential (REQ-025)

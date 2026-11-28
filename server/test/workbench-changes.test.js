@@ -572,12 +572,21 @@ describe('SCR-145 changes', () => {
     }
   });
 
-  test('a phone shows the marks and what waits, and offers none of the changes: no 수락, 거절, 편집 취소, confirm button, name field or 잇기 (SPEC-051)', async () => {
+  test('a phone can answer proposals while direct editing and confirmation during waiting remain unavailable', async () => {
     const page = await openStage('erd', { phone: true, diagram: diagramOf('erd', { overlays: [RENAMED, ACCEPTED, PROPOSED] }) });
     try {
       assert.ok(buttonNamed(page, 'agent_keys').className.split(' ').includes('ov-prop'));
       assert.ok(buttonNamed(page, 'project_rooms').className.split(' ').includes('waiting'));
-      assert.equal(sectionOf(page, CHANGE_WORDS.proposals).hidden, true);
+      assert.equal(sectionOf(page, CHANGE_WORDS.proposals).hidden, false);
+      const id = `p-${PROPOSED.id}`;
+      byId(page, `${id}-accept`).click();
+      assert.equal(byId(page, `${id}-ask`).textContent, CHANGE_WORDS.askAccept);
+      assert.deepEqual(page.sent, []);
+      byId(page, `${id}-stop`).click();
+      byId(page, `${id}-reject`).click();
+      assert.equal(byId(page, `${id}-ask`).textContent, CHANGE_WORDS.askReject);
+      assert.deepEqual(page.sent, []);
+      byId(page, `${id}-stop`).click();
       const section = sectionOf(page, CHANGE_WORDS.diagram);
       assert.deepEqual([section.hidden, shownTexts(section, 'p'), buttonsIn(section)], [false, [CHANGE_WORDS.waitingWhy], []]);
       assert.deepEqual(rowsOf(section.all('ul', 'chg')[0]).map(([title]) => title), ['project_rooms', ACCEPTED.change]);
@@ -593,6 +602,21 @@ describe('SCR-145 changes', () => {
       page.close();
     }
   });
+
+  for (const verb of ['accept', 'reject']) {
+    test(`a phone sends proposal ${verb} only after the second question`, async () => {
+      const page = await openStage('erd', { phone: true, diagram: diagramOf('erd', { overlays: [PROPOSED] }) });
+      try {
+        const id = `p-${PROPOSED.id}`;
+        byId(page, `${id}-${verb}`).click();
+        assert.equal(page.sent.length, 0);
+        byId(page, `${id}-yes`).click();
+        await page.settle();
+        assert.equal(page.sent.length, 1);
+        assert.equal(page.sent[0].path, `/api/projects/${P}/change-sets/${PROPOSED.id}/${verb}`);
+      } finally { page.close(); }
+    });
+  }
 
   test('under stage 01\'s title a PC shows the mockup\'s text, F2 renaming included, and a phone its own', async () => {
     const pcText = 'Git 문서에서 그린 그림이에요. 끌거나 화살표 키로 옮기고 F2로 이름을 바꿔요. 100% 이상에서는 두 번 눌러 이름을 바꿀 수도 있어요.';

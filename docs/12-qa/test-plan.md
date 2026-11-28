@@ -518,6 +518,10 @@ Every note carried from stage 11 is one or more cases; none is closed. Where a n
 | 24 | PR 136 | The sign-in expiry flow behind the real Cloudflare Access gate | TC-208 | not run: TC-208 |
 | 25 | WBS section 4 (TASK-470) | A proposal's source_text on stage 01, and on 05 and 07 drawn from several files, makes no change, since it names no path | TC-221 | pass: TC-221 (local recheck at merged commit `7c6c594`) |
 
+### Project-first and phone decisions: next QA walk
+
+On the integrated release candidate, repeat the same goal-only tasks before and after with the first-time, phone-only persona at 360 px: find a project, answer a question, check project progress, confirm a diagram, and accept or reject a proposal. Record taps, scrolling, elapsed time, detours and completion for each; also test the cancelled confirmation and a failed or stale to-do read. The first decision tap must not write, and accepting the second question must send exactly one decision. Verify direct diagram editing and cancellation of a previous confirmation remain PC-only. Check keyboard and a real touch device separately. These walks and the real-person task are **not run** on the integrated release candidate; the local fake-DOM tests and isolated browser emulation are failure-signal evidence only. Their figures and limits are in `docs/records/ux-retro.md`; they do not change the historical gate counts above.
+
 ## 4. Impressions and open questions
 
 None of these is a bug: each describes behaviour as built. The maintainer decides which become bugs, tasks or changes to the requirements.

@@ -8,29 +8,31 @@ Inputs: the user flows (stage 03), the functional spec (stage 04), the API contr
 
 ## 1. Screens
 
-Five screens in one branch. The header's to-do and project menu show on every screen.
+Five screens branch from the home into project settings and individual projects. The header's to-do and project menu show on every screen.
 
 ```mermaid
 flowchart TD
   %% grammar: structure
-  SCR142["SCR-142<br/>Owner to-do<br/>/"]
+  SCR142["SCR-142<br/>Projects and to-do<br/>/"]
   SCR143["SCR-143<br/>Projects<br/>/p"]
   SCR144["SCR-144<br/>Project<br/>/p/{project}"]
   SCR145["SCR-145<br/>Stage workbench<br/>/p/{project}/{part}/{stage}"]
   SCR146["SCR-146<br/>Changes since the last confirmation<br/>/p/{project}/{part}/{stage}/changes"]
   SCR142 --> SCR143
-  SCR143 --> SCR144
+  SCR142 --> SCR144
   SCR144 --> SCR145
   SCR145 --> SCR146
 ```
 
+The tree gives the main destinations. Project settings also links to each project, and a recent-question shortcut opens its stage workbench directly.
+
 | ID | Screen | Path | Who can see it | Flows | Read model |
 | --- | --- | --- | --- | --- | --- |
-| SCR-142 | Owner to-do | `/` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011 | CTX-041, TERM-225 |
+| SCR-142 | Projects and to-do | `/` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-006, FL-007, FL-008, FL-011 | CTX-041, TERM-225 |
 | SCR-143 | ↳ Projects | `/p` | the owner, signed in through the gate | FL-001, FL-002, FL-009, FL-010 | CTX-037, TERM-223 |
-| SCR-144 | ↳ ↳ Project | `/p/{project}` | the owner, signed in through the gate | FL-002, FL-006, FL-010, FL-013 | CTX-037, TERM-223 |
-| SCR-145 | ↳ ↳ ↳ Stage workbench | `/p/{project}/{part}/{stage}` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013 | CTX-037, TERM-222 |
-| SCR-146 | ↳ ↳ ↳ ↳ Changes since the last confirmation | `/p/{project}/{part}/{stage}/changes` | the owner, signed in through the gate | FL-002, FL-004, FL-006 | CTX-039, TERM-224 |
+| SCR-144 | ↳ Project | `/p/{project}` | the owner, signed in through the gate | FL-002, FL-006, FL-010, FL-013 | CTX-037, TERM-223 |
+| SCR-145 | ↳ ↳ Stage workbench | `/p/{project}/{part}/{stage}` | the owner, signed in through the gate | FL-001, FL-002, FL-003, FL-004, FL-005, FL-006, FL-007, FL-008, FL-012, FL-013 | CTX-037, TERM-222 |
+| SCR-146 | ↳ ↳ ↳ Changes since the last confirmation | `/p/{project}/{part}/{stage}/changes` | the owner, signed in through the gate | FL-002, FL-004, FL-006 | CTX-039, TERM-224 |
 
 Read model without a screen: TERM-226 (Agent to-do: agents read it through the hub, not on a page).
 
@@ -38,9 +40,9 @@ SCR-145 and SCR-146 take the optional `?d={diagram}` of section 5: stages 03, 08
 
 ## 2. What each screen shows
 
-### SCR-142 Owner to-do
+### SCR-142 Projects and to-do
 
-The first screen (SPEC-042): diagrams to confirm, AI proposals to answer and agent questions, newest first, per project, with backup warnings. Each entry opens its stage workbench at the element or thread it is about.
+The first screen (SPEC-042) lists projects with their question and review counts. It opens a project or its newest question directly; My turn opens the full to-do. A failed backup is also shown.
 
 From the 2026-11-21 mockup: The header's "My turn N" counter stays and now opens this screen; in the mockup it jumped to the board's AI proposals.
 
@@ -77,15 +79,14 @@ Every flow step that shows the owner something has a screen. The letters are the
 | FL-001 | E | SCR-143 |
 | FL-001 | F | SCR-145 |
 | FL-001 | G | SCR-142 |
-| FL-002 | C | SCR-142 |
-| FL-002 | D | SCR-143, SCR-144 |
-| FL-002 | F, G | SCR-145 |
+| FL-002 | C, Q0 | SCR-142 |
+| FL-002 | D | SCR-142, SCR-143, SCR-144 |
+| FL-002 | F, G, Q | SCR-145 |
 | FL-002 | H | SCR-145, SCR-146 |
 | FL-002 | J, K | SCR-145 |
 | FL-002 | R1 | the gate's page |
 | FL-003 | A, E, F, G, H, I, J, K | SCR-145 |
 | FL-003 | F | SCR-142 |
-| FL-003 | R2 | SCR-145 on a phone |
 | FL-004 | A, F | SCR-145 |
 | FL-004 | D | SCR-145, SCR-146 |
 | FL-004 | E | SCR-146 |
@@ -174,3 +175,5 @@ One approved item changed, asked on its own and approved through the same delega
 ### Feature change of 2026-11-24
 
 A removed diagram keeps what waits on it (section 6 of the functional spec). No change in this stage: the `?d=` of SCR-145 and SCR-146 takes "a removed one still listed (SPEC-027)", which follows SPEC-027's listing whatever keeps a diagram listed. The paths and the tree are unchanged. This part passed its own checkpoint on 2026-11-24 through the same delegate.
+
+On 2026-11-27 the maintainer selected the project-first home: SCR-142 at `/` shows projects and question/review counts first, while `/?view=todo` keeps the full owner to-do. The earlier first-screen decision above remains historical; project, stage and diagram addresses stay unchanged.

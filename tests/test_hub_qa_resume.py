@@ -207,8 +207,8 @@ class HubQaWalk(hub_run.HubRunFixture):
         schema.write_text(changed, encoding="utf8")
         sitemap = self.project / "docs/07-sitemap/nexus.yaml"
         original = sitemap.read_text(encoding="utf8")
-        self.assertIn("name: Owner to-do", original)
-        sitemap.write_text(original.replace("name: Owner to-do", "name: Owner work list", 1), encoding="utf8")
+        self.assertIn("name: Owner home and to-do", original)
+        sitemap.write_text(original.replace("name: Owner home and to-do", "name: Owner work list", 1), encoding="utf8")
         self.commit = self.commit_and_publish("Synthetic diagram changes")
         reported = self.read(self.session, "reflect", PROJECT, edit, "reflected", "--commit", self.commit,
                              "--pr", PULL % 12)

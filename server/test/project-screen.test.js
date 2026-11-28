@@ -40,6 +40,8 @@ const NEW_URL = 'https://www.notion.so/example/Reading-list-4567';
 const KEY = /^"nw_[0-9a-hjkmnp-tv-z]{12}"$/;
 const DELETE = '이 프로젝트 공간 지우기';
 const PC_ONLY = '도구 잇기와 링크 지우기, 공간 지우기는 PC에서 하세요.';
+const PLAIN_STAGES = ['만들 내용 함께 정하기', '필요한 기능 정하기', '사용 순서 보기', '기능 동작 자세히 보기',
+  '보관할 정보 보기', '서비스 연결 살펴보기', '화면 연결 보기', '상황별 화면 보기', '화면 미리 보기', '작업 나누기', '만들기', '시험하기', '결과 소개하기'];
 // A pass late on 23 November, local time: the row says 11-23 in any time zone.
 const PASSED_AT = new Date(2026, 10, 23, 23, 50).toISOString();
 const READ_AT = new Date(2026, 10, 24, 8, 40).toISOString();
@@ -236,6 +238,67 @@ describe('the writes of a page', () => {
 });
 
 describe('SCR-144', () => {
+  test('this project shows its questions and reviews first, with the original target and thread', async () => {
+    const items = [
+      { kind: 'confirm', project: NAME, part: '', stage: '05-erd', diagram: 'dg_0000000000a2', thread: null, diagram_name: '정보' },
+      { kind: 'question', project: NAME, part: '', stage: '01-domain', diagram: 'dg_0000000000a1', thread: 'nc_0000000000b1', diagram_name: '내용' },
+      { kind: 'question', project: 'other', part: '', stage: '01-domain', diagram: 'dg_0000000000a3', thread: null, diagram_name: '다른 프로젝트' },
+    ];
+    const page = await openProject({ routes: { 'GET /api/todo': json(200, { entries: items, backup: null }) } });
+    try {
+      const section = mainOf(page).all('section', 'group')[0];
+      assert.equal(section.all('h2')[0].textContent, '지금 할 일');
+      assert.deepEqual(section.all('a').map((link) => [link.all('b')[0].textContent, link.getAttribute('href')]), [
+        ['질문에 답하기', `/p/${NAME}/_/01-domain?d=dg_0000000000a1&thread=nc_0000000000b1`],
+        ['내용 확인하기', `/p/${NAME}/_/05-erd?d=dg_0000000000a2`],
+      ]);
+      assert.doesNotMatch(section.textContent, /다른 프로젝트/);
+    } finally { page.close(); }
+  });
+
+  test('an opened stage group and its keyboard focus survive a redraw', async () => {
+    const page = await openProject();
+    try {
+      const group = mainOf(page).all('details', 'stage-section')[0];
+      group.setAttribute('open', '');
+      group.dispatch('toggle');
+      group.all('summary')[0].focus();
+      page.shell.redraw();
+      await page.settle();
+      const restored = mainOf(page).all('details', 'stage-section')[0];
+      assert.notEqual(restored.getAttribute('open'), null);
+      assert.equal(page.document.activeElement, restored.all('summary')[0]);
+    } finally { page.close(); }
+  });
+
+  test('a stage group opened just before its toggle event survives a redraw', async () => {
+    const page = await openProject();
+    try {
+      const old = mainOf(page).all('details', 'stage-section')[0];
+      old.setAttribute('open', '');
+      page.shell.redraw();
+      await page.settle();
+      const current = mainOf(page).all('details', 'stage-section')[0];
+      assert.notEqual(current.getAttribute('open'), null);
+      old.dispatch('toggle');
+      assert.notEqual(current.getAttribute('open'), null);
+    } finally { page.close(); }
+  });
+
+  test('a failed refresh keeps the previous project tasks labelled as old', async () => {
+    let failing = false;
+    const items = [{ kind: 'question', project: NAME, part: '', stage: '01-domain', diagram: 'dg_0000000000a1', thread: 'nc_0000000000b1', diagram_name: '내용' }];
+    const page = await openProject({ routes: { 'GET /api/todo': () => failing ? problem(500, 'internal')() : json(200, { entries: items, backup: null })() } });
+    try {
+      assert.match(mainOf(page).textContent, /질문에 답하기/);
+      failing = true;
+      await page.shell.reload();
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.match(mainOf(page).textContent, /질문에 답하기/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
+    } finally { page.close(); }
+  });
+
   test('the stubbed answers are the contract\'s', () => {
     assert.deepEqual(validate(contract, PROJECT, schemaOf('Project')), []);
     assert.deepEqual(validate(contract, PREVIEW, schemaOf('RemovalPreview')), []);
@@ -248,17 +311,20 @@ describe('SCR-144', () => {
     try {
       assert.deepEqual(texts(page, 'h1'), ['독서 모임 앱']);
       assert.equal(page.document.title, '독서 모임 앱 · NEXUS');
-      assert.deepEqual(mainOf(page).all('nav', 'crumb')[0].all('a').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트', '/p']]);
-      assert.deepEqual(texts(page, 'p', 'sec')[0], 'book-club · 리비전 66 · 12분 전에 보냄');
+      assert.deepEqual(mainOf(page).all('nav', 'crumb')[0].all('a').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트', '/']]);
+      assert.deepEqual(texts(page, 'p', 'sec')[0], 'book-club · 버전 66 · 12분 전에 보냄');
       assert.equal(mainOf(page).all('time')[0].getAttribute('datetime'), PROJECT.pushed_at);
       // The project as a whole: one group, "단계" with "파트 없음 · 13단계".
       const groups = mainOf(page).all('section', 'group');
       assert.deepEqual(groups.map((group) => [group.all('h2')[0].textContent, group.all('div', 'gh')[0].all('span', 'small')[0]?.textContent ?? null]), [
-        ['단계', '파트 없음 · 13단계'], ['도구 링크', null], ['데이터', null],
+        ['지금 할 일', null], ['단계', '13단계'], ['도구 링크', null], ['데이터', null],
+      ]);
+      assert.deepEqual(groups[1].all('summary').map((summary) => summary.textContent), [
+        '무엇을 만들지 정하기4단계 중 4 통과 · 1단계 확인 필요', '어떻게 만들지 정하기5단계 중 3 통과', '만들고 확인하기4단계 중 0 통과',
       ]);
       const notion = [`Notion · ${NOTION} ↗`, NOTION, '_blank', 'noopener noreferrer'];
       assert.deepEqual(stageRows(page), STAGES.map((stage, index) => ({
-        name: `${stage.number} ${stage.name}`,
+        name: `${stage.number} ${PLAIN_STAGES[index]} (${stage.name})`,
         href: `/p/${NAME}/_/${stage.id}`,
         dot: { changed_since_pass: 'dot done', passed: 'dot done', open: 'dot prog', not_sent: 'dot not' }[MOCKUP_STATES[index]],
         state: { changed_since_pass: '통과', passed: '통과', open: '진행 중', not_sent: '시작 전' }[MOCKUP_STATES[index]],
@@ -329,7 +395,7 @@ describe('SCR-144', () => {
     assert.deepEqual(validate(contract, project, schemaOf('Project')), []);
     const page = await openProject({ project });
     try {
-      const groups = mainOf(page).all('section', 'group').slice(0, 2);
+      const groups = mainOf(page).all('section', 'group').slice(1, 3);
       assert.deepEqual(groups.map((group) => [group.all('h2')[0].textContent, group.all('div', 'gh')[0].all('span', 'small')[0].textContent, group.all('div', 'stg').length]), [
         ['web', '13단계', 13], ['api', '13단계', 13],
       ]);
@@ -687,7 +753,7 @@ describe('SCR-144', () => {
       project = { ...PROJECT, revision: 67 };
       page.document.dispatch('visibilitychange');
       await page.settle();
-      assert.ok(texts(page, 'p', 'sec')[0].includes('리비전 67'));
+      assert.ok(texts(page, 'p', 'sec')[0].includes('버전 67'));
       assert.notEqual(byId(page, 'ln'), before);
       assert.deepEqual([page.document.activeElement, byId(page, 'ln').value], [byId(page, 'ln'), NEW_URL]);
     } finally {
@@ -826,7 +892,7 @@ describe('SCR-144', () => {
       project = { ...PROJECT, revision: 67 };
       page.document.dispatch('visibilitychange');
       await page.settle();
-      assert.ok(texts(page, 'p', 'sec')[0].includes('리비전 67'));
+      assert.ok(texts(page, 'p', 'sec')[0].includes('버전 67'));
       assert.deepEqual([byId(page, 'dn').value, off(buttonOf(page, '공간 지우기')), reads(page, REMOVAL)], [NAME, false, 1]);
       assert.equal(byId(page, 'delete-panel').all('b')[0].textContent, '66개');
     } finally {
@@ -891,7 +957,7 @@ const CHECKS = {
   reload: (page, code) => assert.deepEqual([texts(page, 'h1'), texts(page, 'button')], [[message(code)], ['새로 고침']]),
   gone: (page) => {
     assert.deepEqual([texts(page, 'h1'), texts(page, 'p', 'sec')], [['NEXUS에 없는 프로젝트예요.'], ['지워졌거나 주소가 바뀌었어요.']]);
-    assert.deepEqual(mainOf(page).all('a').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/p']]);
+    assert.deepEqual(mainOf(page).all('a').map((link) => [link.textContent, link.getAttribute('href')]), [['프로젝트 목록', '/']]);
   },
   'page notice': (page, code) => {
     assert.deepEqual(noticeIn(mainOf(page)), { text: [message(code)], retry: 1, trace: [`traceId ${TRACE}`] });
@@ -1002,7 +1068,7 @@ describe('SCR-144 against the server', () => {
     const page = await openOn(space.name);
     try {
       assert.deepEqual(texts(page, 'h1'), ['텃밭 모임']);
-      assert.ok(texts(page, 'p', 'sec')[0].startsWith('garden-club · 리비전 1 · '));
+      assert.ok(texts(page, 'p', 'sec')[0].startsWith('garden-club · 버전 1 · '));
       const day = new Date(TIME);
       const checkpoint = `마지막 체크포인트 ${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
       assert.deepEqual(stageRows(page).slice(0, 5).map(({ state, checkpoint: cp, tag }) => [state, cp, tag]), [

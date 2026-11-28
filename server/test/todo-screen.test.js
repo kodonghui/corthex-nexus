@@ -72,7 +72,7 @@ function clockAt(at) {
 async function openTodo(options = {}) {
   const restore = clockAt(NOW);
   try {
-    const page = await openPage('/', { answers: answersOf(), ...options });
+    const page = await openPage('/', { search: '?view=todo', answers: answersOf(), ...options });
     const close = page.close;
     page.close = () => {
       close();
@@ -136,6 +136,60 @@ describe('how long ago the screen says', () => {
 });
 
 describe('SCR-142', () => {
+  test('home lists projects with their questions and reviews and keeps the complete to-do reachable', async () => {
+    const page = await openPage('/', { answers: answersOf() });
+    try {
+      assert.deepEqual(texts(page, 'h1'), ['프로젝트']);
+      const cards = mainOf(page).all('div', 'project-card');
+      assert.deepEqual(cards.map((card) => card.all('a')[0].getAttribute('href')), ['/p/reading-club', '/p/demo', '/p/garden']);
+      assert.match(cards[0].textContent, /답할 질문 1개 · 확인할 내용 3개/);
+      assert.match(cards[1].textContent, /답할 질문 0개 · 확인할 내용 1개/);
+      assert.equal(cards[0].all('a')[1].getAttribute('href'), `/p/reading-club/nexus/05-erd?d=${D2}&thread=${T2}`);
+      assert.equal(cards[1].all('a').length, 1);
+      assert.ok(mainOf(page).all('a').some((link) => link.getAttribute('href') === '/?view=todo'));
+    } finally { page.close(); }
+  });
+
+  test('home does not show zero when its to-do read fails or imply a capped list is complete', async () => {
+    const missing = await openPage('/', { answers: { ...answersOf(), '/api/todo': problem(500, 'internal') } });
+    try {
+      assert.match(mainOf(missing).textContent, /할 일 수를 읽지 못했어요/);
+      assert.doesNotMatch(mainOf(missing).textContent, /답할 질문 0개/);
+      assert.doesNotMatch(mainOf(missing).textContent, /최근 질문에 답하기/);
+    } finally { missing.close(); }
+    const full = await openPage('/', { answers: answersOf({ todo: { entries: Array(5000).fill(ENTRIES[0]), backup: null } }) });
+    try { assert.match(mainOf(full).textContent, /확인할 내용 5000개 이상/); }
+    finally { full.close(); }
+  });
+
+  test('a failed refresh keeps earlier project counts labelled as old until a successful retry', async () => {
+    const answers = answersOf();
+    const page = await openPage('/', { answers });
+    try {
+      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      answers['/api/todo'] = problem(500, 'internal');
+      await page.shell.reload();
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
+      answers['/api/todo'] = json(200, TODO);
+      await page.shell.reload();
+      assert.match(mainOf(page).textContent, /답할 질문 1개/);
+    } finally { page.close(); }
+  });
+
+  test('a failed full-to-do refresh keeps its previous rows with an old-data warning', async () => {
+    const answers = answersOf();
+    const page = await openTodo({ answers });
+    try {
+      assert.equal(rowsOf(page).length, ENTRIES.length);
+      answers['/api/todo'] = problem(500, 'internal');
+      await page.shell.reload();
+      assert.equal(rowsOf(page).length, ENTRIES.length);
+      assert.match(mainOf(page).textContent, /이전 정보예요/);
+      assert.ok(mainOf(page).all('button').some((button) => button.textContent === '다시 시도'));
+    } finally { page.close(); }
+  });
   test('normal: the entries by project in API-263\'s order, each by its names, its kind, why it waits and how long', async () => {
     const page = await openTodo();
     try {
@@ -262,7 +316,7 @@ describe('SCR-142', () => {
     const realFetch = globalThis.fetch;
     globalThis.fetch = (path) => new Promise((resolve) => held.push(() => resolve(answers[path]())));
     try {
-      startShell(page.app, SCREENS['SCR-142'], { screen: 'SCR-142' });
+      startShell(page.app, SCREENS['SCR-142'], { screen: 'SCR-142', view: 'todo' });
       await waitFor(() => held.length === 2);
       const main = mainOf(page);
       assert.deepEqual(texts(page, 'h1'), ['내 차례']);
@@ -391,7 +445,7 @@ describe('SCR-142 against the server', () => {
       headers: { accept: 'application/json', ...headers },
       redirect: 'manual',
     });
-    return openPage('/', { answers, ...options });
+    return openPage('/', { search: '?view=todo', answers, ...options });
   }
 
   test('a new install has nothing to do and no project: the way to the agent credentials', async () => {

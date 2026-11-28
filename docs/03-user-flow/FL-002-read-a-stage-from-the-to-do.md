@@ -2,7 +2,7 @@
 
 [한국어](FL-002-read-a-stage-from-the-to-do.ko.md)
 
-Goal: The owner opens NEXUS, picks a stage from the to-do and reads its diagram or item table.
+Goal: The owner opens NEXUS on projects, sees pending counts, picks a project and reads its stage or opens the full to-do.
 
 Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, REQ-012, REQ-013, REQ-015, REQ-041, REQ-052, REQ-062, REQ-063, REQ-066, REQ-070, REQ-081, REQ-082, REQ-083
 
@@ -10,7 +10,7 @@ Serves: REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010, REQ-011, 
 flowchart TD
   A(["Owner opens NEXUS"])
   B{"Signed in through the<br/>gate?<br/>REQ-062, REQ-063"}
-  C["Show to-do and next action<br/>REQ-052, REQ-082"]
+  C["Show projects and counts<br/>REQ-052, REQ-082"]
   D["Owner picks a project and<br/>a stage"]
   E{"Does the stage have a<br/>picture?<br/>REQ-004, REQ-005, REQ-006, REQ-007, REQ-008, REQ-009, REQ-010"}
   F["Open the diagram with<br/>names, IDs hidden<br/>REQ-004, REQ-005, REQ-011, REQ-070"]
@@ -22,11 +22,16 @@ flowchart TD
   L["Zoom or fit the picture<br/>REQ-081"]
   N["Undo or redo a move<br/>REQ-083"]
   R1["Not admitted<br/>REQ-062, REQ-066"]
+  Q0{"Where next?"}
+  Q["Open the newest question<br/>and its reply<br/>REQ-052"]
   Z(["End"])
   A e1@--> B
   B e2@-->|no| R1
   B e3@-->|yes| C
-  C e4@--> D
+  C e4@--> Q0
+  Q0 e21@-->|project and stage| D
+  Q0 e22@-->|newest question| Q
+  Q e23@--> Z
   D e5@--> E
   E e6@-->|yes| F
   E e7@-->|no| G
@@ -50,9 +55,9 @@ flowchart TD
   classDef gap fill:#f1f3f5,stroke:#adb5bd,stroke-dasharray:2 3,color:#495057
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z term
-  class C,D,F,G,H,J,K,L,N,R1 proc
-  class B,E,I decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20 pass
+  class C,D,F,G,H,J,K,L,N,Q,R1 proc
+  class B,E,I,Q0 decide
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23 pass
 ```
 
 | Shape | Means |

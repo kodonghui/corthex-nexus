@@ -45,7 +45,7 @@ const MOVE_WAIT = '저장이 끝날 때까지 기다려 주세요.';
 const MOVE_ISSUE = '저장 문제를 확인한 뒤 다시 옮겨 주세요.';
 
 export const WORKBENCH_WORDS = Object.freeze({
-  phone: '옮기기, 이름 바꾸기, 잇기, 제안 답하기, 확정은 PC에서 하세요.',
+  phone: '옮기기, 이름 바꾸기, 잇기와 확정 취소는 PC에서 하세요.',
   copy: 'ID와 이름 복사',
   copied: '복사했어요',
   copyField: 'ID와 이름',

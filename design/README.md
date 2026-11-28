@@ -8,6 +8,10 @@ Inputs: the screen definitions of stage 08 ([docs/08-screens](../docs/08-screens
 
 The source is [base.tokens.json](base.tokens.json), the project's layer of the tokens. The mockup is [mockup/nexus-mockup.html](mockup/nexus-mockup.html).
 
+## Follow-up decision: project-first home and phone decisions (2026-11-27)
+
+The maintainer chose the [project-first direction](mockup/project-first.html) and approved confirmation and proposal decisions on a phone after a second question. The four-phone sheet is a conceptual example, not a claim of implemented or measured steps. The normal home and project frames in the main mockup show project cards and that project's tasks; older states remain historical where not redrawn. Screen definitions in stage 08 govern actual states and copy. Moving and direct editing remain PC-only.
+
 ## 1. Tokens
 
 The tokens follow the Design Tokens Community Group format of 2025.10 and start from the default base of the `corthex-screen` skill, in three layers. A later layer wins over an earlier one for the same name.
@@ -39,7 +43,7 @@ The screens mark their states with these tokens:
 - Every state of every screen is drawn at 360 and 1440 pixels: 39 states and 78 frames, each in the light and the dark theme.
 - SCR-145#normal also has three stage views for the pictures of the feature change of 2026-11-23, at both widths in both themes: stage 03 as a flow diagram with the main path down the left, stage 08 as one panel per state with one marked "No description", and stage 09 as the mockup page in an isolated frame with the tokens it uses listed in the panel, a token selected with its thread and comment box. Above the flow and the state panels, the stage's diagrams are a list to choose from. The stage tabs open them, and an address such as `#SCR-145/normal/1440/light/03` opens one directly; 6 frames more.
 - The copy is the Korean the screens will ship with, at its real size. The example project is the 2026-11-21 mockup's book club app (the title 독서 모임 앱, the name `book-club`), with its domain board, AI proposals and comments.
-- At 360 pixels a state shows the phone, except the four states that only a PC action leads to (SCR-143#secret, SCR-144#delete, SCR-146#confirmed and SCR-146#not-drawn), which show a narrow PC window, as section 2 of the stage-08 README says.
+- At 360 pixels a state shows the phone, except the PC-only credential secret and deletion states (SCR-143#secret and SCR-144#delete), which show a narrow PC window. The later phone decision also allows SCR-146 confirmed and not-drawn states on a phone.
 - The fonts load from Google Fonts when the browser is online; otherwise the system fonts that the font tokens list after them are used.
 - Every colour, corner and type style in the mockup is a token: the file carries the CSS that the `corthex-screen` skill's `tokens.py css` writes from [tokens.resolver.json](tokens.resolver.json), and the rest of its styles use those custom properties only.
 

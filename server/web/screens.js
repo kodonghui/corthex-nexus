@@ -14,7 +14,7 @@
 //   null, shell.missed(name) gives the failure, and the rest of the screen shows as usual;
 // - follow(ctx): optional, the reads that need what reads answered, { name: path }, made once every read answered and
 //   shown with them as one load, such as the workbench's diagram (API-265), which API-264's list names;
-// - fixedTitle: its title before its data came, or null for a title from its data;
+// - fixedTitle: its title before data comes, optionally from the address, or null for a title from data;
 // - title(ctx), crumb(ctx) and description (a text, { text, mono }, or a function of ctx giving one): drawn once its
 //   data came; without title, the fixed title stays;
 // - titleTags(ctx) and titleActions(ctx): optional, nodes drawn once its data came: tags after the title, and buttons
@@ -34,7 +34,7 @@
 
 import { changesBody, changesSkeleton, changesTags } from './changes-page.js';
 import { CONFIRM_WORDS } from './confirm.js';
-import { diagramApi, isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
+import { diagramApi, HOME_HREF, isDiagramId, isThreadId, projectApi, projectHref, PROJECTS_HREF, stageHref, TODO_HREF } from './address.js';
 import { h } from './dom.js';
 import { emptyStageGuidance } from './guidance.js';
 import { projectBody, projectDescription, projectSkeleton } from './project.js';
@@ -108,8 +108,10 @@ export const SCREENS = Object.freeze({
     layout: 'list',
     // API-262 for the projects' titles and the empty state's list; the header reads the same two, in one request each.
     reads: () => ({ todo: '/api/todo', projects: '/api/projects' }),
-    fixedTitle: '내 차례',
-    description: '모든 프로젝트에서 나를 기다리는 일이에요. 최근 것부터 보여요.',
+    parts: ['todo'],
+    fixedTitle: ({ address }) => address.view === 'todo' ? '내 차례' : '프로젝트',
+    title: ({ address }) => address.view === 'todo' ? '내 차례' : '프로젝트',
+    description: ({ address }) => address.view === 'todo' ? '모든 프로젝트에서 나를 기다리는 일이에요. 최근 것부터 보여요.' : '프로젝트를 고르면 지금 할 일과 진행 상황을 볼 수 있어요.',
     skeleton: () => [skeletonGroup(2), skeletonGroup(2)],
     render: todoBody,
   },
@@ -125,11 +127,12 @@ export const SCREENS = Object.freeze({
   },
   'SCR-144': {
     layout: 'list',
-    reads: projectRead,
+    reads: (address) => ({ ...projectRead(address), todo: '/api/todo' }),
+    parts: ['todo'],
     fixedTitle: null,
     title: ({ data }) => data.project.title,
     projectTitle: ({ data }) => data.project.title,
-    crumb: ({ data }) => [{ text: '프로젝트', href: PROJECTS_HREF }, { text: data.project.title }],
+    crumb: ({ data }) => [{ text: '프로젝트', href: HOME_HREF }, { text: data.project.title }],
     description: projectDescription,
     skeleton: projectSkeleton,
     render: projectBody,

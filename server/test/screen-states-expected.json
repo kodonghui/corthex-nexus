@@ -2,7 +2,7 @@
  "drawings": [
   {
    "key": "docs/08-screens/SCR-142.md",
-   "name": "SCR-142 Owner to-do",
+   "name": "SCR-142 Owner home and to-do",
    "elements": [
     {
      "key": "SCR-142#normal",
@@ -10,7 +10,7 @@
      "name": "SCR-142#normal",
      "status": null,
      "detail": {
-      "description": "Entries grouped by project, newest first; each shows its kind as a tag (confirm, proposal, question), the stage, the diagram's name, for a confirmation why it waits (never confirmed, lifted by a new document, cancelled), and how long it has waited. A question names its diagram and says to open it and reply in the thread (SPEC-054). A failed backup shows as a warning on top until a backup succeeds. From the mockup: the header's \"My turn N\" is this list's count. On a phone: the same list in one column.",
+      "description": "The default home lists projects with question and review counts, opens each project, and links directly to its newest question when present. An unavailable count is not shown as zero, and a capped to-do is labelled as a minimum. The full to-do opens at ?view=todo. Entries grouped by project, newest first; each shows its kind as a tag (confirm, proposal, question), the stage, the diagram's name, for a confirmation why it waits (never confirmed, lifted by a new document, cancelled), and how long it has waited. A question names its diagram and says to open it and reply in the thread (SPEC-054). A failed backup shows as a warning on top until a backup succeeds. From the mockup: the header's \"My turn N\" is this list's count. On a phone: the same list in one column.",
       "responses": [
        "API-262#200",
        "API-263#200"
@@ -20,7 +20,7 @@
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 340
+       "height": 480
       }
      }
     },
@@ -37,7 +37,7 @@
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 340
+       "height": 480
       }
      }
     },
@@ -57,7 +57,7 @@
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 340
+       "height": 480
       }
      }
     },
@@ -75,9 +75,9 @@
       "where": "docs/08-screens/SCR-142.md:33",
       "box": {
        "x": 0,
-       "y": 352,
+       "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     },
@@ -97,9 +97,9 @@
       "where": "docs/08-screens/SCR-142.md:34",
       "box": {
        "x": 340,
-       "y": 352,
+       "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     },
@@ -109,14 +109,14 @@
      "name": "SCR-142#stale",
      "status": null,
      "detail": {
-      "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. An entry answered meanwhile opens to its new state on SCR-145.",
+      "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. A failed refresh keeps the previous counts or list marked as old with a retry; an initial failure never displays zero. An entry answered meanwhile opens to its new state on SCR-145.",
       "responses": [],
       "where": "docs/08-screens/SCR-142.md:35",
       "box": {
        "x": 680,
-       "y": 352,
+       "y": 492,
        "width": 328,
-       "height": 168
+       "height": 240
       }
      }
     }
@@ -294,7 +294,7 @@
      "name": "SCR-144#normal",
      "status": null,
      "detail": {
-      "description": "The stages grouped by part, 13 per part (a project without parts is one group), as rows with a state tag, the date of the last checkpoint and its links; a passed stage whose confirmation was lifted says \"changed since the pass\" (SPEC-035). Tool links show their status and the time it was read, or \"not read yet\". On a phone: stages and links read-only; linking, removing links and deleting are not offered, with \"Do this on a PC\".",
+      "description": "Before the stages, show this project's questions first and then items to review, each opening its target thread or diagram; a to-do read failure is reported separately. For each part, initially collapse the stages into “Decide what to make” (01–04), “Decide how to make it” (05–09), and “Build and check” (10–13); opening a group reveals its original stage rows and status. Each stage link starts with a plain-language purpose and retains the familiar stage name in parentheses. The stages grouped by part, 13 per part (a project without parts is one group), as rows with a state tag, the date of the last checkpoint and its links; a passed stage whose confirmation was lifted says \"changed since the pass\" (SPEC-035). Tool links show their status and the time it was read, or \"not read yet\". On a phone: stages and links read-only; linking, removing links and deleting are not offered, with \"Do this on a PC\".",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -305,12 +305,12 @@
        "API-283#200",
        "API-283#404 (tool-link-not-found)"
       ],
-      "where": "docs/08-screens/SCR-144.md:32",
+      "where": "docs/08-screens/SCR-144.md:33",
       "box": {
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 360
+       "height": 620
       }
      }
     },
@@ -322,12 +322,12 @@
      "detail": {
       "description": "Thirteen grey rows per part in the stage list's places; the #data section's counts are grey.",
       "responses": [],
-      "where": "docs/08-screens/SCR-144.md:33",
+      "where": "docs/08-screens/SCR-144.md:34",
       "box": {
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 360
+       "height": 620
       }
      }
     },
@@ -341,12 +341,12 @@
       "responses": [
        "API-264#200"
       ],
-      "where": "docs/08-screens/SCR-144.md:34",
+      "where": "docs/08-screens/SCR-144.md:35",
       "box": {
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 360
+       "height": 620
       }
      }
     },
@@ -381,10 +381,10 @@
        "API-283#409",
        "API-283#default"
       ],
-      "where": "docs/08-screens/SCR-144.md:35",
+      "where": "docs/08-screens/SCR-144.md:36",
       "box": {
        "x": 0,
-       "y": 372,
+       "y": 632,
        "width": 328,
        "height": 360
       }
@@ -413,10 +413,10 @@
        "API-283#401",
        "API-283#403"
       ],
-      "where": "docs/08-screens/SCR-144.md:36",
+      "where": "docs/08-screens/SCR-144.md:37",
       "box": {
        "x": 340,
-       "y": 372,
+       "y": 632,
        "width": 328,
        "height": 360
       }
@@ -428,12 +428,12 @@
      "name": "SCR-144#stale",
      "status": null,
      "detail": {
-      "description": "\"Read at 10:42\"; read again when the tab comes back into view.",
+      "description": "\"Read at 10:42\"; read again when the tab comes back into view. A failed to-do refresh keeps the previous tasks marked as old with a retry; open stage groups remain open across redraws.",
       "responses": [],
-      "where": "docs/08-screens/SCR-144.md:37",
+      "where": "docs/08-screens/SCR-144.md:38",
       "box": {
        "x": 680,
-       "y": 372,
+       "y": 632,
        "width": 328,
        "height": 360
       }
@@ -449,10 +449,10 @@
       "responses": [
        "API-277#200"
       ],
-      "where": "docs/08-screens/SCR-144.md:38",
+      "where": "docs/08-screens/SCR-144.md:39",
       "box": {
        "x": 0,
-       "y": 744,
+       "y": 1004,
        "width": 328,
        "height": 240
       }
@@ -470,7 +470,7 @@
      "name": "SCR-145#normal",
      "status": null,
      "detail": {
-      "description": "The mockup's workbench: stage tabs under the header; the diagram or item table in the middle with dashed AI proposals and the legend; the work panel on the right with three sections. \"This diagram\": its state (\"not confirmed\", \"confirmed\", \"N places changed since the confirmation\") with up to four changes and \"+N more\" to SCR-146, \"AI proposals left out are not confirmed\", an explanation to answer any questions and review changes, then of the target and the agent recording step, and a button that says it confirms this diagram. \"AI proposals\": each with its kind, text and reason, and Accept and Reject (\"All answered\" when none). \"Selected\": the element's kind, name, its threads and the comment box with AI and owner badges. A never-confirmed diagram says nothing is marked (SPEC-034); a part of the document that cannot be read is left out with its file and line (SPEC-003). By stage: 03 draws each user flow as one diagram of its steps, decisions and labelled arrows, top to bottom as its Mermaid source says (SPEC-006); 08 draws one panel per state of a screen, with the state's name, its description and the responses that lead to it, and a state without a description is an empty panel marked \"No description\" (SPEC-008); 09 shows the mockup page in a frame isolated from NEXUS, its own links and tabs working inside it, and lists the design tokens it uses in the panel under \"This diagram\" (SPEC-009). Those stages have one diagram per file, listed above the diagram; choosing one opens it. A removed diagram that has an open thread, a proposed AI proposal or a direct edit waiting for reflection comes last, marked removed, and opens for these only: its threads are read, answered and closed, its proposals show Reject and never Accept, and the \"This diagram\" section lists its direct edits waiting for reflection in place of the confirm button, each with Cancel edit (on a phone, the list without it); no new comment, move, direct edit, confirm button or Cancel confirmation shows (SPEC-027). A mockup's elements are its tokens, so a token is selected and commented on like any element; on a phone the token list follows the frame. The view reads the page's status before it frames it. A bar above the frame always marks it as a mockup page, and NEXUS never asks for a sign-in inside it, since text typed into the page can leave with a page it opens. When the page opens another page in its frame, the view opens the mockup page again once with \"The mockup tried to open another page.\"; when it does so again, it stops with \"The mockup keeps opening other pages\" and Open again. A mockup takes no AI proposals: on stage 09 the \"AI proposals\" section says so, and agents comment on its tokens or on the mockup instead. Every element, a flow's box, a state panel or a token, is selected by keyboard too and shows that it is selected. On a phone: the diagram fills the width and the panel is a sheet under it with confirmation guidance, threads and the comment box; moving, renaming, connecting, cancelling edits, answering proposals, confirming and cancelling a confirmation are not offered, with \"Do this on a PC\" (SPEC-051).",
+      "description": "The mockup's workbench: stage tabs under the header; the diagram or item table in the middle with dashed AI proposals and the legend; the work panel on the right with three sections. \"This diagram\": its state (\"not confirmed\", \"confirmed\", \"N places changed since the confirmation\") with up to four changes and \"+N more\" to SCR-146, \"AI proposals left out are not confirmed\", an explanation to answer any questions and review changes, then of the target and the agent recording step, and a button that says it confirms this diagram. \"AI proposals\": each with its kind, text and reason, and Accept and Reject (\"All answered\" when none). \"Selected\": the element's kind, name, its threads and the comment box with AI and owner badges. A never-confirmed diagram says nothing is marked (SPEC-034); a part of the document that cannot be read is left out with its file and line (SPEC-003). By stage: 03 draws each user flow as one diagram of its steps, decisions and labelled arrows, top to bottom as its Mermaid source says (SPEC-006); 08 draws one panel per state of a screen, with the state's name, its description and the responses that lead to it, and a state without a description is an empty panel marked \"No description\" (SPEC-008); 09 shows the mockup page in a frame isolated from NEXUS, its own links and tabs working inside it, and lists the design tokens it uses in the panel under \"This diagram\" (SPEC-009). Those stages have one diagram per file, listed above the diagram; choosing one opens it. A removed diagram that has an open thread, a proposed AI proposal or a direct edit waiting for reflection comes last, marked removed, and opens for these only: its threads are read, answered and closed, its proposals show Reject and never Accept, and the \"This diagram\" section lists its direct edits waiting for reflection in place of the confirm button, each with Cancel edit (on a phone, the list without it); no new comment, move, direct edit, confirm button or Cancel confirmation shows (SPEC-027). A mockup's elements are its tokens, so a token is selected and commented on like any element; on a phone the token list follows the frame. The view reads the page's status before it frames it. A bar above the frame always marks it as a mockup page, and NEXUS never asks for a sign-in inside it, since text typed into the page can leave with a page it opens. When the page opens another page in its frame, the view opens the mockup page again once with \"The mockup tried to open another page.\"; when it does so again, it stops with \"The mockup keeps opening other pages\" and Open again. A mockup takes no AI proposals: on stage 09 the \"AI proposals\" section says so, and agents comment on its tokens or on the mockup instead. Every element, a flow's box, a state panel or a token, is selected by keyboard too and shows that it is selected. On a phone: the diagram fills the width and the panel is a sheet under it with confirmation guidance, threads and the comment box; confirmation and proposal decisions are available after one more question; moving, renaming, connecting, cancelling edits and cancelling a confirmation remain on a PC (SPEC-051).",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -871,7 +871,7 @@
      "name": "SCR-146#normal",
      "status": null,
      "detail": {
-      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, when confirmation is available, an explanation to answer questions, review changes and request AI recording before the confirm button. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: the list read-only; Cancel edit and Confirm are not offered, with \"Do this on a PC\".",
+      "description": "One row per changed element: a tag (added, removed, changed) and its name from the current diagram, or its key when it was removed; above the list, a link to the document at the confirmed version in the repository, as the \"before\" (SPEC-034); at the end, when confirmation is available, an explanation to answer questions, review changes and request AI recording before the confirm button. For diagrams other than mockups, explain that remaining AI proposals are not included in the confirmation. From the mockup: the work panel's \"changed since the confirmation\" list in full. For a removed diagram only the changes show, with no confirm button (SPEC-027). On a phone: Confirm is offered after one more question when available; Cancel edit remains on a PC.",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -884,7 +884,7 @@
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -901,7 +901,7 @@
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -920,7 +920,7 @@
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 440
+       "height": 500
       }
      }
     },
@@ -954,7 +954,7 @@
       "where": "docs/08-screens/SCR-146.md:33",
       "box": {
        "x": 0,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -984,7 +984,7 @@
       "where": "docs/08-screens/SCR-146.md:34",
       "box": {
        "x": 340,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -1004,7 +1004,7 @@
       "where": "docs/08-screens/SCR-146.md:35",
       "box": {
        "x": 680,
-       "y": 452,
+       "y": 512,
        "width": 328,
        "height": 380
       }
@@ -1023,7 +1023,7 @@
       "where": "docs/08-screens/SCR-146.md:36",
       "box": {
        "x": 0,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }
@@ -1035,14 +1035,14 @@
      "name": "SCR-146#not-drawn",
      "status": null,
      "detail": {
-      "description": "The document does not draw: the confirm button is off with \"Fix the document so that it draws, then confirm.\" and a link to the diagram, where the failure shows. Only confirming on a PC leads here.",
+      "description": "The document does not draw: the confirm button is off with \"Fix the document so that it draws, then confirm.\" and a link to the diagram, where the failure shows. The state can be reached on a PC or phone.",
       "responses": [
        "API-275#409 (not-drawn)"
       ],
       "where": "docs/08-screens/SCR-146.md:37",
       "box": {
        "x": 340,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }
@@ -1054,7 +1054,7 @@
      "name": "SCR-146#confirmed",
      "status": null,
      "detail": {
-      "description": "\"This diagram is confirmed. The stage passes when every diagram and table in the stage is recorded.\" over an empty list, with the way back to the diagram. Only confirming on a PC leads here.",
+      "description": "\"This diagram is confirmed. The stage passes when every diagram and table in the stage is recorded.\" over an empty list, with the way back to the diagram. The state can be reached on a PC or phone.",
       "responses": [
        "API-275#201",
        "API-275#200"
@@ -1062,7 +1062,7 @@
       "where": "docs/08-screens/SCR-146.md:38",
       "box": {
        "x": 680,
-       "y": 844,
+       "y": 904,
        "width": 328,
        "height": 200
       }

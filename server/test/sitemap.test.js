@@ -108,7 +108,7 @@ describe('the sitemap drawer', () => {
     assert.deepEqual(screens.map(({ key, trace_id: traceId, name, parent, status }) => [key, traceId, name, parent, status]), picture.screens.map((screen) => [
       screen.id, screen.id, screen.name, screen.parent === undefined ? null : picture.screens[screen.parent].id, null,
     ]));
-    assert.deepEqual(screens.map(({ parent }) => parent), [null, 'SCR-142', 'SCR-143', 'SCR-144', 'SCR-145']);
+    assert.deepEqual(screens.map(({ parent }) => parent), [null, 'SCR-142', 'SCR-142', 'SCR-144', 'SCR-145']);
     for (const [index, { detail }] of screens.entries()) {
       const { path, access, flows, context, terms, removed, where } = picture.screens[index];
       assert.deepEqual({ ...detail, box: undefined }, { path, access, flows, context, terms, removed, where, box: undefined });

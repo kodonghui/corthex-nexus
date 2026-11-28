@@ -415,7 +415,7 @@ describe('screen states through the push', () => {
     assert.deepEqual(elements(failed.id), []);
     assert.equal(elements(good.id).length, 6);
     // The diagram keeps its name, and the same file failing again makes no new drawing.
-    assert.equal(diagramsOf(name)[0].name, 'SCR-142 Owner to-do');
+    assert.equal(diagramsOf(name)[0].name, 'SCR-142 Owner home and to-do');
     assert.deepEqual((await push(snapshotWith(name, broken, { commit: c, replaces: b }))).json.diagrams, counted({ failed: 1, unchanged: 4 }));
     assert.equal(drawings(diagram.id).length, 2);
     // The file read again draws again.
