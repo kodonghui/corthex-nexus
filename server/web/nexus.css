@@ -223,6 +223,7 @@ label.l{display:block;margin-bottom:6px;font:var(--corthex-type-label-01);letter
 .cmt .q{margin:0;padding-left:8px;border-left:2px solid var(--border-strong-01);color:var(--text-secondary);white-space:pre-wrap;overflow-wrap:anywhere}
 .cmt .tx{white-space:pre-wrap;overflow-wrap:anywhere}
 .external-evidence{display:flex;flex-direction:column;gap:4px}
+.external-summary{white-space:pre-wrap;overflow-wrap:anywhere}
 .cmt a{overflow-wrap:anywhere}
 .th-form{display:flex;flex-direction:column}
 @media (min-width:672px){.th-form .form{align-items:flex-start}}

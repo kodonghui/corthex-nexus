@@ -21,6 +21,7 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
+import { sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
 export const TEXT_LIMIT = 4000;
@@ -40,6 +41,7 @@ export const THREAD_WORDS = Object.freeze({
   replyField: '이 스레드에 남길 말',
   close: '스레드 닫기',
   reopen: '다시 열기',
+  confirmClose: '맞아요, 닫기',
   comment: '댓글 쓰기',
   send: '보내기',
   fields: Object.freeze({ element: '이 요소에 남길 말', row: '이 행에 남길 말', diagram: '이 그림에 남길 말' }),
@@ -484,11 +486,15 @@ function closeRow(state, thread, reopen = false) {
   const what = `${reopen ? 'reopen' : 'close'} ${thread.id}`;
   const t = state.threads;
   const busy = t.sending.has(what);
+  const last = thread.entries.at(-1);
+  const evidence = !reopen && last?.kind === 'decision' ? last.external_evidence : null;
+  const needsConfirmation = evidence && !sameDecisionAnswer(evidence.text, last.text);
   return [
+    needsConfirmation ? h('p', { class: 'external-summary' }, '봇이 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {
       type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
       on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
-    }, reopen ? THREAD_WORDS.reopen : THREAD_WORDS.close)),
+    }, reopen ? THREAD_WORDS.reopen : needsConfirmation ? THREAD_WORDS.confirmClose : THREAD_WORDS.close)),
     errorOf(state, what, t.errors.get(what) ?? null, 'th-close'),
   ];
 }

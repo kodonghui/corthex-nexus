@@ -470,7 +470,7 @@
      "name": "SCR-145#normal",
      "status": null,
      "detail": {
-      "description": "The mockup's workbench: stage tabs under the header; the diagram or item table in the middle with dashed AI proposals and the legend; the work panel on the right with three sections. \"This diagram\": its state (\"not confirmed\", \"confirmed\", \"N places changed since the confirmation\") with up to four changes and \"+N more\" to SCR-146, \"AI proposals left out are not confirmed\", an explanation to answer any questions and review changes, then of the target and the agent recording step, and a button that says it confirms this diagram. \"AI proposals\": each with its kind, text and reason, and Accept and Reject (\"All answered\" when none). \"Selected\": the element's kind, name, its threads and the comment box with AI and owner badges. A never-confirmed diagram says nothing is marked (SPEC-034); a part of the document that cannot be read is left out with its file and line (SPEC-003). By stage: 03 draws each user flow as one diagram of its steps, decisions and labelled arrows, top to bottom as its Mermaid source says (SPEC-006); 08 draws one panel per state of a screen, with the state's name, its description and the responses that lead to it, and a state without a description is an empty panel marked \"No description\" (SPEC-008); 09 shows the mockup page in a frame isolated from NEXUS, its own links and tabs working inside it, and lists the design tokens it uses in the panel under \"This diagram\" (SPEC-009). Those stages have one diagram per file, listed above the diagram; choosing one opens it. A removed diagram that has an open thread, a proposed AI proposal or a direct edit waiting for reflection comes last, marked removed, and opens for these only: its threads are read, answered and closed, its proposals show Reject and never Accept, and the \"This diagram\" section lists its direct edits waiting for reflection in place of the confirm button, each with Cancel edit (on a phone, the list without it); no new comment, move, direct edit, confirm button or Cancel confirmation shows (SPEC-027). A mockup's elements are its tokens, so a token is selected and commented on like any element; on a phone the token list follows the frame. The view reads the page's status before it frames it. A bar above the frame always marks it as a mockup page, and NEXUS never asks for a sign-in inside it, since text typed into the page can leave with a page it opens. When the page opens another page in its frame, the view opens the mockup page again once with \"The mockup tried to open another page.\"; when it does so again, it stops with \"The mockup keeps opening other pages\" and Open again. A mockup takes no AI proposals: on stage 09 the \"AI proposals\" section says so, and agents comment on its tokens or on the mockup instead. Every element, a flow's box, a state panel or a token, is selected by keyboard too and shows that it is selected. On a phone: the diagram fills the width and the panel is a sheet under it with confirmation guidance, threads and the comment box; confirmation and proposal decisions are available after one more question; moving, renaming, connecting, cancelling edits and cancelling a confirmation remain on a PC (SPEC-051). External evidence shows its source kind, location, exact original text and time.",
+      "description": "The mockup's workbench: stage tabs under the header; the diagram or item table in the middle with dashed AI proposals and the legend; the work panel on the right with three sections. \"This diagram\": its state (\"not confirmed\", \"confirmed\", \"N places changed since the confirmation\") with up to four changes and \"+N more\" to SCR-146, \"AI proposals left out are not confirmed\", an explanation to answer any questions and review changes, then of the target and the agent recording step, and a button that says it confirms this diagram. \"AI proposals\": each with its kind, text and reason, and Accept and Reject (\"All answered\" when none). \"Selected\": the element's kind, name, its threads and the comment box with AI and owner badges. A never-confirmed diagram says nothing is marked (SPEC-034); a part of the document that cannot be read is left out with its file and line (SPEC-003). By stage: 03 draws each user flow as one diagram of its steps, decisions and labelled arrows, top to bottom as its Mermaid source says (SPEC-006); 08 draws one panel per state of a screen, with the state's name, its description and the responses that lead to it, and a state without a description is an empty panel marked \"No description\" (SPEC-008); 09 shows the mockup page in a frame isolated from NEXUS, its own links and tabs working inside it, and lists the design tokens it uses in the panel under \"This diagram\" (SPEC-009). Those stages have one diagram per file, listed above the diagram; choosing one opens it. A removed diagram that has an open thread, a proposed AI proposal or a direct edit waiting for reflection comes last, marked removed, and opens for these only: its threads are read, answered and closed, its proposals show Reject and never Accept, and the \"This diagram\" section lists its direct edits waiting for reflection in place of the confirm button, each with Cancel edit (on a phone, the list without it); no new comment, move, direct edit, confirm button or Cancel confirmation shows (SPEC-027). A mockup's elements are its tokens, so a token is selected and commented on like any element; on a phone the token list follows the frame. The view reads the page's status before it frames it. A bar above the frame always marks it as a mockup page, and NEXUS never asks for a sign-in inside it, since text typed into the page can leave with a page it opens. When the page opens another page in its frame, the view opens the mockup page again once with \"The mockup tried to open another page.\"; when it does so again, it stops with \"The mockup keeps opening other pages\" and Open again. A mockup takes no AI proposals: on stage 09 the \"AI proposals\" section says so, and agents comment on its tokens or on the mockup instead. Every element, a flow's box, a state panel or a token, is selected by keyboard too and shows that it is selected. On a phone: the diagram fills the width and the panel is a sheet under it with confirmation guidance, threads and the comment box; confirmation and proposal decisions are available after one more question; moving, renaming, connecting, cancelling edits and cancelling a confirmation remain on a PC (SPEC-051). External evidence shows its source kind, location, exact original text and time. An unmatched answer shows a bot summary request with its source and exact original and a one-click owner confirmation to close.",
       "responses": [
        "API-262#200",
        "API-263#200",
@@ -495,7 +495,7 @@
        "x": 0,
        "y": 0,
        "width": 328,
-       "height": 1860
+       "height": 1940
       }
      }
     },
@@ -512,7 +512,7 @@
        "x": 340,
        "y": 0,
        "width": 328,
-       "height": 1860
+       "height": 1940
       }
      }
     },
@@ -531,7 +531,7 @@
        "x": 680,
        "y": 0,
        "width": 328,
-       "height": 1860
+       "height": 1940
       }
      }
     },
@@ -663,7 +663,7 @@
       "where": "docs/08-screens/SCR-145.md:52",
       "box": {
        "x": 0,
-       "y": 1872,
+       "y": 1952,
        "width": 328,
        "height": 1460
       }
@@ -731,7 +731,7 @@
       "where": "docs/08-screens/SCR-145.md:53",
       "box": {
        "x": 340,
-       "y": 1872,
+       "y": 1952,
        "width": 328,
        "height": 1460
       }
@@ -764,7 +764,7 @@
       "where": "docs/08-screens/SCR-145.md:54",
       "box": {
        "x": 680,
-       "y": 1872,
+       "y": 1952,
        "width": 328,
        "height": 1460
       }
@@ -783,7 +783,7 @@
       "where": "docs/08-screens/SCR-145.md:55",
       "box": {
        "x": 0,
-       "y": 3344,
+       "y": 3424,
        "width": 328,
        "height": 320
       }
@@ -803,7 +803,7 @@
       "where": "docs/08-screens/SCR-145.md:56",
       "box": {
        "x": 340,
-       "y": 3344,
+       "y": 3424,
        "width": 328,
        "height": 320
       }
@@ -823,7 +823,7 @@
       "where": "docs/08-screens/SCR-145.md:57",
       "box": {
        "x": 680,
-       "y": 3344,
+       "y": 3424,
        "width": 328,
        "height": 320
       }
@@ -853,7 +853,7 @@
       "where": "docs/08-screens/SCR-145.md:58",
       "box": {
        "x": 0,
-       "y": 3676,
+       "y": 3756,
        "width": 328,
        "height": 360
       }

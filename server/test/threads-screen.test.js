@@ -225,6 +225,12 @@ describe('SCR-145 threads', () => {
       assert.ok(shown.textContent.includes(evidence.location));
       assert.ok(shown.textContent.includes(evidence.at));
       assert.equal(shown.all('blockquote')[0].textContent, evidence.text);
+      assert.ok(shownThread(page).textContent.includes('봇이 정리 요청'));
+      const confirm = buttonOf(shownThread(page), '맞아요, 닫기');
+      assert.ok(confirm);
+      confirm.click();
+      await page.settle();
+      assert.equal(page.sent.at(-1).path, `${threadPath(T.mine)}/close`);
     } finally { page.close(); }
   });
   test('with nothing chosen the section lists every thread of the diagram, open ones first, each named by where it is', async () => {

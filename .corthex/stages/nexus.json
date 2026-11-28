@@ -323,6 +323,11 @@
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -891,6 +896,11 @@
         },
         {
           "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }

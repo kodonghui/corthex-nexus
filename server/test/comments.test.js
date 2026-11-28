@@ -330,12 +330,22 @@ describe('agent comments', () => {
     db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(example.commit, pull);
     const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
     const externalThread = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
-    const evidence = { source_kind: 'conversation', location: 'example-123', text: 'Yes, use the agreed option.\nExactly as written.', at: '2026-11-23T00:30:00.000Z' };
+    const evidence = { source_kind: 'conversation', location: 'example-123', text: 'Use the agreed option.\n', at: '2026-11-23T00:30:00.000Z' };
     const externalResult = await decide(idOf('nc', externalThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name });
     assert.equal(externalResult.status, 201);
     assert.equal(externalResult.json.thread.state, 'closed');
     assert.deepEqual(externalResult.json.entry.external_evidence, evidence);
     assert.deepEqual(commentsOf(externalThread).at(-1).detail.external_evidence, evidence);
+    const punctuation = s.thread(board, { target: 'diagram', author: 'agent', body: text, at: '2026-11-23T00:20:00.000Z' });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), punctuation);
+    assert.equal((await decide(idOf('nc', punctuation), { link: `${repository}/pull/42`, text, external_evidence: { ...evidence, text: 'Use the agreed option!' } }, { project: example.name })).json.thread.state, 'closed');
+    for (const original of ['No, use another option.', '응, 그렇게 해']) {
+      const ambiguous = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+      const answer = await decide(idOf('nc', ambiguous), { link: `${repository}/pull/42`, text, external_evidence: { ...evidence, text: original } }, { project: example.name });
+      assert.equal(answer.json.thread.state, 'open');
+      assert.equal(answer.json.thread.waits_on, 'owner');
+      assert.equal(answer.json.entry.external_evidence.text, original);
+    }
     const readBack = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
     assert.deepEqual(readBack.json.entries.at(-1).external_evidence, evidence);
     const noEvidence = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?' });

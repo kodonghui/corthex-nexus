@@ -3,6 +3,7 @@
 import { pullRequestLink, repositoryBase } from './claims.js';
 import { INCOMPLETE_DRAWING, normalizeDecisionText as normalize, recordResolved, RECOMMENDATION_CHOICES } from './decision-evidence.js';
 import { threadChanged } from './entries.js';
+import { sameDecisionAnswer } from '../web/decision-match.js';
 
 function approvedText(entries, owner, last) {
   if (normalize(owner.body) === normalize(last.body)) return true;
@@ -19,6 +20,7 @@ function approvalTime(q, thread, row, entries, last, reopenedAt) {
       && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return owner.created_at;
   const evidence = JSON.parse(last.detail).external_evidence;
   if (!evidence || typeof evidence.at !== 'string' || typeof evidence.text !== 'string' || /[?？]/u.test(evidence.text)
+      || !sameDecisionAnswer(evidence.text, last.body)
       || evidence.at < row.opened_at || evidence.at > last.created_at
       || (reopenedAt != null && evidence.at <= reopenedAt)) return null;
   if (q.laterQuestion.get(thread, last.seq, evidence.at)) return null;

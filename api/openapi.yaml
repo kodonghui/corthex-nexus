@@ -10957,7 +10957,7 @@ components:
       type: object
       required: [source_kind, location, text, at]
       additionalProperties: false
-      description: Exact owner answer outside NEXUS, supplied by the agent; the source is not independently verified. A question is retained but does not resolve a conversation. Every text field must contain non-whitespace text. Values are never truncated; control characters other than tab and line breaks, bidirectional formatting controls, invalid Unicode and future timestamps are refused.
+      description: Exact owner answer outside NEXUS, supplied by the agent; the source is not independently verified. An answer that does not match the decision after whitespace and punctuation are ignored is retained but does not resolve a conversation. Every text field must contain non-whitespace text. Values are never truncated; control characters other than tab and line breaks, bidirectional formatting controls, invalid Unicode and future timestamps are refused.
       properties:
         source_kind:
           type: string
