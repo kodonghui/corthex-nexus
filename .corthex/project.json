@@ -60,7 +60,7 @@
       "human": "nexus",
       "source": "design/base.tokens.json",
       "truth": "source",
-      "page": "docs/09-mockup/nexus-combination.html"
+      "page": "design/mockup/nexus-mockup.html"
     },
     "10-wbs": {
       "human": "nexus",

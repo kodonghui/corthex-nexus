@@ -502,6 +502,8 @@ function answers(state, set) {
   const changes = state.changes;
   const id = `p-${set.id}`;
   const titled = set.change ? ` ${id}-title` : '';
+  const actionPath = `${projectApi(state.ctx.data.diagram.project)}/change-sets/${encodeURIComponent(set.id)}/accept`;
+  if (state.ctx.shell.pending?.hasTarget(actionPath)) return h('p', { role: 'status' }, '이 제안은 처리 중이에요. 위 안내를 확인해 주세요.');
   if (changes.asking?.id === set.id) {
     const { verb } = changes.asking;
     const yes = own(state, `${id}-yes`, h('button', {
@@ -539,10 +541,17 @@ function ask(state, set, verb) {
     };
     const hooks = {
       done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
-      failed: (outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
+      failed: (outcome) => {
+        if (!state.live()) return;
+        const again = !outcome.status || outcome.status >= 500 ? retry : () => ask(state, set, verb);
+        met(state, outcome, { verb, retry: again, focus: 'proposals-heading' });
+      },
+      undone: () => { if (state.live()) drawChanges(state); },
     };
     state.ctx.shell.pending.enqueue(path, {}, hooks);
-  } catch {
+    drawChanges(state);
+  } catch (error) {
+    if (error.message === 'already pending') { drawChanges(state); return; }
     changes.said = { kind: 'error', outcome: { failure: 'network' }, retry: () => ask(state, set, verb) };
     drawChanges(state);
   }
@@ -719,6 +728,7 @@ function drawName(state, element) {
     field,
     own(state, 'save-element-name', h('button', { type: 'button', class: 'btn tertiary', id: 'save-element-name',
       'aria-disabled': off(state), on: { pointerdown: (event) => event.preventDefault(),
+        blur: () => left(state, element, field),
         click: () => nameKey(state, element, field, { key: 'Enter', preventDefault() {} }) } }, '이름 고치기')),
     refused === null ? null : [
       // A div, not a p: the shell's `.nx p{margin:0}` would take away err-text's space under the field.

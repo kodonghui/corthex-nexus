@@ -637,9 +637,9 @@ SPEC-009, API-265, API-293 and the stage-09 mockup left the rules below open. Th
 
 | Question | Rule | Not taken |
 | --- | --- | --- |
-| Where a `var()` counts | In the CSS of every `<style>` element and every `style` attribute, wherever it stands, `<template>` content included: this repository's page draws its screens from templates and reads 6 of its 95 tokens only there. CSS comments and strings are skipped. The text of a `<script>` or of another element whose content is text, such as `textarea`, `title` or `noscript`, HTML comments and the page's text are not read, so a token only a script reads is not listed. | Any `var()` in the whole text, scripts, comments and text included; or the CSS and the `var()` in a script's strings. |
+| Where a `var()` counts | In the CSS of every `<style>` element and every `style` attribute, wherever it stands, `<template>` content included: the earlier state mockup used templates. CSS comments and strings are skipped. The text of a `<script>` or of another element whose content is text, such as `textarea`, `title` or `noscript`, HTML comments and the page's text are not read, so a token only a script reads is not listed. | Any `var()` in the whole text, scripts, comments and text included; or the CSS and the `var()` in a script's strings. |
 | A fallback | Each `var()` of a fallback reads its property too: `var(--a, var(--b))` lists `--a` and `--b`, as which one applies is known only when the page runs. | Only `--a`; or `--b` marked as a fallback. |
-| Set but never read | Not listed, as SPEC-009 lists what the page reads. This page sets 658 custom properties and reads 95. | Listed, marked unused. |
+| Set but never read | Not listed, as SPEC-009 lists what the page reads. The selected page reads 16 properties. | Listed, marked unused. |
 | Read but never set | Listed like any other, with no mark; its `values` is empty. | Listed with the status `not_set`. |
 | Name, key and order | The property as the page writes it, with its leading `--`, as the stage-09 panel lists `--button-primary`; its case kept, since custom properties are case-sensitive; its CSS escapes resolved, so `--a\:b` and `--a\3a b` are one token `--a:b`. Its key is `token:` and its name, as `elementKey` makes it. The tokens come in the order the page first reads them. | The tokens by name. |
 | `detail` | `{ values, uses }`. `values` are the distinct values the page's CSS sets for the property, in the page's order, up to 10, each cut to 200 characters, white space made single spaces and `!important` left out; here the light theme's and then the dark's. The screen can draw a swatch of the first. `uses` is how many `var()` read it. | `{}`, the name only. |
@@ -653,7 +653,7 @@ How it reads the page:
 - **CSS.** A read is the function `var`, its name matched without case and its escapes resolved, whose first token after white space is a custom property name, `--` and at least one more character. An unquoted `url()` is one token, so a `var()` in it is not read. A custom property is set by a declaration that starts a block's content or follows its `;` or a nested block's `}`, or starts a `style` attribute; its value runs to the `;` or `}` that ends it, brackets in it kept whole.
 - **Warnings.** It reads none, as `drawing.js` gives a file's picture none.
 
-`test/mockup.test.js` checks TASK-427's done condition: a test page that uses 3 tokens lists 3 token elements, and this repository's page draws as a stored expected list of 95 tokens.
+`test/mockup.test.js` checks TASK-427's done condition: a test page that uses 3 tokens lists 3 token elements, and this repository's page draws as a stored expected list of 16 tokens.
 - `test/mockup-picture.json` is the pinned hub's picture of `design/mockup/nexus-mockup.html`, as its `snapshot03.py` makes it, with the file's SHA-256.
 - `test/mockup-expected.json` is its drawing. The test compares it exactly, alone and through the push with the server's own drawer.
 - The test fails when the page changes and the picture does not, and when the drawing changes and its file does not.

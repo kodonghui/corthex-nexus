@@ -19,7 +19,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DESIGN = os.path.join(ROOT, "design")
-MOCKUP = os.path.join(DESIGN, "mockup", "nexus-mockup.html")
+MOCKUP = os.path.join(DESIGN, "mockup", "legacy-states.html")
 WIDTHS = (360, 1440)
 COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color|color-mix|light-dark)\(")
 # The named colours of CSS Color Module Level 4, and the system colours of level 4 that set a colour by themselves.
@@ -180,6 +180,20 @@ class Mockup(unittest.TestCase):
         named = sorted({"%s: %s" % (k, v) for k, v in decls
                         if set(re.findall(r"[a-z]+", re.sub(r"var\([^)]*\)", "", v.lower()))) & NAMED})
         self.assertEqual(named, [], "named colours outside the tokens")
+
+    def test_the_selected_combination_uses_only_tokens(self):
+        path = os.path.join(ROOT, "docs", "09-mockup", "nexus-combination.html")
+        text = read(path)
+        blocks = re.findall(r"<style\b[^>]*>(.*?)</style>", text, re.S | re.I)
+        tokens, rest = blocks[0], "\n".join(blocks[1:])
+        rest = re.sub(r"data:font/woff2;base64,[A-Za-z0-9+/=]+", "data:font/woff2;base64,omitted", rest)
+        defined = set(re.findall(r"(--[A-Za-z0-9-]+):", tokens))
+        used = set(re.findall(r"var\((--[A-Za-z0-9-]+)", rest))
+        self.assertEqual(sorted(used - defined), [])
+        self.assertEqual(COLOUR.findall(rest), [])
+        named = sorted({"%s: %s" % (k, v) for k, v in declarations(rest)
+                        if set(re.findall(r"[a-z]+", re.sub(r"var\([^)]*\)", "", v.lower()))) & NAMED})
+        self.assertEqual(named, [])
 
     def test_the_colour_check_finds_colours(self):
         # The checks above must see colours wherever the mockup could set them.

@@ -647,8 +647,8 @@ describe('user flows through the push', () => {
        WHERE p.name = ? AND d.stage IN ('08-screen-states', '09-mockup') ORDER BY d.source_key`,
     ).all(name);
     assert.deepEqual(others.map((row) => [row.source_key, diagramTraceId(row)]), [
+      ['design/mockup/nexus-mockup.html', null],
       ...['SCR-142', 'SCR-143', 'SCR-144', 'SCR-145', 'SCR-146'].map((id) => [`docs/08-screens/${id}.md`, id]),
-      ['docs/09-mockup/nexus-combination.html', null],
     ]);
   });
 

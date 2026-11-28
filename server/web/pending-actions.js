@@ -31,8 +31,14 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
       live.delete(item.key);
       current?.done?.(result.body, result);
     } else {
-      item.state = 'unconfirmed';
-      try { save(item); } catch { /* Keep the earlier marker. */ }
+      // An explicit client refusal remains visible but does not block a new action.
+      if (result.status >= 400 && result.status < 500) {
+        item.state = 'failed';
+        try { save(item); } catch { /* Keep the previous persisted marker. */ }
+      } else {
+        item.state = 'unconfirmed';
+        try { save(item); } catch { /* Keep the earlier marker. */ }
+      }
       live.delete(item.key);
       current?.failed?.(result, item.key);
     }
@@ -40,11 +46,12 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     return result;
   }
 
+  const targetOf = (path) => path.replace(/\/(?:accept|reject)$/, '');
+  const hasTarget = (path) => [...live.values()].some(({ item }) => targetOf(item.path) === targetOf(path))
+    || recovered().some((item) => item.state !== 'failed' && targetOf(item.path) === targetOf(path));
   function enqueue(path, body, { done = null, failed = null, undone = null } = {}) {
-    const target = path.replace(/\/(?:accept|reject)$/, '');
     if (!PATH.test(path)) throw new Error('invalid action path');
-    if ([...live.values()].some(({ item }) => item.path.replace(/\/(?:accept|reject)$/, '') === target)
-        || recovered().some((item) => item.path.replace(/\/(?:accept|reject)$/, '') === target)) throw new Error('already pending');
+    if (hasTarget(path)) throw new Error('already pending');
     const item = { key: newRequestKey(), path, body, state: 'waiting' };
     // If storage is unavailable the UI must not say that the action can be recovered after leaving.
     save(item);
@@ -82,5 +89,5 @@ export function pendingActions({ storage = globalThis.localStorage, send = write
     }
     return items;
   }
-  return { enqueue, undo, flush, recovered, discard: (item) => { if (inFlight.has(item.key)) return false; forget(item); onChange(); return true; }, retry: (item, hooks = null) => dispatch(item, false, hooks), has: (key) => live.has(key), waiting: () => [...live.values()].filter((item) => !item.sending).map(({ item }) => item) };
+  return { enqueue, undo, flush, recovered, hasTarget, discard: (item) => { if (inFlight.has(item.key)) return false; forget(item); onChange(); return true; }, retry: (item, hooks = null) => dispatch(item, false, hooks), has: (key) => live.has(key), waiting: () => [...live.values()].filter((item) => !item.sending).map(({ item }) => item) };
 }

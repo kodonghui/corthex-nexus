@@ -1374,15 +1374,12 @@ describe('SCR-145 threads', () => {
       await send(page, 'th-reply', '다시 보내요.');
       const thread = shownThread(page);
       assert.deepEqual(textsIn(thread, 'b'), [message('internal')]);
+      fail = false;
       buttonOf(thread, '다시 시도').click();
       await page.settle();
       assert.equal(page.sent[1].key, page.sent[0].key);
-      // The text changed: another body takes another key.
-      fieldOf(page, 'th-reply').value = '고쳐서 보내요.';
-      fieldOf(page, 'th-reply').dispatch('input');
-      fail = false;
-      buttonOf(shownThread(page), '다시 시도').click();
-      await page.settle();
+      assert.equal(page.shell.pending.recovered().length, 0);
+      await send(page, 'th-reply', '고쳐서 보내요.');
       assert.deepEqual([page.sent[2].body.text, page.sent[2].key !== page.sent[0].key], ['고쳐서 보내요.', true]);
       assert.equal(shownThread(page).all('div', 'cmt').length, 3);
     } finally {

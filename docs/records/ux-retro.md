@@ -203,3 +203,9 @@ The workbench's selected-thread state initially reported two placeholder contras
 ## Item 240 — selected mockup (2026-11-28)
 
 The selected combination brings the morning report, inbox, numbered question pins, changes tour and 13-step timeline together. The normal home state was checked locally at desktop and phone widths; this does not establish that every state or a first-time person’s tasks have been checked.
+
+The implementation review found recovery and redraw gaps: definite refusals now remain visible without blocking a new attempt, uncertain replies retry with their original request key, drafts survive a redraw, the confirmation preview can be retried and reread, and the inbox renders in batches. The same review noted that API-263's independent morning selection and comment lookups may be expensive on a large backlog. Measure this with representative data and consider an equivalent query as a next candidate; selecting from only the first 5,000 oldest entries would miss a higher-priority item beyond that cap.
+
+The selected mockup keeps the existing stage-09 diagram key, so its diagram conversations keep their target. Its token list differs from the earlier 39-state page; conversations attached to token keys the selected page no longer reads may be shown as attached to removed elements. Check that history during a later authorized rollout; the local synthetic fixture does not establish what exists in production.
+
+A later mockup review also noted duplicated supplied reference fonts and the copied standalone combination page. Measure whether the reference assets can share one copy without breaking the archived HTML, and whether a single source can produce both the stage page and the stage-09 review page; keep the standalone sandbox constraint in that evaluation.

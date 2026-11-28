@@ -337,7 +337,7 @@ describe('item tables through the push', () => {
     assert.equal(diagram(name, '/items/08-screen-states'), undefined);
     assert.equal(diagram(name, 'docs/08-screens/SCR-142.md').kind, 'screen_states');
     assert.equal(diagram(name, '/items/09-mockup'), undefined);
-    assert.equal(diagram(name, 'docs/09-mockup/nexus-combination.html').kind, 'mockup');
+    assert.equal(diagram(name, 'design/mockup/nexus-mockup.html').kind, 'mockup');
   });
 
   test('a table removed because its stage is no longer read did not make way: its threads move to the diagram', async () => {

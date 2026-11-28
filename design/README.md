@@ -6,7 +6,7 @@ Status: passed on 2026-11-23; the tokens are frozen before development.
 
 Inputs: the screen definitions of stage 08 ([docs/08-screens](../docs/08-screens/README.md), five screens and 39 states), REQ-073 (IBM Carbon components with 8 px corners on controls, 16 px corners on panels and pill-shaped tags), and the click mockup of 2026-11-21, kept in the project's records. The maintainer approved that mockup on 2026-11-22 together with the ten redesign recommendations, which chose the direction: this stage draws that one direction for every screen instead of two candidates per screen.
 
-The source is [base.tokens.json](base.tokens.json), the project's layer of the tokens. The mockup is [mockup/nexus-mockup.html](mockup/nexus-mockup.html).
+The source is [base.tokens.json](base.tokens.json), the project's layer of the tokens. The selected combination is [mockup/nexus-mockup.html](mockup/nexus-mockup.html), with references in [stage 09](../docs/09-mockup/README.md). The earlier 39-state mockup remains at [mockup/legacy-states.html](mockup/legacy-states.html).
 
 ## Follow-up decision: project-first home and phone decisions (2026-11-27)
 
@@ -38,7 +38,7 @@ The screens mark their states with these tokens:
 
 ## 2. The mockup
 
-[mockup/nexus-mockup.html](mockup/nexus-mockup.html) is one file without a build step: open it in a browser. The bar at the top picks the screen, the state, the width (1440 for a PC, 360 for a phone) and the theme, and an address such as `#SCR-145/waiting/1440/dark` opens one directly. Links and buttons inside a screen go where the definition's actions say, for example Confirm to the confirmed state and "+2 more" to SCR-146. Under the frame, the page shows the state's definition and the responses that lead to it.
+[mockup/legacy-states.html](mockup/legacy-states.html) is one file without a build step: open it in a browser. The bar at the top picks the screen, the state, the width (1440 for a PC, 360 for a phone) and the theme, and an address such as `#SCR-145/waiting/1440/dark` opens one directly. Links and buttons inside a screen go where the definition's actions say, for example Confirm to the confirmed state and "+2 more" to SCR-146. Under the frame, the page shows the state's definition and the responses that lead to it.
 
 - Every state of every screen is drawn at 360 and 1440 pixels: 39 states and 78 frames, each in the light and the dark theme.
 - SCR-145#normal also has three stage views for the pictures of the feature change of 2026-11-23, at both widths in both themes: stage 03 as a flow diagram with the main path down the left, stage 08 as one panel per state with one marked "No description", and stage 09 as the mockup page in an isolated frame with the tokens it uses listed in the panel, a token selected with its thread and comment box. Above the flow and the state panels, the stage's diagrams are a list to choose from. The stage tabs open them, and an address such as `#SCR-145/normal/1440/light/03` opens one directly; 6 frames more.

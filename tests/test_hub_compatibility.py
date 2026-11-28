@@ -170,7 +170,7 @@ def mockup_page():
 class MockupPageTest(unittest.TestCase):
     def test_the_mockup_page_is_named_for_stage_09(self):
         page = mockup_page()
-        self.assertEqual(page, "docs/09-mockup/nexus-combination.html")
+        self.assertEqual(page, "design/mockup/nexus-mockup.html")
         self.assertTrue((ROOT / page).is_file())
 
 

@@ -111,7 +111,8 @@ export const SCREENS = Object.freeze({
     parts: ['todo', 'progress'],
     follow: ({ address, data }) => {
       const first = address.view !== 'todo' ? data.todo?.morning?.[0] : null;
-      return first ? { progress: projectApi(first.project) } : {};
+      const project = first?.project ?? (address.view !== 'todo' ? data.projects?.projects?.[0]?.name : null);
+      return project ? { progress: projectApi(project) } : {};
     },
     fixedTitle: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',
     title: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',

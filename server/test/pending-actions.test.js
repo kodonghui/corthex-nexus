@@ -58,3 +58,28 @@ test('a recovered action is retried once with its original key and can be dismis
   assert.equal(next.discard(item), true);
   assert.equal(next.recovered().length, 0);
 });
+
+test('a definite refusal remains visible but allows a new decision', async () => {
+  const store = storage(); const timers = [];
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+    cancelTimer: () => {}, send: async () => ({ status: 409, code: 'document_changed' }) });
+  const path = '/api/projects/demo/change-sets/np_000000000001/accept';
+  queue.enqueue(path, {});
+  await timers[0]();
+  assert.equal(queue.recovered()[0].state, 'failed');
+  assert.equal(queue.hasTarget(path), false);
+  assert.doesNotThrow(() => queue.enqueue(path, {}));
+});
+
+test('an uncertain failure blocks the same target until retry or dismissal', async () => {
+  const store = storage(); const timers = [];
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+    cancelTimer: () => {}, send: async () => ({ status: 500, code: 'internal' }) });
+  const path = '/api/projects/demo/change-sets/np_000000000001/accept';
+  queue.enqueue(path, {});
+  await timers[0]();
+  assert.equal(queue.hasTarget(path), true);
+  assert.throws(() => queue.enqueue(path, {}), /already pending/);
+  assert.equal(queue.discard(queue.recovered()[0]), true);
+  assert.equal(queue.hasTarget(path), false);
+});

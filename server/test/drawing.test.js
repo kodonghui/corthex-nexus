@@ -172,7 +172,7 @@ describe('drawing a snapshot', () => {
     assert.deepEqual(erd.map((row) => [row.element_key, row.trace_id, row.kind, row.name, row.parent_key, row.status]),
       tables.map((table) => [table.id, table.id, 'table', table.name, null, null]));
     assert.deepEqual(JSON.parse(erd[0].detail), { where: tables[0].where });
-    const tokens = elements(drawings(diagram(name, 'docs/09-mockup/nexus-combination.html').id)[0].id);
+    const tokens = elements(drawings(diagram(name, 'design/mockup/nexus-mockup.html').id)[0].id);
     assert.ok(tokens.length > 10);
     for (const token of tokens) assert.deepEqual([token.kind, token.element_key], ['token', `token:${token.name}`]);
   });

@@ -25,6 +25,17 @@
    }
   },
   {
+   "key": "token:--corthex-type-body-02",
+   "kind": "token",
+   "name": "--corthex-type-body-02",
+   "detail": {
+    "values": [
+     "400 1rem/1.5 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
+    ],
+    "uses": 1
+   }
+  },
+  {
    "key": "token:--layer-01",
    "kind": "token",
    "name": "--layer-01",
@@ -44,6 +55,28 @@
     "values": [
      "#0f62fe",
      "#78a9ff"
+    ],
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--corthex-type-heading-04",
+   "kind": "token",
+   "name": "--corthex-type-heading-04",
+   "detail": {
+    "values": [
+     "400 1.75rem/1.28572 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
+    ],
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--corthex-type-heading-03",
+   "kind": "token",
+   "name": "--corthex-type-heading-03",
+   "detail": {
+    "values": [
+     "400 1.25rem/1.4 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
     ],
     "uses": 1
    }
@@ -113,7 +146,7 @@
     "values": [
      "0.5rem"
     ],
-    "uses": 1
+    "uses": 2
    }
   },
   {
@@ -137,7 +170,7 @@
      "#0f62fe",
      "#4589ff"
     ],
-    "uses": 1
+    "uses": 2
    }
   },
   {

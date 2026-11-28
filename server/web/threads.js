@@ -547,6 +547,24 @@ async function write(state, what, text, action, kept = null) {
     return;
   }
   const { path, body, done } = action(text);
+  if (what.startsWith('reply ') && kept !== null) {
+    const item = state.ctx.shell.pending?.recovered().find((candidate) => candidate.key === kept.key);
+    if (item) {
+      if (text !== kept.text) {
+        t.errors.set(what, { by: 'field', text: '이전 답변의 전송 결과가 확인되지 않았어요. 위 안내를 먼저 확인해 주세요.' });
+        redraw(state, what);
+        return;
+      }
+      t.errors.delete(what);
+      t.sending.add(what);
+      redraw(state, what);
+      await state.ctx.shell.pending.retry(item, {
+        done: (answer) => { t.sending.delete(what); if (t.host.live()) done(answer); },
+        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
+      });
+      return;
+    }
+  }
   if (what.startsWith('reply ') && kept === null) {
     try {
       if (!state.ctx.shell.pending) throw new Error('storage unavailable');
@@ -558,8 +576,13 @@ async function write(state, what, text, action, kept = null) {
         undone: clear,
       });
       redraw(state, what);
-    } catch {
+    } catch (error) {
       t.sending.delete(what);
+      if (error.message === 'already pending') {
+        t.errors.set(what, { by: 'field', text: '이 답변은 처리 중이에요. 위 안내를 확인해 주세요.' });
+        redraw(state, what);
+        return;
+      }
       t.errors.set(what, { by: 'other', outcome: { failure: 'network' }, action, kept: null });
       redraw(state, what);
     }
@@ -599,7 +622,7 @@ function finishWrite(state, what, text, action, done, key, outcome) {
   else if (!closing(what) && (status === 400 || status === 413 || (status === 409 && code === 'request_key_reused'))) {
     t.errors.set(what, { by: 'field', text: shell.message(code), limit: code === 'text_too_long' || code === 'body_too_large' });
   } else {
-    const retry = failure === 'timeout' || failure === 'network' ? { key, text } : null;
+    const retry = failure === 'timeout' || failure === 'network' || status >= 500 ? { key, text } : null;
     t.errors.set(what, { by: 'notice', outcome, action, kept: retry });
   }
   redraw(state, what);

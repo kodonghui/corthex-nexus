@@ -13,6 +13,10 @@ import { fill, h, icon } from './dom.js';
 import { STAGES, stageOf } from './stages.js';
 import { dayOf, sentWords } from './states.js';
 
+// The timeline uses the plain-language names in the selected timeline mockup.
+const STAGE_LABELS = ['무엇을 만드는지 정리','꼭 필요한 기능','사용하는 순서','기능 자세히','저장할 자료','주고받는 약속','화면 목록','화면별 상태','화면 시안','할 일 나누기','만들기','검사','발표'];
+const stageLabel = (id) => { const stage = stageOf(id); return stage ? STAGE_LABELS[Number(stage.number) - 1] : id; };
+
 // Each kind's tag, as the mockup draws it.
 const KINDS = Object.freeze({
   confirm: { class: 'tag gray', text: '확정' },
@@ -40,7 +44,16 @@ export function todoBody({ address, data, shell }) {
   const titles = new Map(projects.map((project) => [project.name, project.title || project.name]));
   // Each 프로젝트 보기 is named with its group's heading too, so that a list of the links tells them apart.
   const capped = entries.length >= 5000 ? h('p', { class: 'nt warn', role: 'status' }, '할 일이 적어도 5,000개예요. 오래된 5,000개를 보여 드려요.') : null;
-  return [warning, stale, capped, h('div', { class: 'morning-cards' }, entries.map((entry) => morningCard(entry, shell, titles)))];
+  const list = h('div', { class: 'morning-cards' });
+  const more = h('button', { type: 'button', class: 'btn tertiary', on: { click: showMore } }, '다음 할 일 보기');
+  let shown = 0;
+  function showMore() {
+    for (const entry of entries.slice(shown, shown + 50)) list.append(morningCard(entry, shell, titles));
+    shown = Math.min(shown + 50, entries.length);
+    more.hidden = shown >= entries.length;
+  }
+  showMore();
+  return [warning, stale, capped, list, more];
 }
 
 // A failed refresh keeps the last answer visible but never presents it as current.
@@ -67,19 +80,19 @@ function projectHome(data, shell) {
 }
 
 function timeline(data, shell) {
-  const first = data.todo?.morning?.[0];
+  const first = data.todo?.morning?.[0] ?? (data.projects?.projects?.[0] ? { project: data.projects.projects[0].name, part: null } : null);
   if (!first) return null;
   if (!data.progress) return h('p', { class: 'sec' }, '진행 상황을 불러오지 못했어요.');
   const project = data.progress;
   const words = { passed: '통과', changed_since_pass: '통과 뒤 바뀜', open: '진행 중', not_sent: '시작 전' };
-  const part = first.part ?? '';
+  const part = first.part ?? project.stages?.[0]?.part ?? '';
   return h('section', { 'aria-label': '프로젝트 진행 상황' },
     h('h2', {}, `${project.title || project.name} 진행 상황`),
     h('nav', { class: 'tabs timeline', 'aria-label': '13단계 진행 상황' }, STAGES.map((stage) => {
       const row = (project.stages ?? []).find((each) => each.stage === stage.id && each.part === part);
       const state = words[row?.state] ?? '시작 전';
-      return h('a', { class: 'tab', href: stageHref(first.project, part, stage.id), 'aria-label': `${stage.number} ${stage.name}: ${state}` },
-        h('span', { class: 'n' }, stage.number), h('span', { class: 'timeline-label' }, stage.name), h('span', { class: 'timeline-state' }, state));
+      return h('a', { class: 'tab', href: stageHref(first.project, part, stage.id), 'aria-label': `${stage.number} ${stageLabel(stage.id)}: ${state}` },
+        h('span', { class: 'n' }, stage.number), h('span', { class: 'timeline-label' }, stageLabel(stage.id)), h('span', { class: 'timeline-state' }, state));
     })));
 }
 
@@ -93,17 +106,21 @@ function morningCard(entry, shell, titles = new Map()) {
   const question = entry.question_choices?.length && entry.question_text
     ? entry.question_text.split(/\r?\n/).filter((line) => !/^\s*[-*]\s+\[ \]/.test(line)).join('\n').trim()
     : entry.question_text;
-  const queue = (url, body) => {
+  const draftKey = `todo:${entry.project}:${entry.thread}`;
+  const queue = (url, body, submittedDraft = null) => {
     try {
       if (!shell.pending) throw new Error('storage unavailable');
       shell.pending.enqueue(url, body, {
+        done: () => { if (submittedDraft !== null && shell.draftOf(draftKey) === submittedDraft) shell.keepDraft(draftKey, ''); shell.reload(); },
         undone: () => { notice.textContent = '되돌렸어요. 아직 보내지 않았어요.'; },
-        failed: () => { notice.textContent = '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.'; },
+        failed: (outcome) => { notice.textContent = outcome.status >= 400 && outcome.status < 500
+          ? '보내지 못했어요. 위의 안내를 확인해 주세요.' : '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.'; },
       });
       notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
-    } catch { notice.textContent = '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
+    } catch (error) { notice.textContent = error.message === 'already pending' ? '이 항목은 처리 중이에요. 위 안내를 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
   };
-  const field = entry.kind === 'question' ? h('textarea', { 'aria-label': '답변', rows: '3' }) : null;
+  const field = entry.kind === 'question' ? h('textarea', { 'aria-label': '답변', rows: '3', on: { input: () => shell.keepDraft(draftKey, field.value) } }) : null;
+  if (field) field.value = shell.draftOf(draftKey);
   const choices = entry.kind === 'question' && path ? (entry.question_choices ?? []).map((choice) =>
     h('button', { type: 'button', class: 'btn tertiary', on: { click: () => queue(path, { text: choice }) } }, choice)) : [];
   const actions = entry.kind === 'question' && path && entry.question_text ? h('div', {}, h('div', { class: 'btns' }, choices), h('form', { on: { submit: (event) => {
@@ -111,7 +128,7 @@ function morningCard(entry, shell, titles = new Map()) {
     const text = field.value.trim();
     if (!text) { notice.textContent = '답변을 적어 주세요.'; return; }
     if ([...text].length > 4000) { notice.textContent = '답변은 4,000자까지 쓸 수 있어요.'; return; }
-    queue(path, { text });
+    queue(path, { text }, field.value);
   } } }, field, h('button', { type: 'submit', class: 'btn primary' }, '답변 보내기')))
     : entry.kind === 'proposal' && path && entry.proposal_summary ? h('div', { class: 'btns' },
       entry.removed ? null : h('button', { type: 'button', class: 'btn primary', on: { click: () => queue(`${path}/accept`, {}) } }, '제안 넣기'),
@@ -119,7 +136,7 @@ function morningCard(entry, shell, titles = new Map()) {
       : entry.kind === 'confirm' ? confirmationCard(entry, shell) : null;
   return h('section', { class: 'panel morning-card' },
     h('h3', {}, `${titles.get(entry.project) ?? entry.project} · ${entry.diagram_name}`),
-    h('p', { class: 'small' }, `${KINDS[entry.kind]?.text ?? '할 일'} · ${stageOf(entry.stage)?.name ?? entry.stage}`, ' · ', shell.since(entry.since)),
+    h('p', { class: 'small' }, `${KINDS[entry.kind]?.text ?? '할 일'} · ${stageLabel(entry.stage)}`, ' · ', shell.since(entry.since)),
     h('p', { class: 'question-copy' }, question || entry.proposal_summary || (entry.kind === 'confirm' ? REASONS[entry.reason] ?? '확인할 그림이 있어요.' : '그림에서 내용을 확인해 주세요.')),
     actions, notice, h('a', { href: target, class: 'btn tertiary' }, entry.kind === 'confirm' ? '이 그림 확인하기' : '그림에서 보기'));
 }
@@ -132,11 +149,11 @@ function confirmationCard(entry, shell) {
     if (busy) return;
     busy = true;
     fill(area, h('p', { role: 'status' }, '그림을 불러오고 있어요.'));
-    const result = await shell.read(path);
+    const result = await shell.readFresh(path);
     busy = false;
     const diagram = result.body;
     if (result.status !== 200 || !diagram) {
-      fill(area, h('p', { role: 'alert' }, '그림을 불러오지 못했어요. 그림에서 다시 확인해 주세요.'));
+      fill(area, h('p', { role: 'alert' }, '그림을 불러오지 못했어요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 시도'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
       return;
     }
     if (diagram.removed || diagram.drawing?.status !== 'drawn' || diagram.confirmation?.state === 'confirmed'
@@ -147,15 +164,20 @@ function confirmationCard(entry, shell) {
     const changed = diagram.since_confirmation;
     const count = changed ? (changed.added?.length ?? 0) + (changed.changed?.length ?? 0) + (changed.removed?.length ?? 0) : 0;
     const summary = changed == null ? '처음 확정하는 그림이에요.' : `지난 확정 뒤 바뀐 곳이 ${count}개예요.`;
+    const names = (diagram.elements ?? []).map((element) => element.name?.trim()).filter(Boolean);
+    const preview = h('div', { class: 'nt' }, h('b', {}, '확정할 내용 미리보기'),
+      names.length ? h('ul', {}, names.slice(0, 6).map((name) => h('li', {}, name))) : h('p', {}, '그림에서 내용을 확인해 주세요.'),
+      names.length > 6 ? h('p', {}, `이 밖에 ${names.length - 6}개가 더 있어요.`) : null,
+      h('a', { href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram }), class: 'btn tertiary' }, '전체 그림 보기'));
     const yes = h('button', { type: 'button', class: 'btn primary', on: { click: async () => {
       if (busy) return;
       busy = true; yes.setAttribute('disabled', '');
       const outcome = await shell.write('POST', `${path}/confirmation`, { drawing: diagram.drawing.id }, newRequestKey());
       busy = false;
       if (outcome.status === 200 || outcome.status === 201) { shell.announce('이 그림을 확정했어요. 함께 일하는 AI가 기록할 차례예요.'); shell.reload(); return; }
-      fill(area, h('p', { role: 'alert' }, '확정하지 못했어요. 그림의 현재 상태를 다시 확인해 주세요.'));
+      fill(area, h('p', { role: 'alert' }, '확정하지 못했어요. 그림의 현재 상태를 다시 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
     } } }, '네, 확정할게요');
-    fill(area, h('p', {}, summary), h('p', {}, '확정하면 함께 일하는 AI가 기록해요. 모든 그림과 표의 기록이 끝나면 단계가 통과돼요.'),
+    fill(area, preview, h('p', {}, summary), h('p', {}, '확정하면 함께 일하는 AI가 기록해요. 모든 그림과 표의 기록이 끝나면 단계가 통과돼요.'),
       yes, h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
   };
   const reset = () => fill(area, h('button', { type: 'button', class: 'btn primary', on: { click: open } }, '이 그림 확정하기'));

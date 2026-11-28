@@ -133,13 +133,62 @@ describe('how long ago the screen says', () => {
 
 describe('SCR-142', () => {
   test('home shows five morning cards and links to all work and projects', async () => {
-    const page = await openPage('/', { answers: answersOf() });
+    const answers = { ...answersOf(), '/api/projects/reading-club': json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] }) };
+    const page = await openPage('/', { answers });
     try {
       assert.deepEqual(texts(page, 'h1'), ['아침 보고']);
       assert.equal(rowsOf(page).length, 5);
+      assert.deepEqual(mainOf(page).all('span', 'timeline-label').map((label) => label.textContent), ['무엇을 만드는지 정리', '꼭 필요한 기능', '사용하는 순서', '기능 자세히', '저장할 자료', '주고받는 약속', '화면 목록', '화면별 상태', '화면 시안', '할 일 나누기', '만들기', '검사', '발표']);
       assert.match(mainOf(page).textContent, /오늘 할 일은 6가지예요/);
       assert.ok(mainOf(page).all('a').some((link) => link.getAttribute('href') === '/?view=todo'));
       assert.ok(headerOf(page).all('a').some((link) => link.getAttribute('href') === '/p'));
+    } finally { page.close(); }
+  });
+
+  test('home keeps a progress line when there are projects but no to-dos', async () => {
+    const answers = { ...answersOf({ todo: { entries: [], morning: [], backup: null } }),
+      '/api/projects/reading-club': json(200, { name: 'reading-club', title: '독서 모임 앱', stages: [] }) };
+    const page = await openPage('/', { answers });
+    try {
+      assert.equal(mainOf(page).all('span', 'timeline-label').length, 13);
+      assert.match(mainOf(page).textContent, /기다리는 일이 없어요/);
+    } finally { page.close(); }
+  });
+
+  test('confirmation retries a failed preview and reopens with a fresh read', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    let reads = 0;
+    const answers = answersOf({ todo: { entries: [entry], morning: [entry], backup: null } });
+    answers[path] = () => {
+      reads += 1;
+      if (reads === 1) return problem(500, 'internal')();
+      return json(200, { drawing: { id: 'dr_000000000001', status: 'drawn' }, confirmation: { state: 'waiting' }, elements: [{ name: '예약 신청' }, { name: '예약 확정' }], overlays: [], since_confirmation: null })();
+    };
+    const page = await openPage('/', { answers });
+    try {
+      const click = (name) => mainOf(page).all('button').find((button) => button.textContent === name).click();
+      click('이 그림 확정하기'); await page.settle();
+      assert.match(mainOf(page).textContent, /그림을 불러오지 못했어요/);
+      click('다시 시도'); await page.settle();
+      assert.match(mainOf(page).textContent, /확정할 내용 미리보기/);
+      assert.match(mainOf(page).textContent, /예약 신청/);
+      assert.match(mainOf(page).textContent, /처음 확정하는 그림이에요/);
+      click('취소'); click('이 그림 확정하기'); await page.settle();
+      assert.equal(reads, 3);
+    } finally { page.close(); }
+  });
+
+  test('a morning answer draft survives a screen reload', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const page = await openPage('/', { answers: answersOf({ todo: { entries: [question], morning: [question], backup: null } }) });
+    try {
+      const field = mainOf(page).all('textarea')[0];
+      field.value = '아직 적는 중이에요';
+      field.dispatch('input');
+      await page.shell.reload();
+      await page.settle();
+      assert.equal(mainOf(page).all('textarea')[0].value, '아직 적는 중이에요');
     } finally { page.close(); }
   });
 
@@ -217,13 +266,14 @@ describe('SCR-142', () => {
     assert.deepEqual(Object.keys(REASONS), contract.components.schemas.OwnerTodoEntry.properties.reason.anyOf[0].enum);
   });
 
-  test('every entry API-263 answers shows, up to its most, with no "more"', async () => {
+  test('the full inbox shows all entries in batches, in order', async () => {
     const most = contract.components.schemas.OwnerTodo.properties.entries.maxItems;
     const entries = Array.from({ length: most }, (_, index) => ({ ...ENTRIES[index % ENTRIES.length], since: earlier(12 + index) }));
     const page = await openTodo({ answers: answersOf({ todo: { entries, backup: null } }) });
     try {
+      assert.equal(rowsOf(page).length, 50);
+      for (let n = 50; n < most; n += 50) page.app.all('button').find((button) => button.textContent === '다음 할 일 보기').click();
       assert.equal(rowsOf(page).length, most);
-      assert.equal(page.app.textContent.includes('더 보기'), false);
     } finally {
       page.close();
     }
