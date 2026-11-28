@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C5 빈 상태 — 그림 없는 단계</title><link rel="stylesheet" href="../assets/common.css"></head>
+<body><div class="screen"><style>
+.c-body { flex: 1; display: flex; min-height: 0; }
+.c-side { width: 264px; flex: none; background: var(--layer); border-right: 1px solid var(--border); padding: 14px 10px; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
+.c-side .h { font-size: 13px; font-weight: 600; color: var(--text-2); padding: 12px 10px 4px; }
+.c-side a { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 10px; border-radius: 6px; text-decoration: none; color: var(--text); font-size: 15px; line-height: 1.35; }
+.c-side a:hover { background: var(--layer-2); }
+.c-side a.on { background: var(--primary-soft); font-weight: 600; }
+.c-side a.sub { padding-left: 34px; }
+.c-side a .n { width: 22px; flex: none; color: var(--text-3); font-size: 13px; text-align: right; }
+.c-side a .st { margin-left: auto; font-size: 12px; }
+.c-side a.dim { color: var(--text-2); }
+.c-top { height: 56px; flex: none; background: var(--layer); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 0 16px; }
+.c-top .path { font-size: 14px; color: var(--text-2); }
+.c-top b { font-size: 17px; }
+.c-canvas { flex: 1; position: relative; }
+.c-float { position: absolute; z-index: 5; }
+.pop { width: 300px; background: var(--layer); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.22); border: 1px solid var(--border); padding: 16px; }
+.pop::before { content: ""; position: absolute; top: -8px; left: 28px; width: 14px; height: 14px; background: var(--layer); transform: rotate(45deg); border-left: 1px solid var(--border); border-top: 1px solid var(--border); }
+.c-thumb { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; position: relative; }
+.c-tile { text-decoration: none; color: var(--text); display: block; }
+.c-tile .cap { margin-top: 8px; }
+.badge { position: absolute; top: 10px; right: 10px; }
+.c-panel { width: 360px; flex: none; background: var(--layer); border-left: 1px solid var(--border); padding: 18px; overflow: hidden; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--layer); border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,.18); padding: 10px 16px 20px; z-index: 6; }
+.sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--border-2); margin: 0 auto 10px; }
+</style><header class="shell"><a class="brand" href="01-home.html">NEXUS</a>
+<span class="spacer"></span><span class="search" role="search" style="min-width:280px">⌕ 그림·단계 찾기 <span class="spacer"></span><kbd>Ctrl</kbd><kbd>K</kbd></span>
+<span class="who" aria-label="내 계정">나</span></header><div class="c-body"><nav class="c-side" aria-label="프로젝트와 단계"><div class="h">프로젝트</div><a class="on" href="02-project.html">동네 책방 예약<span class="st count">6</span></a><div class="h" style="padding-left:20px">단계</div><a class="" href="#"><span class="n">1</span>무엇을 만드는지 정리<span class="st tag blue" style="height:22px;padding:0 8px;font-size:12px">지금</span></a><a class="sub" href="03-review.html">서비스 정리 그림<span class="st count">3</span></a><a class="sub" href="#">용어 표</a><a class="on" href="#"><span class="n">2</span>꼭 필요한 기능<span class="st meta">빈 단계</span></a><a class="dim" href="#"><span class="n">3</span>사용하는 순서</a><a class="dim" href="#"><span class="n">4</span>기능 자세히</a><a class="dim" href="#"><span class="n">5</span>저장할 자료</a><a class="dim" href="#"><span class="n">6</span>주고받는 약속</a><a class="dim" href="#"><span class="n">7</span>화면 목록</a><a class="dim" href="#"><span class="n">8</span>화면별 상태</a><a class="dim" href="#"><span class="n">…</span>9~13단계 펼치기</a><a class="" href="02-project.html">텃밭 나눔 지도<span class="st count">1</span></a><a class="" href="02-project.html">가족 사진 앨범<span class="st meta">AI 일하는 중</span></a></nav>
+<div class="col grow"><div class="c-top"><div class="grow"><div class="path">동네 책방 예약</div><b>2단계 꼭 필요한 기능</b> <span class="term">요구사항</span></div><span class="tag">시작 전</span></div>
+<div class="canvas c-canvas" style="display:flex;align-items:center;justify-content:center">
+<div style="width:720px;border:2px dashed var(--border-strong);border-radius:12px;background:#fff;padding:40px;text-align:center">
+ <h1 style="font-size:24px">이 단계에는 아직 그림이 없어요</h1>
+ <p class="muted" style="margin-top:8px">1단계가 끝나면 AI가 ‘기능 목록 표’를 여기에 보내요. 표에는 “손님은 책을 7일 동안 예약할 수 있다”처럼 서비스가 꼭 할 일이 한 줄씩 적혀요.</p>
+ <div class="row" style="justify-content:center;margin-top:20px;gap:12px"><a class="btn primary" href="03-review.html">1단계 그림으로 가기</a><button class="btn ghost">AI에게 보낼 문장 복사</button></div>
+ <p class="meta" style="margin-top:14px">복사되는 문장: “동네 책방 2단계 표를 NEXUS에 올려 줘”</p>
+</div></div></div></div><div class="shot-label">C5 빈 상태: 빈 캔버스에서 다음 행동</div></div></body></html>

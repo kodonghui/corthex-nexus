@@ -1689,10 +1689,10 @@ describe('SCR-145 pictures', () => {
       assert.deepEqual([selectedOf(mockup).all('span', 'tag')[0].textContent, selectedOf(mockup).all('b')[0].textContent], ['토큰', '--text-primary']);
       // Choosing keeps the frame and its page.
       assert.equal(mockup.app.all('iframe')[0], frame);
-      // A colour's swatch is an SVG fill; a font's is none.
+      // A colour's swatch is an SVG fill; a radius token uses a text swatch.
       assert.equal(tokens[1].all('rect')[0].getAttribute('fill'), '#161616');
-      const font = tokens.find((token) => token.textContent.endsWith('--corthex-type-body-01'));
-      assert.deepEqual([font.all('rect').length, font.all('span', 'sw').length], [0, 1]);
+      const radius = tokens.find((token) => token.textContent.endsWith('--corthex-radius-panel'));
+      assert.deepEqual([radius.all('rect').length, radius.all('span', 'sw').length], [0, 1]);
       // Escape in the token list chooses nothing again, as on the picture (TASK-459).
       panelOf(mockup).all('div', 'tokens')[0].dispatch('keydown', { key: 'Escape' });
       assert.deepEqual([tokens[1].getAttribute('aria-pressed'), selectedOf(mockup).all('b').map((b) => b.textContent)], ['false', ['그림 전체']]);

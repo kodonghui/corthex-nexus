@@ -9,7 +9,7 @@
      "#f4f4f4",
      "#161616"
     ],
-    "uses": 6
+    "uses": 1
    }
   },
   {
@@ -21,29 +21,30 @@
      "#161616",
      "#f4f4f4"
     ],
-    "uses": 15
-   }
-  },
-  {
-   "key": "token:--corthex-type-body-01",
-   "kind": "token",
-   "name": "--corthex-type-body-01",
-   "detail": {
-    "values": [
-     "400 0.875rem/1.42857 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
     "uses": 2
    }
   },
   {
-   "key": "token:--corthex-type-body-01-letter-spacing",
+   "key": "token:--corthex-type-body-02",
    "kind": "token",
-   "name": "--corthex-type-body-01-letter-spacing",
+   "name": "--corthex-type-body-02",
    "detail": {
     "values": [
-     "0.16px"
+     "400 1rem/1.5 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
     ],
-    "uses": 2
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--layer-01",
+   "kind": "token",
+   "name": "--layer-01",
+   "detail": {
+    "values": [
+     "#ffffff",
+     "#262626"
+    ],
+    "uses": 3
    }
   },
   {
@@ -54,18 +55,6 @@
     "values": [
      "#0f62fe",
      "#78a9ff"
-    ],
-    "uses": 4
-   }
-  },
-  {
-   "key": "token:--focus",
-   "kind": "token",
-   "name": "--focus",
-   "detail": {
-    "values": [
-     "#0f62fe",
-     "#ffffff"
     ],
     "uses": 1
    }
@@ -82,270 +71,14 @@
    }
   },
   {
-   "key": "token:--corthex-type-heading-04-letter-spacing",
+   "key": "token:--corthex-type-heading-03",
    "kind": "token",
-   "name": "--corthex-type-heading-04-letter-spacing",
+   "name": "--corthex-type-heading-03",
    "detail": {
     "values": [
-     "0px"
+     "400 1.25rem/1.4 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
     ],
     "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-type-heading-compact-02",
-   "kind": "token",
-   "name": "--corthex-type-heading-compact-02",
-   "detail": {
-    "values": [
-     "600 1rem/1.375 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-type-heading-compact-02-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-heading-compact-02-letter-spacing",
-   "detail": {
-    "values": [
-     "0px"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-type-heading-compact-01",
-   "kind": "token",
-   "name": "--corthex-type-heading-compact-01",
-   "detail": {
-    "values": [
-     "600 0.875rem/1.28572 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
-    "uses": 4
-   }
-  },
-  {
-   "key": "token:--corthex-type-heading-compact-01-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-heading-compact-01-letter-spacing",
-   "detail": {
-    "values": [
-     "0.16px"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-type-label-01",
-   "kind": "token",
-   "name": "--corthex-type-label-01",
-   "detail": {
-    "values": [
-     "400 0.75rem/1.33333 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
-    "uses": 19
-   }
-  },
-  {
-   "key": "token:--corthex-type-label-01-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-label-01-letter-spacing",
-   "detail": {
-    "values": [
-     "0.32px"
-    ],
-    "uses": 10
-   }
-  },
-  {
-   "key": "token:--text-secondary",
-   "kind": "token",
-   "name": "--text-secondary",
-   "detail": {
-    "values": [
-     "#525252",
-     "#c6c6c6"
-    ],
-    "uses": 21
-   }
-  },
-  {
-   "key": "token:--corthex-type-helper-text-01",
-   "kind": "token",
-   "name": "--corthex-type-helper-text-01",
-   "detail": {
-    "values": [
-     "400 0.75rem/1.33333 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-type-helper-text-01-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-helper-text-01-letter-spacing",
-   "detail": {
-    "values": [
-     "0.32px"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--text-helper",
-   "kind": "token",
-   "name": "--text-helper",
-   "detail": {
-    "values": [
-     "#6f6f6f",
-     "#a8a8a8"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-type-code-01",
-   "kind": "token",
-   "name": "--corthex-type-code-01",
-   "detail": {
-    "values": [
-     "400 0.75rem/1.33333 \"IBM Plex Mono\", Menlo, \"DejaVu Sans Mono\", \"Bitstream Vera Sans Mono\", Courier, monospace"
-    ],
-    "uses": 4
-   }
-  },
-  {
-   "key": "token:--corthex-type-code-01-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-code-01-letter-spacing",
-   "detail": {
-    "values": [
-     "0.32px"
-    ],
-    "uses": 3
-   }
-  },
-  {
-   "key": "token:--nexus-shell-background",
-   "kind": "token",
-   "name": "--nexus-shell-background",
-   "detail": {
-    "values": [
-     "#161616"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--nexus-shell-text",
-   "kind": "token",
-   "name": "--nexus-shell-text",
-   "detail": {
-    "values": [
-     "#f4f4f4"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--nexus-shell-border",
-   "kind": "token",
-   "name": "--nexus-shell-border",
-   "detail": {
-    "values": [
-     "#393939"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-radius-box",
-   "kind": "token",
-   "name": "--corthex-radius-box",
-   "detail": {
-    "values": [
-     "0.5rem"
-    ],
-    "uses": 18
-   }
-  },
-  {
-   "key": "token:--nexus-shell-background-hover",
-   "kind": "token",
-   "name": "--nexus-shell-background-hover",
-   "detail": {
-    "values": [
-     "#292929"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--nexus-shell-focus",
-   "kind": "token",
-   "name": "--nexus-shell-focus",
-   "detail": {
-    "values": [
-     "#ffffff"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--nexus-shell-text-secondary",
-   "kind": "token",
-   "name": "--nexus-shell-text-secondary",
-   "detail": {
-    "values": [
-     "#c6c6c6"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-radius-pill",
-   "kind": "token",
-   "name": "--corthex-radius-pill",
-   "detail": {
-    "values": [
-     "999999px"
-    ],
-    "uses": 11
-   }
-  },
-  {
-   "key": "token:--button-primary",
-   "kind": "token",
-   "name": "--button-primary",
-   "detail": {
-    "values": [
-     "#0f62fe"
-    ],
-    "uses": 4
-   }
-  },
-  {
-   "key": "token:--text-on-color",
-   "kind": "token",
-   "name": "--text-on-color",
-   "detail": {
-    "values": [
-     "#ffffff"
-    ],
-    "uses": 3
-   }
-  },
-  {
-   "key": "token:--layer-01",
-   "kind": "token",
-   "name": "--layer-01",
-   "detail": {
-    "values": [
-     "#ffffff",
-     "#262626"
-    ],
-    "uses": 21
    }
   },
   {
@@ -357,17 +90,73 @@
      "#e0e0e0",
      "#525252"
     ],
-    "uses": 17
+    "uses": 1
    }
   },
   {
-   "key": "token:--layer-hover-01",
+   "key": "token:--corthex-radius-panel",
    "kind": "token",
-   "name": "--layer-hover-01",
+   "name": "--corthex-radius-panel",
    "detail": {
     "values": [
-     "#e8e8e8",
-     "#333333"
+     "1rem"
+    ],
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--text-secondary",
+   "kind": "token",
+   "name": "--text-secondary",
+   "detail": {
+    "values": [
+     "#525252",
+     "#c6c6c6"
+    ],
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--button-primary",
+   "kind": "token",
+   "name": "--button-primary",
+   "detail": {
+    "values": [
+     "#0f62fe"
+    ],
+    "uses": 1
+   }
+  },
+  {
+   "key": "token:--text-on-color",
+   "kind": "token",
+   "name": "--text-on-color",
+   "detail": {
+    "values": [
+     "#ffffff"
+    ],
+    "uses": 2
+   }
+  },
+  {
+   "key": "token:--corthex-radius-box",
+   "kind": "token",
+   "name": "--corthex-radius-box",
+   "detail": {
+    "values": [
+     "0.5rem"
+    ],
+    "uses": 2
+   }
+  },
+  {
+   "key": "token:--layer-02",
+   "kind": "token",
+   "name": "--layer-02",
+   "detail": {
+    "values": [
+     "#f4f4f4",
+     "#393939"
     ],
     "uses": 2
    }
@@ -381,194 +170,7 @@
      "#0f62fe",
      "#4589ff"
     ],
-    "uses": 6
-   }
-  },
-  {
-   "key": "token:--corthex-radius-panel",
-   "kind": "token",
-   "name": "--corthex-radius-panel",
-   "detail": {
-    "values": [
-     "1rem"
-    ],
-    "uses": 6
-   }
-  },
-  {
-   "key": "token:--icon-secondary",
-   "kind": "token",
-   "name": "--icon-secondary",
-   "detail": {
-    "values": [
-     "#525252",
-     "#c6c6c6"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--layer-accent-01",
-   "kind": "token",
-   "name": "--layer-accent-01",
-   "detail": {
-    "values": [
-     "#e0e0e0",
-     "#393939"
-    ],
-    "uses": 4
-   }
-  },
-  {
-   "key": "token:--corthex-stage-done",
-   "kind": "token",
-   "name": "--corthex-stage-done",
-   "detail": {
-    "values": [
-     "#24a148",
-     "#42be65"
-    ],
-    "uses": 3
-   }
-  },
-  {
-   "key": "token:--corthex-type-body-compact-01",
-   "kind": "token",
-   "name": "--corthex-type-body-compact-01",
-   "detail": {
-    "values": [
-     "400 0.875rem/1.28572 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
     "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-type-body-compact-01-letter-spacing",
-   "kind": "token",
-   "name": "--corthex-type-body-compact-01-letter-spacing",
-   "detail": {
-    "values": [
-     "0.16px"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--button-primary-hover",
-   "kind": "token",
-   "name": "--button-primary-hover",
-   "detail": {
-    "values": [
-     "#0050e6"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--button-tertiary",
-   "kind": "token",
-   "name": "--button-tertiary",
-   "detail": {
-    "values": [
-     "#0f62fe",
-     "#ffffff"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--button-tertiary-hover",
-   "kind": "token",
-   "name": "--button-tertiary-hover",
-   "detail": {
-    "values": [
-     "#0050e6",
-     "#f4f4f4"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--text-inverse",
-   "kind": "token",
-   "name": "--text-inverse",
-   "detail": {
-    "values": [
-     "#ffffff",
-     "#161616"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--background-hover",
-   "kind": "token",
-   "name": "--background-hover",
-   "detail": {
-    "values": [
-     "rgba(141, 141, 141, 0.12)",
-     "rgba(141, 141, 141, 0.16)"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--button-danger-primary",
-   "kind": "token",
-   "name": "--button-danger-primary",
-   "detail": {
-    "values": [
-     "#da1e28"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--button-danger-secondary",
-   "kind": "token",
-   "name": "--button-danger-secondary",
-   "detail": {
-    "values": [
-     "#da1e28",
-     "#fa4d56"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--button-disabled",
-   "kind": "token",
-   "name": "--button-disabled",
-   "detail": {
-    "values": [
-     "#c6c6c6",
-     "rgba(141, 141, 141, 0.3)"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--text-on-color-disabled",
-   "kind": "token",
-   "name": "--text-on-color-disabled",
-   "detail": {
-    "values": [
-     "#8d8d8d",
-     "rgba(255, 255, 255, 0.25)"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--field-01",
-   "kind": "token",
-   "name": "--field-01",
-   "detail": {
-    "values": [
-     "#ffffff",
-     "#262626"
-    ],
-    "uses": 1
    }
   },
   {
@@ -580,532 +182,7 @@
      "#8d8d8d",
      "#6f6f6f"
     ],
-    "uses": 16
-   }
-  },
-  {
-   "key": "token:--support-error",
-   "kind": "token",
-   "name": "--support-error",
-   "detail": {
-    "values": [
-     "#da1e28",
-     "#fa4d56"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--text-placeholder",
-   "kind": "token",
-   "name": "--text-placeholder",
-   "detail": {
-    "values": [
-     "rgba(22, 22, 22, 0.4)",
-     "rgba(244, 244, 244, 0.4)"
-    ],
     "uses": 1
-   }
-  },
-  {
-   "key": "token:--text-error",
-   "kind": "token",
-   "name": "--text-error",
-   "detail": {
-    "values": [
-     "#da1e28",
-     "#ff8389"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-background-gray",
-   "kind": "token",
-   "name": "--tag-background-gray",
-   "detail": {
-    "values": [
-     "#e0e0e0",
-     "#525252"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-color-gray",
-   "kind": "token",
-   "name": "--tag-color-gray",
-   "detail": {
-    "values": [
-     "#161616",
-     "#f4f4f4"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-background-green",
-   "kind": "token",
-   "name": "--tag-background-green",
-   "detail": {
-    "values": [
-     "#a7f0ba",
-     "#0e6027"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-color-green",
-   "kind": "token",
-   "name": "--tag-color-green",
-   "detail": {
-    "values": [
-     "#0e6027",
-     "#a7f0ba"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-background-red",
-   "kind": "token",
-   "name": "--tag-background-red",
-   "detail": {
-    "values": [
-     "#ffd7d9",
-     "#a2191f"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-color-red",
-   "kind": "token",
-   "name": "--tag-color-red",
-   "detail": {
-    "values": [
-     "#a2191f",
-     "#ffd7d9"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-background-purple",
-   "kind": "token",
-   "name": "--tag-background-purple",
-   "detail": {
-    "values": [
-     "#e8daff",
-     "#6929c4"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-color-purple",
-   "kind": "token",
-   "name": "--tag-color-purple",
-   "detail": {
-    "values": [
-     "#6929c4",
-     "#e8daff"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-background-teal",
-   "kind": "token",
-   "name": "--tag-background-teal",
-   "detail": {
-    "values": [
-     "#9ef0f0",
-     "#005d5d"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-color-teal",
-   "kind": "token",
-   "name": "--tag-color-teal",
-   "detail": {
-    "values": [
-     "#005d5d",
-     "#9ef0f0"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--tag-background-cyan",
-   "kind": "token",
-   "name": "--tag-background-cyan",
-   "detail": {
-    "values": [
-     "#bae6ff",
-     "#00539a"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-color-cyan",
-   "kind": "token",
-   "name": "--tag-color-cyan",
-   "detail": {
-    "values": [
-     "#00539a",
-     "#bae6ff"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-background-blue",
-   "kind": "token",
-   "name": "--tag-background-blue",
-   "detail": {
-    "values": [
-     "#d0e2ff",
-     "#0043ce"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--tag-color-blue",
-   "kind": "token",
-   "name": "--tag-color-blue",
-   "detail": {
-    "values": [
-     "#0043ce",
-     "#d0e2ff"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-ai-border",
-   "kind": "token",
-   "name": "--corthex-ai-border",
-   "detail": {
-    "values": [
-     "#4589ff",
-     "#78a9ff"
-    ],
-    "uses": 3
-   }
-  },
-  {
-   "key": "token:--corthex-ai-text",
-   "kind": "token",
-   "name": "--corthex-ai-text",
-   "detail": {
-    "values": [
-     "#0043ce",
-     "#a6c8ff"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-ai-aura",
-   "kind": "token",
-   "name": "--corthex-ai-aura",
-   "detail": {
-    "values": [
-     "rgba(69, 137, 255, 0.16)"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--corthex-stage-in-progress",
-   "kind": "token",
-   "name": "--corthex-stage-in-progress",
-   "detail": {
-    "values": [
-     "#0043ce",
-     "#4589ff"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-stage-not-started",
-   "kind": "token",
-   "name": "--corthex-stage-not-started",
-   "detail": {
-    "values": [
-     "#8d8d8d",
-     "#6f6f6f"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-stage-skipped",
-   "kind": "token",
-   "name": "--corthex-stage-skipped",
-   "detail": {
-    "values": [
-     "#6f6f6f",
-     "#a8a8a8"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--support-info",
-   "kind": "token",
-   "name": "--support-info",
-   "detail": {
-    "values": [
-     "#0043ce",
-     "#4589ff"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--notification-background-info",
-   "kind": "token",
-   "name": "--notification-background-info",
-   "detail": {
-    "values": [
-     "#edf5ff",
-     "#262626"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--support-warning",
-   "kind": "token",
-   "name": "--support-warning",
-   "detail": {
-    "values": [
-     "#f1c21b"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--notification-background-warning",
-   "kind": "token",
-   "name": "--notification-background-warning",
-   "detail": {
-    "values": [
-     "#fcf4d6",
-     "#262626"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--notification-background-error",
-   "kind": "token",
-   "name": "--notification-background-error",
-   "detail": {
-    "values": [
-     "#fff1f1",
-     "#262626"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--support-success",
-   "kind": "token",
-   "name": "--support-success",
-   "detail": {
-    "values": [
-     "#24a148",
-     "#42be65"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--notification-background-success",
-   "kind": "token",
-   "name": "--notification-background-success",
-   "detail": {
-    "values": [
-     "#defbe6",
-     "#262626"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--skeleton-background",
-   "kind": "token",
-   "name": "--skeleton-background",
-   "detail": {
-    "values": [
-     "#e8e8e8",
-     "#292929"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--layer-02",
-   "kind": "token",
-   "name": "--layer-02",
-   "detail": {
-    "values": [
-     "#f4f4f4",
-     "#393939"
-    ],
-    "uses": 5
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-text",
-   "kind": "token",
-   "name": "--corthex-sticky-text",
-   "detail": {
-    "values": [
-     "#161616",
-     "#f4f4f4"
-    ],
-    "uses": 9
-   }
-  },
-  {
-   "key": "token:--tag-border-teal",
-   "kind": "token",
-   "name": "--tag-border-teal",
-   "detail": {
-    "values": [
-     "#08bdba",
-     "#009d9a"
-    ],
-    "uses": 2
-   }
-  },
-  {
-   "key": "token:--ai-aura-end",
-   "kind": "token",
-   "name": "--ai-aura-end",
-   "detail": {
-    "values": [
-     "rgba(255, 255, 255, 0)",
-     "rgba(0, 0, 0, 0)"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-type-heading-03",
-   "kind": "token",
-   "name": "--corthex-type-heading-03",
-   "detail": {
-    "values": [
-     "400 1.25rem/1.4 \"IBM Plex Sans KR\", system-ui, -apple-system, BlinkMacSystemFont, \".SFNSText-Regular\", sans-serif"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--background-inverse",
-   "kind": "token",
-   "name": "--background-inverse",
-   "detail": {
-    "values": [
-     "#393939",
-     "#f4f4f4"
-    ],
-    "uses": 3
-   }
-  },
-  {
-   "key": "token:--shadow",
-   "kind": "token",
-   "name": "--shadow",
-   "detail": {
-    "values": [
-     "rgba(0, 0, 0, 0.3)",
-     "rgba(0, 0, 0, 0.8)"
-    ],
-    "uses": 1
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-command",
-   "kind": "token",
-   "name": "--corthex-sticky-command",
-   "detail": {
-    "values": [
-     "#d0e2ff",
-     "#002d9c"
-    ],
-    "uses": 56
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-aggregate",
-   "kind": "token",
-   "name": "--corthex-sticky-aggregate",
-   "detail": {
-    "values": [
-     "#fddc69",
-     "#483700"
-    ],
-    "uses": 34
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-event",
-   "kind": "token",
-   "name": "--corthex-sticky-event",
-   "detail": {
-    "values": [
-     "#ffd9be",
-     "#5e2900"
-    ],
-    "uses": 56
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-read-model",
-   "kind": "token",
-   "name": "--corthex-sticky-read-model",
-   "detail": {
-    "values": [
-     "#defbe6",
-     "#0e6027"
-    ],
-    "uses": 34
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-hotspot",
-   "kind": "token",
-   "name": "--corthex-sticky-hotspot",
-   "detail": {
-    "values": [
-     "#ffd7d9",
-     "#750e13"
-    ],
-    "uses": 18
-   }
-  },
-  {
-   "key": "token:--corthex-sticky-policy",
-   "kind": "token",
-   "name": "--corthex-sticky-policy",
-   "detail": {
-    "values": [
-     "#e8daff",
-     "#491d8b"
-    ],
-    "uses": 26
    }
   }
  ]
