@@ -329,6 +329,29 @@ describe('agent comments', () => {
     const pull = s.pullRequest(example, { number: 42, state: 'merged' });
     db.prepare('UPDATE pull_requests SET merge_commit = ? WHERE id = ?').run(example.commit, pull);
     const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
+    const externalThread = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    const evidence = { source_kind: 'conversation', location: 'example-123', text: 'Yes, use the agreed option.\nExactly as written.', at: '2026-11-23T00:30:00.000Z' };
+    const externalResult = await decide(idOf('nc', externalThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name });
+    assert.equal(externalResult.status, 201);
+    assert.equal(externalResult.json.thread.state, 'closed');
+    assert.deepEqual(externalResult.json.entry.external_evidence, evidence);
+    assert.deepEqual(commentsOf(externalThread).at(-1).detail.external_evidence, evidence);
+    const readBack = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
+    assert.deepEqual(readBack.json.entries.at(-1).external_evidence, evidence);
+    const noEvidence = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?' });
+    assert.equal((await decide(idOf('nc', noEvidence), { link: `${repository}/pull/42`, text }, { project: example.name })).json.thread.state, 'open');
+    db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(externalThread);
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(externalThread, at(clock));
+    const reopenedExternal = await decide(idOf('nc', externalThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name });
+    assert.equal(reopenedExternal.json.thread.state, 'open');
+    const pendingExternal = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    s.changeSet(example, board, { origin: 'proposal', threadId: pendingExternal });
+    s.changeSet(example, board, { origin: 'proposal', threadId: pendingExternal });
+    assert.equal((await decide(idOf('nc', pendingExternal), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name })).json.thread.state, 'open');
+    const laterQuestion = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
+    s.comment(laterQuestion, { author: 'agent', body: 'Another question?', at: '2026-11-23T00:40:00.000Z' });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ asks: 'answer' }), laterQuestion);
+    assert.equal((await decide(idOf('nc', laterQuestion), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name })).json.thread.state, 'open');
     const result = await decide(idOf('nc', thread), { link: `${repository}/pull/42`, text }, { project: example.name });
     assert.equal(result.status, 201);
     assert.equal(result.json.thread.state, 'closed');
@@ -690,6 +713,10 @@ describe('agent comments', () => {
       [(body, options) => reply(id, body, options), { text: 'x', look_first: 'https://example.com/\uD800' }, 'invalid_request', 'look_first'],
       [(body, options) => decide(id, body, options), { link: LINK, text: 'x'.repeat(4001) }, 'text_too_long', 'text', 4000],
       [(body, options) => decide(id, body, options), { link: LINK, text: 3 }, 'invalid_request', 'text'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'x'.repeat(4001), at: at(clock) } }, 'text_too_long', 'external_evidence.text', 4000],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'a\u0000b', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: '\uD800', at: at(clock) } }, 'invalid_request', 'external_evidence.text'],
+      [(body, options) => decide(id, body, options), { link: LINK, external_evidence: { source_kind: 'chat', location: 'id', text: 'yes', at: 'bad' } }, 'invalid_request', 'external_evidence.at'],
     ];
     for (const [send, body, code, field, limit] of refusals) {
       const refused = await send(body, {});
@@ -730,6 +757,14 @@ describe('agent comments', () => {
       const other = await send(id, { ...body, text: 'Another.' }, { key: own });
       assert.deepEqual([other.status, other.json.code], [409, 'request_key_reused']);
     }
+    const own = `"${newId('nw')}"`;
+    const evidence = { source_kind: 'chat', location: 'example-123', text: 'Yes.', at: at(clock) };
+    const body = { link: LINK, external_evidence: evidence };
+    const done = await decide(id, body, { key: own });
+    const repeated = await decide(id, body, { key: own });
+    assert.deepEqual([repeated.status, repeated.json], [done.status, done.json]);
+    const changed = await decide(id, { ...body, external_evidence: { ...evidence, text: 'No.' } }, { key: own });
+    assert.deepEqual([changed.status, changed.json.code], [409, 'request_key_reused']);
   });
 
   test('refuses a body that is not JSON or too large', async () => {

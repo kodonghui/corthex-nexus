@@ -415,6 +415,11 @@ function entryOf(shell, entry) {
       h('span', { class: 'small' }, shell.since(entry.made_at))),
     entry.quote ? h('blockquote', { class: 'q' }, entry.quote) : null,
     h('span', { class: 'tx' }, entry.text),
+    entry.external_evidence ? h('div', { class: 'external-evidence' },
+      h('span', { class: 'small tx' }, '외부 근거: ', entry.external_evidence.source_kind),
+      h('span', { class: 'small tx' }, '출처: ', entry.external_evidence.location),
+      h('span', { class: 'small tx' }, '시각: ', entry.external_evidence.at),
+      h('blockquote', { class: 'q tx' }, entry.external_evidence.text)) : null,
     entry.look_first ? h('span', { class: 'small tx' }, THREAD_WORDS.lookFirst, entry.look_first) : null,
     link === null ? null : h('a', { class: 'small mono', href: link, target: '_blank', rel: 'noopener noreferrer' }, link));
 }

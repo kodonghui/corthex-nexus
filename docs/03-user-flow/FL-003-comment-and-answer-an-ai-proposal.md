@@ -19,6 +19,8 @@ flowchart TD
   I["Add the reflection to the<br/>agent to-do<br/>REQ-023"]
   J["Mark it rejected, thread<br/>stays open<br/>REQ-024"]
   K["Owner closes the thread<br/>when done<br/>REQ-034"]
+  P{"Answer or external evidence,<br/>verified record, no outstanding work?<br/>REQ-034"}
+  Q["Resolve; show evidence;<br/>owner may reopen<br/>REQ-034"]
   R1["Refuse the claim<br/>REQ-055"]
   R3["Refuse the agent<br/>credential<br/>REQ-025"]
   Z(["End"])
@@ -29,7 +31,10 @@ flowchart TD
   C e4@-->|no| D
   D e5@-->|answer| E
   D e6@-->|change| F
-  E e7@--> K
+  E e7@--> P
+  P e30@-->|yes| Q
+  P e31@-->|no| K
+  Q e32@--> Z
   F e8@--> G
   G e9@-->|owner on a PC| H
   G e10@-->|owner on a phone| H
@@ -49,8 +54,9 @@ flowchart TD
   classDef pass stroke:#868e96,stroke-width:1.5px
   class A,Z,Y term
   class B,E,F,I,J,K,R1,R3 proc
-  class C,D,G,H decide
-  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19 pass
+  class Q proc
+  class C,D,G,H,P decide
+  class e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e19,e30,e31,e32 pass
 ```
 
 | Shape | Means |
@@ -63,3 +69,5 @@ flowchart TD
 
 - Refuse the claim (REQ-055)
 - Refuse the agent credential (REQ-025)
+
+A decision recorded with an owner answer or external evidence can resolve the conversation after record verification and with no outstanding proposal or question. Show the external source and exact original text; the owner can reopen it.

@@ -67,7 +67,7 @@ const ASKS = Object.freeze(['answer', 'recommended', 'checkpoint']);
 const STAGE_SET = new Set(STAGES);
 const COMMENT_FIELDS = new Set(['part', 'stage', 'diagram', 'commit', 'discrepancy', 'item', 'text', 'quote', 'asks', 'look_first']);
 const REPLY_FIELDS = new Set(['text', 'asks', 'look_first']);
-const DECISION_FIELDS = new Set(['link', 'text']);
+const DECISION_FIELDS = new Set(['link', 'text', 'external_evidence']);
 
 // The statements of each store, prepared on first use (see credentials.js).
 const prepared = new WeakMap();
@@ -182,6 +182,7 @@ const ENTRY_DETAIL = Object.freeze(['quote', 'asks', 'look_first', 'link']);
 // thread when API-246 reads one (TASK-436, reads.js).
 export function entryOf({ seq, author, body, detail, created_at: madeAt }) {
   const kept = Object.fromEntries(ENTRY_DETAIL.filter((name) => typeof detail[name] === 'string').map((name) => [name, detail[name]]));
+  if (kept.link !== undefined && detail.external_evidence && typeof detail.external_evidence === 'object') kept.external_evidence = detail.external_evidence;
   return { seq: Number(seq), author, kind: kept.link === undefined ? 'comment' : 'decision', text: body, ...kept, made_at: madeAt };
 }
 
@@ -235,7 +236,22 @@ function decisionOf(body) {
   const link = formOf(body, 'link', { pattern: LINK, length: LINK_LIMIT, required: true });
   if (!URL.canParse(link)) throw invalidRequest('link', 'link is not in its form');
   const text = Object.hasOwn(body, 'text') ? boundedText(body.text, 'text', TEXT_LIMIT, { empty: true }) : '';
-  return { link, text: /\S/u.test(text) ? text : link };
+  let external_evidence;
+  if (Object.hasOwn(body, 'external_evidence')) {
+    const e = body.external_evidence;
+    if (!e || typeof e !== 'object' || Array.isArray(e)) throw invalidRequest('external_evidence', 'external_evidence must be an object');
+    onlyFields(e, new Set(['source_kind', 'location', 'text', 'at']));
+    external_evidence = {};
+    for (const [field, limit] of [['source_kind', 100], ['location', 2000], ['text', 4000]]) {
+      const value = boundedText(e[field], `external_evidence.${field}`, limit, { empty: false });
+      if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(value)) throw invalidRequest(`external_evidence.${field}`, 'control character is not allowed');
+      external_evidence[field] = value;
+    }
+    const at = e.at;
+    if (typeof at !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(at) || !Number.isFinite(Date.parse(at)) || new Date(at).toISOString() !== at) throw invalidRequest('external_evidence.at', 'at must be a UTC time with milliseconds');
+    external_evidence.at = at;
+  }
+  return { link, text: /\S/u.test(text) ? text : link, external_evidence };
 }
 
 export function emptyOf(body) {
@@ -479,11 +495,12 @@ function recordDecision({ store, params, request, body, credential, now }) {
   const session = sessionOf(request.headers, { required: true });
   const decision = decisionOf(body);
   const time = timeNow(now);
+  if (decision.external_evidence?.at > time) throw invalidRequest('external_evidence.at', 'at must not be in the future');
   const statements = statementsOf(store);
   const project = projectOf(statements, params.project);
   const thread = threadOf(statements, project, params.comment);
   const add = () => addEntry(statements, {
-    thread: thread.id, credential: credential.key, text: decision.text, detail: { link: decision.link }, time,
+    thread: thread.id, credential: credential.key, text: decision.text, detail: detailOf({ link: decision.link, external_evidence: decision.external_evidence }), time,
   });
   if (thread.state === 'closed') {
     const entry = add();

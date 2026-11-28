@@ -10572,6 +10572,8 @@ components:
           maxLength: 2000
         link:
           $ref: "#/components/schemas/Link"
+        external_evidence:
+          $ref: "#/components/schemas/ExternalEvidence"
         made_at:
           $ref: "#/components/schemas/Time"
     ThreadSummary:
@@ -10951,6 +10953,26 @@ components:
       additionalProperties: false
       maxProperties: 0
       description: An empty JSON object, {}.
+    ExternalEvidence:
+      type: object
+      required: [source_kind, location, text, at]
+      additionalProperties: false
+      description: Exact owner answer outside NEXUS, supplied by the agent; the source is not independently verified. Every text field must contain non-whitespace text. Values are never truncated; control characters other than tab and line breaks, invalid Unicode and future timestamps are refused.
+      properties:
+        source_kind:
+          type: string
+          minLength: 1
+          maxLength: 100
+        location:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        at:
+          $ref: "#/components/schemas/Time"
     DecisionRequest:
       type: object
       required: [link]
@@ -10961,6 +10983,8 @@ components:
         text:
           type: string
           maxLength: 4000
+        external_evidence:
+          $ref: "#/components/schemas/ExternalEvidence"
     ProposalRequest:
       type: object
       required: [part, stage, items, reason, change]

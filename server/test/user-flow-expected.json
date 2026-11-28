@@ -1966,7 +1966,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:11",
      "box": {
-      "x": 183.5,
+      "x": 283.5,
       "y": 0,
       "width": 232,
       "height": 84
@@ -1991,7 +1991,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:12",
      "box": {
-      "x": 208,
+      "x": 308,
       "y": 132,
       "width": 183,
       "height": 84
@@ -2016,7 +2016,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:13",
      "box": {
-      "x": 133.5,
+      "x": 233.5,
       "y": 284,
       "width": 332,
       "height": 166
@@ -2038,7 +2038,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:14",
      "box": {
-      "x": 291.75,
+      "x": 407.75,
       "y": 518,
       "width": 235,
       "height": 118
@@ -2063,7 +2063,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:15",
      "box": {
-      "x": 148.75,
+      "x": 237.5,
       "y": 704,
       "width": 168,
       "height": 84
@@ -2088,7 +2088,7 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:16",
      "box": {
-      "x": 499.25,
+      "x": 673.75,
       "y": 704,
       "width": 212,
       "height": 84
@@ -2110,8 +2110,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:17",
      "box": {
-      "x": 459.25,
-      "y": 836,
+      "x": 633.75,
+      "y": 878,
       "width": 292,
       "height": 146
      }
@@ -2133,8 +2133,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:18",
      "box": {
-      "x": 364.75,
-      "y": 1050,
+      "x": 573.5,
+      "y": 1134,
       "width": 311,
       "height": 156
      }
@@ -2158,8 +2158,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:19",
      "box": {
-      "x": 512.25,
-      "y": 1274,
+      "x": 686.75,
+      "y": 1358,
       "width": 204,
       "height": 84
      }
@@ -2183,8 +2183,8 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:20",
      "box": {
-      "x": 283.25,
-      "y": 1274,
+      "x": 457.75,
+      "y": 1358,
       "width": 197,
       "height": 84
      }
@@ -2208,8 +2208,58 @@
      "lane": null,
      "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:21",
      "box": {
-      "x": 198,
-      "y": 1406,
+      "x": 374.25,
+      "y": 1490,
+      "width": 190,
+      "height": 84
+     }
+    }
+   },
+   {
+    "key": "P",
+    "kind": "decision",
+    "name": "Answer or external evidence, verified record, no outstanding work?",
+    "parent": null,
+    "detail": {
+     "id": "P",
+     "lines": [
+      "Answer or external evidence,",
+      "verified record, no outstanding work?"
+     ],
+     "ids": [
+      "REQ-034"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:22",
+     "box": {
+      "x": 92,
+      "y": 836,
+      "width": 459,
+      "height": 230
+     }
+    }
+   },
+   {
+    "key": "Q",
+    "kind": "step",
+    "name": "Resolve; show evidence; owner may reopen",
+    "parent": null,
+    "detail": {
+     "id": "Q",
+     "lines": [
+      "Resolve; show evidence;",
+      "owner may reopen"
+     ],
+     "ids": [
+      "REQ-034"
+     ],
+     "marks": [],
+     "lane": null,
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:23",
+     "box": {
+      "x": 186.5,
+      "y": 1170,
       "width": 190,
       "height": 84
      }
@@ -2230,7 +2280,7 @@
      ],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:22",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:24",
      "box": {
       "x": 0,
       "y": 545,
@@ -2255,10 +2305,10 @@
      ],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:23",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:25",
      "box": {
-      "x": 735,
-      "y": 1086,
+      "x": 916.5,
+      "y": 1170,
       "width": 140,
       "height": 84
      }
@@ -2277,10 +2327,10 @@
      "ids": [],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:24",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:26",
      "box": {
-      "x": 242,
-      "y": 1538,
+      "x": 358,
+      "y": 1634,
       "width": 102,
       "height": 44
      }
@@ -2299,10 +2349,10 @@
      "ids": [],
      "marks": [],
      "lane": null,
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:25",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:27",
      "box": {
-      "x": 526.25,
-      "y": 1426,
+      "x": 700.75,
+      "y": 1510,
       "width": 176,
       "height": 44
      }
@@ -2319,14 +2369,14 @@
      "to": "B",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:26",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:28",
      "points": [
       {
-       "x": 299.5,
+       "x": 399.5,
        "y": 84
       },
       {
-       "x": 299.5,
+       "x": 399.5,
        "y": 132
       }
      ],
@@ -2344,19 +2394,19 @@
      "to": "C",
      "label": "agent claims",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:27",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:29",
      "points": [
       {
-       "x": 299.5,
+       "x": 399.5,
        "y": 216
       },
       {
-       "x": 299.5,
+       "x": 399.5,
        "y": 284
       }
      ],
      "label_box": {
-      "x": 305.5,
+      "x": 405.5,
       "y": 240,
       "width": 95,
       "height": 20
@@ -2374,14 +2424,14 @@
      "to": "R1",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:28",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:30",
      "points": [
       {
-       "x": 244.17,
+       "x": 344.17,
        "y": 450
       },
       {
-       "x": 244.17,
+       "x": 344.17,
        "y": 462
       },
       {
@@ -2412,27 +2462,27 @@
      "to": "D",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:29",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:31",
      "points": [
       {
-       "x": 354.83,
+       "x": 454.83,
        "y": 450
       },
       {
-       "x": 354.83,
+       "x": 454.83,
        "y": 462
       },
       {
-       "x": 409.25,
+       "x": 525.25,
        "y": 462
       },
       {
-       "x": 409.25,
+       "x": 525.25,
        "y": 518
       }
      ],
      "label_box": {
-      "x": 415.25,
+      "x": 531.25,
       "y": 474,
       "width": 23,
       "height": 20
@@ -2450,27 +2500,27 @@
      "to": "E",
      "label": "answer",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:30",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:32",
      "points": [
       {
-       "x": 370.08,
+       "x": 486.08,
        "y": 636
       },
       {
-       "x": 370.08,
+       "x": 486.08,
        "y": 648
       },
       {
-       "x": 232.75,
+       "x": 321.5,
        "y": 648
       },
       {
-       "x": 232.75,
+       "x": 321.5,
        "y": 704
       }
      ],
      "label_box": {
-      "x": 238.75,
+      "x": 327.5,
       "y": 660,
       "width": 52,
       "height": 20
@@ -2488,27 +2538,27 @@
      "to": "F",
      "label": "change",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:31",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:33",
      "points": [
       {
-       "x": 448.42,
+       "x": 564.42,
        "y": 636
       },
       {
-       "x": 448.42,
+       "x": 564.42,
        "y": 648
       },
       {
-       "x": 605.25,
+       "x": 779.75,
        "y": 648
       },
       {
-       "x": 605.25,
+       "x": 779.75,
        "y": 704
       }
      ],
      "label_box": {
-      "x": 611.25,
+      "x": 785.75,
       "y": 660,
       "width": 52,
       "height": 20
@@ -2516,33 +2566,142 @@
     }
    },
    {
-    "key": "E->K",
+    "key": "E->P",
     "kind": "arrow",
     "name": "",
     "parent": "E",
     "detail": {
      "id": "e7",
      "from": "E",
-     "to": "K",
+     "to": "P",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:32",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:34",
      "points": [
       {
-       "x": 232.75,
+       "x": 321.5,
        "y": 788
       },
       {
-       "x": 232.75,
-       "y": 1394
+       "x": 321.5,
+       "y": 836
+      }
+     ],
+     "label_box": null
+    }
+   },
+   {
+    "key": "P->Q",
+    "kind": "arrow",
+    "name": "yes",
+    "parent": "P",
+    "detail": {
+     "id": "e30",
+     "from": "P",
+     "to": "Q",
+     "label": "yes",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:35",
+     "points": [
+      {
+       "x": 245,
+       "y": 1066
       },
       {
-       "x": 261.33,
-       "y": 1394
+       "x": 245,
+       "y": 1078
       },
       {
-       "x": 261.33,
-       "y": 1406
+       "x": 281.5,
+       "y": 1078
+      },
+      {
+       "x": 281.5,
+       "y": 1170
+      }
+     ],
+     "label_box": {
+      "x": 287.5,
+      "y": 1090,
+      "width": 30,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "P->K",
+    "kind": "arrow",
+    "name": "no",
+    "parent": "P",
+    "detail": {
+     "id": "e31",
+     "from": "P",
+     "to": "K",
+     "label": "no",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:36",
+     "points": [
+      {
+       "x": 398,
+       "y": 1066
+      },
+      {
+       "x": 398,
+       "y": 1078
+      },
+      {
+       "x": 407.25,
+       "y": 1078
+      },
+      {
+       "x": 407.25,
+       "y": 1478
+      },
+      {
+       "x": 437.58,
+       "y": 1478
+      },
+      {
+       "x": 437.58,
+       "y": 1490
+      }
+     ],
+     "label_box": {
+      "x": 413.25,
+      "y": 1314,
+      "width": 23,
+      "height": 20
+     }
+    }
+   },
+   {
+    "key": "Q->Z",
+    "kind": "arrow",
+    "name": "",
+    "parent": "Q",
+    "detail": {
+     "id": "e32",
+     "from": "Q",
+     "to": "Z",
+     "label": "",
+     "line": "pass",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:37",
+     "points": [
+      {
+       "x": 281.5,
+       "y": 1254
+      },
+      {
+       "x": 281.5,
+       "y": 1610
+      },
+      {
+       "x": 398.8,
+       "y": 1610
+      },
+      {
+       "x": 398.8,
+       "y": 1634
       }
      ],
      "label_box": null
@@ -2559,15 +2718,15 @@
      "to": "G",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:33",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:38",
      "points": [
       {
-       "x": 605.25,
+       "x": 779.75,
        "y": 788
       },
       {
-       "x": 605.25,
-       "y": 836
+       "x": 779.75,
+       "y": 878
       }
      ],
      "label_box": null
@@ -2584,36 +2743,36 @@
      "to": "H",
      "label": "owner on a PC",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:34",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:39",
      "points": [
       {
-       "x": 532.25,
-       "y": 982
+       "x": 706.75,
+       "y": 1024
       },
       {
-       "x": 532.25,
-       "y": 994
+       "x": 706.75,
+       "y": 1078
       },
       {
-       "x": 327.5,
-       "y": 994
+       "x": 502,
+       "y": 1078
       },
       {
-       "x": 327.5,
-       "y": 1038
+       "x": 502,
+       "y": 1122
       },
       {
-       "x": 468.42,
-       "y": 1038
+       "x": 677.17,
+       "y": 1122
       },
       {
-       "x": 468.42,
-       "y": 1050
+       "x": 677.17,
+       "y": 1134
       }
      ],
      "label_box": {
-      "x": 333.5,
-      "y": 1006,
+      "x": 508,
+      "y": 1090,
       "width": 102,
       "height": 20
      }
@@ -2630,28 +2789,28 @@
      "to": "H",
      "label": "owner on a phone",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:35",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:40",
      "points": [
       {
-       "x": 605.25,
-       "y": 982
+       "x": 779.75,
+       "y": 1024
       },
       {
-       "x": 605.25,
-       "y": 1038
+       "x": 779.75,
+       "y": 1122
       },
       {
-       "x": 572.08,
-       "y": 1038
+       "x": 780.83,
+       "y": 1122
       },
       {
-       "x": 572.08,
-       "y": 1050
+       "x": 780.83,
+       "y": 1134
       }
      ],
      "label_box": {
-      "x": 611.25,
-      "y": 1006,
+      "x": 785.75,
+      "y": 1090,
       "width": 124,
       "height": 20
      }
@@ -2668,28 +2827,28 @@
      "to": "R3",
      "label": "an agent",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:36",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:41",
      "points": [
       {
-       "x": 678.25,
-       "y": 982
+       "x": 852.75,
+       "y": 1024
       },
       {
-       "x": 678.25,
-       "y": 994
+       "x": 852.75,
+       "y": 1078
       },
       {
-       "x": 805,
-       "y": 994
+       "x": 986.5,
+       "y": 1078
       },
       {
-       "x": 805,
-       "y": 1086
+       "x": 986.5,
+       "y": 1170
       }
      ],
      "label_box": {
-      "x": 811,
-      "y": 1006,
+      "x": 992.5,
+      "y": 1090,
       "width": 66,
       "height": 20
      }
@@ -2706,28 +2865,28 @@
      "to": "I",
      "label": "yes",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:37",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:42",
      "points": [
       {
-       "x": 572.08,
-       "y": 1206
+       "x": 780.83,
+       "y": 1290
       },
       {
-       "x": 572.08,
-       "y": 1218
+       "x": 780.83,
+       "y": 1302
       },
       {
-       "x": 614.25,
-       "y": 1218
+       "x": 788.75,
+       "y": 1302
       },
       {
-       "x": 614.25,
-       "y": 1274
+       "x": 788.75,
+       "y": 1358
       }
      ],
      "label_box": {
-      "x": 620.25,
-      "y": 1230,
+      "x": 794.75,
+      "y": 1314,
       "width": 30,
       "height": 20
      }
@@ -2744,28 +2903,28 @@
      "to": "J",
      "label": "no",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:38",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:43",
      "points": [
       {
-       "x": 468.42,
-       "y": 1206
+       "x": 677.17,
+       "y": 1290
       },
       {
-       "x": 468.42,
-       "y": 1218
+       "x": 677.17,
+       "y": 1302
       },
       {
-       "x": 381.75,
-       "y": 1218
+       "x": 556.25,
+       "y": 1302
       },
       {
-       "x": 381.75,
-       "y": 1274
+       "x": 556.25,
+       "y": 1358
       }
      ],
      "label_box": {
-      "x": 387.75,
-      "y": 1230,
+      "x": 562.25,
+      "y": 1314,
       "width": 23,
       "height": 20
      }
@@ -2782,15 +2941,15 @@
      "to": "Y",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:39",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:44",
      "points": [
       {
-       "x": 614.25,
-       "y": 1358
+       "x": 788.75,
+       "y": 1442
       },
       {
-       "x": 614.25,
-       "y": 1426
+       "x": 788.75,
+       "y": 1510
       }
      ],
      "label_box": null
@@ -2807,23 +2966,23 @@
      "to": "K",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:40",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:45",
      "points": [
       {
-       "x": 381.75,
-       "y": 1358
+       "x": 556.25,
+       "y": 1442
       },
       {
-       "x": 381.75,
-       "y": 1394
+       "x": 556.25,
+       "y": 1478
       },
       {
-       "x": 324.67,
-       "y": 1394
+       "x": 500.92,
+       "y": 1478
       },
       {
-       "x": 324.67,
-       "y": 1406
+       "x": 500.92,
+       "y": 1490
       }
      ],
      "label_box": null
@@ -2840,15 +2999,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:41",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:46",
      "points": [
       {
-       "x": 293,
-       "y": 1490
+       "x": 469.25,
+       "y": 1574
       },
       {
-       "x": 293,
-       "y": 1538
+       "x": 469.25,
+       "y": 1610
+      },
+      {
+       "x": 419.2,
+       "y": 1610
+      },
+      {
+       "x": 419.2,
+       "y": 1634
       }
      ],
      "label_box": null
@@ -2865,7 +3032,7 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:42",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:47",
      "points": [
       {
        "x": 70,
@@ -2873,15 +3040,15 @@
       },
       {
        "x": 70,
-       "y": 1526
+       "y": 1622
       },
       {
-       "x": 267.5,
-       "y": 1526
+       "x": 378.4,
+       "y": 1622
       },
       {
-       "x": 267.5,
-       "y": 1538
+       "x": 378.4,
+       "y": 1634
       }
      ],
      "label_box": null
@@ -2898,23 +3065,23 @@
      "to": "Z",
      "label": "",
      "line": "pass",
-     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:43",
+     "where": "docs/03-user-flow/FL-003-comment-and-answer-an-ai-proposal.md:48",
      "points": [
       {
-       "x": 805,
-       "y": 1170
+       "x": 986.5,
+       "y": 1254
       },
       {
-       "x": 805,
-       "y": 1526
+       "x": 986.5,
+       "y": 1622
       },
       {
-       "x": 318.5,
-       "y": 1526
+       "x": 439.6,
+       "y": 1622
       },
       {
-       "x": 318.5,
-       "y": 1538
+       "x": 439.6,
+       "y": 1634
       }
      ],
      "label_box": null

@@ -212,6 +212,21 @@ const buttonOf = (node, text) => node.all('button').find((button) => button.text
 const drafts = (page) => [...page.session.entries].filter(([key]) => key.startsWith('nexus-draft:'));
 
 describe('SCR-145 threads', () => {
+  test('external evidence displays its source and exact original on a phone', async () => {
+    const evidence = { source_kind: 'conversation', location: 'example-123', text: '네, 그대로요.\n  두 번째 줄', at: ago(20) };
+    const entries = structuredClone(ENTRIES);
+    entries[1].external_evidence = evidence;
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      const shown = shownThread(page).all('div', 'external-evidence')[0];
+      assert.ok(shown.textContent.includes(evidence.source_kind));
+      assert.ok(shown.textContent.includes(evidence.location));
+      assert.ok(shown.textContent.includes(evidence.at));
+      assert.equal(shown.all('blockquote')[0].textContent, evidence.text);
+    } finally { page.close(); }
+  });
   test('with nothing chosen the section lists every thread of the diagram, open ones first, each named by where it is', async () => {
     const page = await openStage('erd');
     try {

@@ -40,6 +40,11 @@
           "approved": "The maintainer directly passed the follow-up phone decision: diagram confirmation and proposal acceptance or rejection are available on a phone after another question; direct editing stays on a PC. The earlier hotspot answer remains historical. The answer is in the project records.",
           "by": "the maintainer",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence: source kind, location, exact text and time; verified record and no outstanding work are still required, and the owner can reopen. Stage difference: evidence carried by this stage. Approval basis: item 242 on 2026-11-28.",
+          "by": "사용자님, 항목 242",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 02: write the PRD from the domain design",
@@ -97,6 +102,11 @@
           "approved": "REQ-052 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 03: draw the user flows from the requirements",
@@ -144,6 +154,11 @@
           "approved": "FL-002 records a project card link to its newest question after a measured three-click question path; this preserves the chosen project-first direction. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 04: write the functional spec from the requirements and flows",
@@ -303,6 +318,11 @@
           "approved": "SPEC-042 records the measured correction that a failed refresh retains previous tasks marked old with retry and an opened stage group survives a redraw. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 05: write the schema and its ERD from the spec",
@@ -395,6 +415,11 @@
           "approved": "No data model change is needed for the approved project-first view and phone decisions; existing records are reused. Approved through the checkpoint delegate; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 06: write the API contract from the spec and the schema",
@@ -604,6 +629,11 @@
           "approved": "No API operation or wire-format change is needed for the approved project-first view and phone decisions; the existing owner operations and reads are reused. Approved through the checkpoint delegate; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -671,6 +701,11 @@
           "approved": "SCR-142 opens on projects, with the full owner to-do reachable in the same screen and SCR-143 and SCR-144 as its sibling destinations. Existing project and diagram addresses remain. Approved through the checkpoint delegate; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 08: write a screen definition with its states for each of the five screens",
@@ -853,6 +888,11 @@
           "approved": "SCR-146 explains, like SCR-145, that remaining AI proposals are excluded before a diagram confirmation; this correction follows the approved phone confirmation flow. The checkpoint delegate authorized measured corrections in advance on 2026-11-27; the basis is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-27"
+        },
+        {
+          "approved": "Item 242 external owner answer evidence, with exact text, source and time; record verification and reopening retained. Approved by the checkpoint delegate on the maintainer’s delegation; item 242 follow-up.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 09: write the design tokens from the default base and draw the mockup from the 2026-11-21 mockup and the stage-08 wireframes",

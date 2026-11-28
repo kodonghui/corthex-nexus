@@ -11,6 +11,19 @@ function approvedText(entries, owner, last) {
     && JSON.parse(recommendation.detail).asks === 'recommended'
     && normalize(recommendation.body) === normalize(last.body);
 }
+
+function approvalTime(entries, last, reopenedAt) {
+  const owner = entries.findLast((entry) => entry.author === 'owner');
+  if (owner && !/[?？]/u.test(owner.body) && approvedText(entries, owner, last)
+      && (reopenedAt == null || owner.created_at > reopenedAt)
+      && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return owner.created_at;
+  const evidence = JSON.parse(last.detail).external_evidence;
+  if (!evidence || typeof evidence.at !== 'string' || evidence.at < entries[0].created_at || evidence.at > last.created_at
+      || (reopenedAt != null && evidence.at <= reopenedAt)) return null;
+  if (entries.some((entry) => entry.seq < last.seq && entry.created_at >= evidence.at
+      && (entry.author === 'owner' || JSON.parse(entry.detail).asks !== undefined))) return null;
+  return evidence.at;
+}
 const cached = new WeakMap();
 function queries(store) {
   if (!cached.has(store)) cached.set(store, {
@@ -45,13 +58,10 @@ export function decisionWaitingForRecord(store, { project, thread }) {
   if (!row || row.state !== 'open' || q.ownerPending.get(thread)) return false;
   const entries = q.entries.all(thread).reverse();
   const last = entries.at(-1);
-  const owner = entries.findLast((entry) => entry.author === 'owner');
   const reopenedAt = q.lastReopen.get(thread)?.at;
-  if (!last || last.author !== 'agent' || !owner || /[?？]/u.test(owner.body)
-      || (reopenedAt != null && owner.created_at <= reopenedAt)
+  if (!last || last.author !== 'agent' || !approvalTime(entries, last, reopenedAt)
       || typeof JSON.parse(last.detail).link !== 'string') return false;
-  return normalize(last.body) !== '' && approvedText(entries, owner, last)
-    && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined);
+  return normalize(last.body) !== '';
 }
 
 export function resolveDecision(store, { project, thread, time }) {
@@ -66,10 +76,8 @@ export function resolveDecision(store, { project, thread, time }) {
   const { link } = JSON.parse(last.detail);
   if (typeof link !== 'string') return false;
   const text = normalize(last.body);
-  const owner = entries.findLast((entry) => entry.author === 'owner');
-  if (!text || !owner || /[?？]/u.test(owner.body) || !approvedText(entries, owner, last)
-      || (reopenedAt != null && owner.created_at <= reopenedAt)
-      || entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return false;
+  const approvedAt = approvalTime(entries, last, reopenedAt);
+  if (!text || !approvedAt) return false;
   const drawing = q.current.get(row.diagram_id);
   if (!drawing || drawing.status !== 'drawn' || q.incomplete.get(drawing.id)) return false;
   const base = repositoryBase(row.repository);
@@ -85,7 +93,7 @@ export function resolveDecision(store, { project, thread, time }) {
   } else return false;
   const recorded = q.snapshot.get(project, commit);
   const held = q.snapshot.get(project, row.held_commit);
-  if (!recorded || !held || Number(recorded.revision) > Number(held.revision) || recorded.received_at <= owner.created_at) return false;
+  if (!recorded || !held || Number(recorded.revision) > Number(held.revision) || recorded.received_at <= approvedAt) return false;
   const prior = q.priorSnapshot.get(project, recorded.revision);
   if (!prior) return false;
   if (row.kind === 'ddd_board') {
