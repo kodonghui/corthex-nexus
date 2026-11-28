@@ -225,7 +225,8 @@ describe('SCR-145 threads', () => {
       assert.ok(shown.textContent.includes(evidence.location));
       assert.ok(shown.textContent.includes(evidence.at));
       assert.equal(shown.all('blockquote')[0].textContent, evidence.text);
-      assert.ok(shownThread(page).textContent.includes('봇이 정리 요청'));
+      assert.ok(shownThread(page).textContent.includes('봇 정리 요청'));
+      assert.ok(shownThread(page).textContent.includes(`봇이 적은 결정 "${entries[1].text}"`));
       const confirm = buttonOf(shownThread(page), '맞아요, 닫기');
       assert.ok(confirm);
       confirm.click();

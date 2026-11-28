@@ -489,7 +489,7 @@ function closeRow(state, thread, reopen = false) {
   const evidence = !reopen && last?.kind === 'decision' ? last.external_evidence : null;
   const needsConfirmation = evidence && thread.waits_on === 'owner';
   return [
-    needsConfirmation ? h('p', { class: 'external-summary' }, '봇이 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '"') : null,
+    needsConfirmation ? h('p', { class: 'external-summary' }, '봇 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '" / 봇이 적은 결정 "', last.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {
       type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
       on: { click: () => write(state, what, '', () => closeOf(state, thread.id, reopen)) },
