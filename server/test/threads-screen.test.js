@@ -215,6 +215,7 @@ describe('SCR-145 threads', () => {
   test('external evidence displays its source and exact original on a phone', async () => {
     const evidence = { source_kind: 'conversation', location: 'example-123', text: '네, 그대로요.\n  두 번째 줄', at: ago(20) };
     const entries = structuredClone(ENTRIES);
+    entries[0].made_at = ago(25);
     entries[1].external_evidence = evidence;
     const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
     try {
@@ -239,6 +240,7 @@ describe('SCR-145 threads', () => {
 
   test('a question-shaped answer still asks the owner to confirm', async () => {
     const entries = structuredClone(ENTRIES);
+    entries[0].made_at = ago(25);
     entries[1].external_evidence = { source_kind: 'conversation', location: 'example-123', text: '자격은 해시로만 저장했어요?', at: ago(20) };
     const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
     try {
@@ -259,6 +261,99 @@ describe('SCR-145 threads', () => {
       assert.equal(shownThread(page).all('p', 'external-summary').length, 0);
       assert.ok(buttonOf(shownThread(page), THREAD_WORDS.close));
     } finally { page.close(); }
+  });
+
+  test('a retried decision still shows the latest conflicting external answer to the owner', async () => {
+    const entries = [
+      { seq: 1, author: 'agent', kind: 'comment', text: 'Which option?', made_at: ago(30) },
+      { seq: 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(10), external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use B.', at: ago(20) } },
+      { seq: 3, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5) },
+    ];
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.ok(shownThread(page).textContent.includes('원문 "Use B." / 봇이 적은 결정 "Use A."'));
+      assert.ok(buttonOf(shownThread(page), '맞아요, 닫기'));
+    } finally { page.close(); }
+  });
+
+  test('same-time conflicting originals are both shown beside the decision', async () => {
+    const entries = [
+      { seq: 1, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(10), external_evidence: { source_kind: 'conversation', location: 'example-1', text: 'Use B.', at: ago(20) } },
+      { seq: 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5), external_evidence: { source_kind: 'conversation', location: 'example-2', text: 'Use C.', at: ago(20) } },
+    ];
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      const summary = shownThread(page).all('p', 'external-summary')[0].textContent;
+      assert.ok(summary.includes('원문 "Use B."'));
+      assert.ok(summary.includes('원문 "Use C."'));
+      assert.ok(summary.includes('봇이 적은 결정 "Use A."'));
+    } finally { page.close(); }
+  });
+
+  test('a later owner reply prevents the older external answer from being presented as the current request', async () => {
+    const entries = [
+      { seq: 1, author: 'agent', kind: 'comment', text: 'Which option?', made_at: ago(40) },
+      { seq: 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(20), external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use B.', at: ago(30) } },
+      { seq: 3, author: 'owner', kind: 'comment', text: 'Use C.', made_at: ago(10) },
+      { seq: 4, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5) },
+    ];
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.equal(shownThread(page).all('p', 'external-summary').length, 0);
+      assert.equal(buttonOf(shownThread(page), '맞아요, 닫기'), undefined);
+    } finally { page.close(); }
+  });
+
+  test('an owner reply at the same time as conflicting evidence still gets a confirmation request', async () => {
+    const entries = [
+      { seq: 1, author: 'owner', kind: 'comment', text: 'Use A.', made_at: ago(20) },
+      { seq: 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5), external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use B.', at: ago(20) } },
+    ];
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.ok(shownThread(page).textContent.includes('원문 "Use B." / 봇이 적은 결정 "Use A."'));
+      assert.ok(buttonOf(shownThread(page), '맞아요, 닫기'));
+    } finally { page.close(); }
+  });
+
+  test('an owner reply conflicting with same-time matching evidence also gets a confirmation request', async () => {
+    const entries = [
+      { seq: 1, author: 'owner', kind: 'comment', text: 'Use B.', made_at: ago(20) },
+      { seq: 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5), external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use A.', at: ago(20) } },
+    ];
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.ok(buttonOf(shownThread(page), '맞아요, 닫기'));
+    } finally { page.close(); }
+  });
+
+  test('an answer before reopening or a later question is not presented as the current request', async () => {
+    for (const mode of ['reopened', 'later-question', 'same-time-question', 'before-open']) {
+      const hasQuestion = mode === 'later-question' || mode === 'same-time-question';
+      const entries = [
+        { seq: 1, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(20), external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use B.', at: ago(30) } },
+        ...(hasQuestion ? [{ seq: 2, author: 'agent', kind: 'comment', text: 'Which index?', asks: 'answer', made_at: ago(mode === 'same-time-question' ? 30 : 10) }] : []),
+        { seq: hasQuestion ? 3 : 2, author: 'agent', kind: 'decision', text: 'Use A.', link: 'https://github.com/example/demo/pull/7', made_at: ago(5) },
+      ];
+      const fields = { entries, ...(mode === 'reopened' ? { reopened_at: ago(15) } : {}), ...(mode === 'before-open' ? { opened_at: ago(25) } : {}) };
+      const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], fields)) } });
+      try {
+        pictureButton(page, 'tbl', 'agent_credentials').click();
+        await page.settle();
+        assert.equal(shownThread(page).all('p', 'external-summary').length, 0, mode);
+        assert.equal(buttonOf(shownThread(page), '맞아요, 닫기'), undefined, mode);
+      } finally { page.close(); }
+    }
   });
   test('with nothing chosen the section lists every thread of the diagram, open ones first, each named by where it is', async () => {
     const page = await openStage('erd');

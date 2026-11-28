@@ -2,6 +2,7 @@
 // The confirmed and new pictures, their source paths and complete drawings must agree
 // everywhere except an open hotspot's answer and its transition to answered.
 import { INCOMPLETE_DRAWING, normalizeDecisionText as normalize, RECOMMENDATION_CHOICES } from './decision-evidence.js';
+import { exactExternalAnswer } from '../web/decision-match.js';
 const statements = new WeakMap();
 
 function queries(store) {
@@ -13,7 +14,9 @@ function queries(store) {
     incomplete: store.prepare(INCOMPLETE_DRAWING),
     failed: store.prepare("SELECT 1 FROM drawings WHERE diagram_id = ? AND id > ? AND id <= ? AND status = 'failed' LIMIT 1"),
     hotspots: store.prepare("SELECT element_key, json_extract(detail, '$.number') AS number FROM elements WHERE drawing_id = ? AND kind = 'hotspot'"),
-    answers: store.prepare(`SELECT t.element_key, owner.body AS answer, decision.body AS decision FROM comment_threads t
+    externalSince: store.prepare(`SELECT json_extract(detail, '$.external_evidence.text') AS text FROM comments
+      WHERE thread_id = ? AND json_extract(detail, '$.external_evidence.at') >= ? AND created_at <= ?`),
+    answers: store.prepare(`SELECT t.id AS thread, t.element_key, owner.created_at AS approved_at, owner.body AS answer, decision.body AS decision FROM comment_threads t
       JOIN comments owner ON owner.thread_id = t.id AND owner.author = 'owner'
       JOIN comments decision ON decision.thread_id = t.id AND decision.author = 'agent'
         AND decision.seq > owner.seq AND json_type(decision.detail, '$.link') = 'text'
@@ -25,20 +28,20 @@ function queries(store) {
         AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
           AND event.event = 'reopened' AND event.created_at >= owner.created_at)
         AND NOT EXISTS (SELECT 1 FROM comments later WHERE later.thread_id = t.id AND later.seq > decision.seq)`),
-    answered: store.prepare(`SELECT t.element_key, owner.body AS answer FROM comment_threads t
+    answered: store.prepare(`SELECT t.id AS thread, t.element_key, owner.created_at AS approved_at, owner.body AS answer FROM comment_threads t
       JOIN comments owner ON owner.thread_id = t.id AND owner.author = 'owner'
       WHERE t.diagram_id = ? AND t.state = 'open' AND t.waits_on = 'owner'
         AND owner.created_at > ? AND owner.created_at <= ?
         AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
           AND event.event = 'reopened' AND event.created_at >= owner.created_at)
         AND NOT EXISTS (SELECT 1 FROM comments later WHERE later.thread_id = t.id AND later.seq > owner.seq)`),
-    accepted: store.prepare(`SELECT t.element_key, json_extract(c.detail, '$.change') AS answer FROM change_sets c
+    accepted: store.prepare(`SELECT t.id AS thread, t.element_key, c.decided_at AS approved_at, json_extract(c.detail, '$.change') AS answer FROM change_sets c
       JOIN comment_threads t ON t.id = c.thread_id AND t.diagram_id = c.diagram_id
       WHERE c.diagram_id = ? AND c.origin = 'proposal' AND c.state IN ('accepted', 'reflected')
         AND c.decided_at > ? AND c.decided_at <= ? AND json_type(c.detail, '$.change') = 'text'
         AND NOT EXISTS (SELECT 1 FROM thread_resolution_events event WHERE event.thread_id = t.id
           AND event.event = 'reopened' AND event.created_at >= c.decided_at)`),
-    recommendations: store.prepare(`SELECT t.element_key, proposed.body AS answer, owner.body AS choice, decision.body AS decision
+    recommendations: store.prepare(`SELECT t.id AS thread, t.element_key, owner.created_at AS approved_at, proposed.body AS answer, owner.body AS choice, decision.body AS decision
       FROM comment_threads t JOIN comments proposed ON proposed.thread_id = t.id AND proposed.author = 'agent'
         AND json_extract(proposed.detail, '$.asks') = 'recommended'
       JOIN comments owner ON owner.thread_id = t.id AND owner.author = 'owner' AND owner.seq = proposed.seq + 1
@@ -76,14 +79,16 @@ export function isDecisionRecord(store, { diagram, confirmedDrawing, baselineDra
     return false;
   }
   if (!Array.isArray(before.hotspots) || !Array.isArray(after.hotspots) || before.hotspots.length !== after.hotspots.length) return false;
+  const noConflictingExternal = (row, decision) => q.externalSince.all(row.thread, row.approved_at, time)
+    .every((external) => exactExternalAnswer(external.text, decision));
   const evidence = q.answers.all(diagram, confirmedAt, confirmedAt, time)
-    .filter((row) => !/[?？]/u.test(row.answer) && normalize(row.answer) !== '' && normalize(row.answer) === normalize(row.decision))
+    .filter((row) => !/[?？]/u.test(row.answer) && normalize(row.answer) !== '' && normalize(row.answer) === normalize(row.decision) && noConflictingExternal(row, row.decision))
     .map((row) => ({ key: row.element_key, text: normalize(row.answer) }));
-  evidence.push(...q.accepted.all(diagram, confirmedAt, time).map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
+  evidence.push(...q.accepted.all(diagram, confirmedAt, time).filter((row) => noConflictingExternal(row, row.answer)).map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
   evidence.push(...q.answered.all(diagram, confirmedAt, time)
-    .filter((row) => !/[?？]/u.test(row.answer)).map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
+    .filter((row) => !/[?？]/u.test(row.answer) && noConflictingExternal(row, row.answer)).map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
   evidence.push(...q.recommendations.all(diagram, confirmedAt, time)
-    .filter((row) => RECOMMENDATION_CHOICES.has(normalize(row.choice)) && normalize(row.answer) === normalize(row.decision))
+    .filter((row) => RECOMMENDATION_CHOICES.has(normalize(row.choice)) && normalize(row.answer) === normalize(row.decision) && noConflictingExternal(row, row.decision))
     .map((row) => ({ key: row.element_key, text: normalize(row.answer) })).filter((row) => row.text));
   const hotspots = q.hotspots.all(baselineDrawing);
   let recorded = 0;

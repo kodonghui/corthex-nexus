@@ -318,6 +318,8 @@ describe('the owner\'s threads', () => {
 
   test('the owner can reopen an automatically resolved thread, retaining its history', async () => {
     const id = thread(erd, { elementKey: 'TBL-146' });
+    s.comment(id, { body: 'Recorded.', at: '2026-11-23T01:02:00.000Z' });
+    db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 2').run(JSON.stringify({ link: 'https://github.com/example/demo/pull/7', external_evidence: { source_kind: 'conversation', location: 'example-123', text: 'Use the other option.', at: '2026-11-23T01:01:00.000Z' } }), id);
     s.closeThread(id, { by: 'reflection' });
     db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(id, TIME);
     threadChanged(db, { project: space.id, thread: id, time: TIME });
@@ -327,11 +329,25 @@ describe('the owner\'s threads', () => {
     assert.equal(result.status, 200);
     assert.equal(result.json.changed, true);
     assert.equal(result.json.thread.waits_on, 'agent');
+    assert.equal(result.json.thread.reopened_at, at(clock));
     assert.deepEqual(open(id), ['agent comment']);
     assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").get(id).n), 1);
+    const reopenedAt = db.prepare("SELECT created_at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").get(id).created_at;
+    assert.equal((await read(nc(id))).json.reopened_at, reopenedAt);
+    const agentRead = await server.send({ method: 'GET', path: `/api/spaces/${space.name}/comments/${nc(id)}`, headers: s.agent.headers });
+    assert.equal(agentRead.json.reopened_at, reopenedAt);
     const repeat = await server.send(request);
     assert.equal(repeat.status, 200);
     assert.equal(Number(db.prepare("SELECT count(*) AS n FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'").get(id).n), 1);
+    const alreadyOpen = await reopen(nc(id));
+    assert.equal(alreadyOpen.json.changed, false);
+    assert.equal(alreadyOpen.json.thread.reopened_at, reopenedAt);
+    const withoutEvidence = thread(erd, { elementKey: 'TBL-146' });
+    s.closeThread(withoutEvidence, { by: 'reflection' });
+    db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'resolved', ?)").run(withoutEvidence, TIME);
+    const legacyReopened = await reopen(nc(withoutEvidence));
+    assert.equal(Object.hasOwn(legacyReopened.json.thread, 'reopened_at'), false);
+    assert.equal(Object.hasOwn((await read(nc(withoutEvidence))).json, 'reopened_at'), false);
     const ownerClosed = thread(erd, { elementKey: 'TBL-146' });
     s.closeThread(ownerClosed);
     const other = { ...request, path: threadPath(nc(ownerClosed), '/reopen'), headers: { ...request.headers, 'Idempotency-Key': `"${newId('nw')}"` } };

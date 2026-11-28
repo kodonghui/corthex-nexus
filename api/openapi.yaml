@@ -10597,6 +10597,9 @@ components:
             - type: "null"
         resolved:
           type: boolean
+        reopened_at:
+          $ref: "#/components/schemas/Time"
+          description: Present in a reopen answer when the thread has external evidence, naming the start of its current evidence cycle.
         last_at:
           $ref: "#/components/schemas/Time"
     Thread:
@@ -10648,6 +10651,9 @@ components:
           description: True when the current closure has verified resolution evidence.
         opened_at:
           $ref: "#/components/schemas/Time"
+        reopened_at:
+          $ref: "#/components/schemas/Time"
+          description: Present on an open reopened thread when it has external evidence; the latest reopen starts the current evidence cycle.
         closed_at:
           anyOf:
             - $ref: "#/components/schemas/Time"

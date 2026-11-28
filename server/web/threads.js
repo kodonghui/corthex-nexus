@@ -21,7 +21,7 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
-import { exactExternalAnswer } from './decision-match.js';
+import { exactExternalAnswer, sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
 export const TEXT_LIMIT = 4000;
@@ -487,11 +487,22 @@ function closeRow(state, thread, reopen = false) {
   const t = state.threads;
   const busy = t.sending.has(what);
   const last = thread.entries.at(-1);
-  const evidence = !reopen && last?.kind === 'decision' ? last.external_evidence : null;
-  const needsConfirmation = evidence && thread.waits_on === 'owner' && !exactExternalAnswer(evidence.text, last.text);
+  const allEvidence = !reopen && last?.kind === 'decision' ? thread.entries.map((entry) => entry.external_evidence).filter(Boolean) : [];
+  const latestAt = allEvidence.reduce((latest, item) => item.at > latest ? item.at : latest, '');
+  const superseded = latestAt < thread.opened_at || latestAt > last.made_at || (thread.reopened_at && latestAt <= thread.reopened_at)
+    || thread.entries.some((entry) => entry.seq < last.seq && (entry.author === 'owner' && entry.made_at > latestAt
+      || entry.asks !== undefined && entry.made_at >= latestAt));
+  const latestEvidence = superseded ? [] : allEvidence.filter((item) => item.at === latestAt);
+  const evidence = latestEvidence.find((item) => !exactExternalAnswer(item.text, last.text)) ?? latestEvidence.at(-1);
+  const conflict = evidence && latestEvidence.some((item) => !sameDecisionAnswer(item.text, evidence.text));
+  const sameTimeOwnerConflict = evidence && thread.entries.some((entry) => entry.seq < last.seq && entry.author === 'owner'
+    && entry.made_at === latestAt && !exactExternalAnswer(entry.text, last.text));
+  const needsConfirmation = evidence && thread.waits_on === 'owner' && (conflict || sameTimeOwnerConflict || !exactExternalAnswer(evidence.text, last.text));
   const summaryId = `th-external-summary-${thread.id}`;
+  const shownEvidence = conflict ? latestEvidence : [evidence];
+  const originals = needsConfirmation ? shownEvidence.flatMap((item, index) => [index === 0 ? '' : ' / ', item.source_kind, ' ', item.location, ', 원문 "', item.text, '"']) : [];
   return [
-    needsConfirmation ? h('p', { class: 'external-summary', id: summaryId }, '봇 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '" / 봇이 적은 결정 "', last.text, '"') : null,
+    needsConfirmation ? h('p', { class: 'external-summary', id: summaryId }, '봇 정리 요청: ', originals, ' / 봇이 적은 결정 "', last.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {
       type: 'button', class: reopen ? 'btn tertiary' : 'btn tertiary sm', disabled: busy, 'aria-busy': busy ? 'true' : null,
       'aria-describedby': needsConfirmation ? summaryId : null,
@@ -681,7 +692,8 @@ function closeOf(state, id, reopen = false) {
 }
 
 function summaryOf(summary) {
-  return { state: summary.state, waits_on: summary.waits_on, closed_by: summary.closed_by, last_at: summary.last_at };
+  return { state: summary.state, waits_on: summary.waits_on, closed_by: summary.closed_by, last_at: summary.last_at,
+    ...(summary.reopened_at === undefined ? {} : { reopened_at: summary.reopened_at }) };
 }
 
 // A reply to a thread closed meanwhile (SCR-145#stale): the bar over the picture, with 새로 고침, and the text moves

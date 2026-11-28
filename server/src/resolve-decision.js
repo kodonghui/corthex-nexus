@@ -3,7 +3,7 @@
 import { pullRequestLink, repositoryBase } from './claims.js';
 import { INCOMPLETE_DRAWING, normalizeDecisionText as normalize, recordResolved, RECOMMENDATION_CHOICES } from './decision-evidence.js';
 import { threadChanged } from './entries.js';
-import { exactExternalAnswer } from '../web/decision-match.js';
+import { exactExternalAnswer, sameDecisionAnswer } from '../web/decision-match.js';
 
 function approvedText(entries, owner, last) {
   if (normalize(owner.body) === normalize(last.body)) return true;
@@ -15,11 +15,18 @@ function approvedText(entries, owner, last) {
 
 function approvalTime(q, thread, row, entries, last, reopenedAt) {
   const owner = entries.findLast((entry) => entry.author === 'owner');
+  const latestEvidence = q.latestEvidence.get(thread);
+  const evidence = latestEvidence ? JSON.parse(latestEvidence.detail).external_evidence : null;
+  const latestEvidenceAt = evidence?.at;
+  const newerEvidenceAgrees = owner && latestEvidenceAt >= owner.created_at
+    && q.evidenceSince.all(thread, owner.created_at).every((row) => exactExternalAnswer(row.text, last.body));
   if (owner && !/[?？]/u.test(owner.body) && approvedText(entries, owner, last)
+      && (latestEvidenceAt == null || latestEvidenceAt < owner.created_at || newerEvidenceAgrees)
       && (reopenedAt == null || owner.created_at > reopenedAt)
       && !entries.some((entry) => entry.seq > owner.seq && entry.seq < last.seq && JSON.parse(entry.detail).asks !== undefined)) return owner.created_at;
-  const evidence = JSON.parse(last.detail).external_evidence;
-  if (!evidence || typeof evidence.at !== 'string' || !exactExternalAnswer(evidence.text, last.body)
+  if (!evidence || typeof evidence.at !== 'string'
+      || q.evidenceAt.all(thread, evidence.at).some((row) => !sameDecisionAnswer(row.text, evidence.text))
+      || !exactExternalAnswer(evidence.text, last.body)
       || evidence.at < row.opened_at || evidence.at > last.created_at
       || (reopenedAt != null && evidence.at <= reopenedAt)) return null;
   if (q.laterQuestion.get(thread, last.seq, evidence.at)) return null;
@@ -32,6 +39,9 @@ function queries(store) {
       JOIN diagrams d ON d.id = t.diagram_id JOIN project_spaces p ON p.id = d.project_id
       WHERE t.id = ? AND p.id = ?`),
     entries: store.prepare('SELECT seq, author, body, detail, created_at FROM comments WHERE thread_id = ? ORDER BY seq DESC LIMIT 200'),
+    latestEvidence: store.prepare("SELECT detail FROM comments WHERE thread_id = ? AND json_type(detail, '$.external_evidence') = 'object' ORDER BY json_extract(detail, '$.external_evidence.at') DESC, seq DESC LIMIT 1"),
+    evidenceAt: store.prepare("SELECT json_extract(detail, '$.external_evidence.text') AS text FROM comments WHERE thread_id = ? AND json_extract(detail, '$.external_evidence.at') = ?"),
+    evidenceSince: store.prepare("SELECT json_extract(detail, '$.external_evidence.text') AS text FROM comments WHERE thread_id = ? AND json_extract(detail, '$.external_evidence.at') >= ?"),
     laterQuestion: store.prepare("SELECT 1 FROM comments WHERE thread_id = ? AND seq < ? AND created_at >= ? AND (author = 'owner' OR json_type(detail, '$.asks') IS NOT NULL) LIMIT 1"),
     lastReopen: store.prepare("SELECT max(created_at) AS at FROM thread_resolution_events WHERE thread_id = ? AND event = 'reopened'"),
     pending: store.prepare("SELECT 1 FROM change_sets WHERE thread_id = ? AND state IN ('proposed', 'accepted') LIMIT 1"),
