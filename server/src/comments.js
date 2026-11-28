@@ -182,7 +182,10 @@ const ENTRY_DETAIL = Object.freeze(['quote', 'asks', 'look_first', 'link']);
 // thread when API-246 reads one (TASK-436, reads.js).
 export function entryOf({ seq, author, body, detail, created_at: madeAt }) {
   const kept = Object.fromEntries(ENTRY_DETAIL.filter((name) => typeof detail[name] === 'string').map((name) => [name, detail[name]]));
-  if (kept.link !== undefined && detail.external_evidence && typeof detail.external_evidence === 'object') kept.external_evidence = detail.external_evidence;
+  if (kept.link !== undefined && detail.external_evidence && typeof detail.external_evidence === 'object') {
+    kept.external_evidence = detail.external_evidence;
+    if (detail.evidence_reported_by) kept.evidence_reported_by = detail.evidence_reported_by;
+  }
   return { seq: Number(seq), author, kind: kept.link === undefined ? 'comment' : 'decision', text: body, ...kept, made_at: madeAt };
 }
 
@@ -491,7 +494,7 @@ function markAnswered({ store, params, request, body, credential, now }) {
 
 // API-255: a decision entry with its link. An open thread can resolve when its record is verified, wait on the agent
 // while a record is missing, or wait on the owner; a closed one takes the entry and stays closed.
-function recordDecision({ store, params, request, body, credential, now }) {
+function recordDecision({ store, params, request, body, credential, now, requestId }) {
   const session = sessionOf(request.headers, { required: true });
   const decision = decisionOf(body);
   const time = timeNow(now);
@@ -500,7 +503,7 @@ function recordDecision({ store, params, request, body, credential, now }) {
   const project = projectOf(statements, params.project);
   const thread = threadOf(statements, project, params.comment);
   const add = () => addEntry(statements, {
-    thread: thread.id, credential: credential.key, text: decision.text, detail: detailOf({ link: decision.link, external_evidence: decision.external_evidence }), time,
+    thread: thread.id, credential: credential.key, text: decision.text, detail: detailOf({ link: decision.link, external_evidence: decision.external_evidence, evidence_reported_by: decision.external_evidence ? { id: credential.id, name: credential.name } : undefined }), time,
   });
   if (thread.state === 'closed') {
     const entry = add();
@@ -509,7 +512,7 @@ function recordDecision({ store, params, request, body, credential, now }) {
     return { status: 201, body: { thread: summary, entry } };
   }
   const done = onOwner(store, statements, { project, thread, session, credential, time }, add);
-  const resolved = resolveDecision(store, { project: project.id, thread: thread.id, time });
+  const resolved = resolveDecision(store, { project: project.id, thread: thread.id, time, credential, requestId });
   let result = resolved ? { ...done.thread, state: 'closed', waitsOn: null, closedBy: 'reflection' } : done.thread;
   if (!resolved && decisionWaitingForRecord(store, { project: project.id, thread: thread.id })) {
     statements.waitOnAgent.run(thread.id);

@@ -76,7 +76,7 @@ export function decisionWaitingForRecord(store, { project, thread }) {
   return normalize(last.body) !== '';
 }
 
-export function resolveDecision(store, { project, thread, time }) {
+export function resolveDecision(store, { project, thread, time, credential, requestId }) {
   const q = queries(store);
   const row = q.thread.get(thread, project);
   if (!row || row.state !== 'open' || row.repository === null || q.pending.get(thread)) return false;
@@ -137,7 +137,7 @@ export function resolveDecision(store, { project, thread, time }) {
     if (holdsAnswer(previous.id, true) || !holdsAnswer(historical.id) || !holdsAnswer(drawing.id)) return false;
   }
   if (q.close.run(time, thread).changes === 0) return false;
-  recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
+  recordResolved(store, { thread, detail: { decision_seq: Number(last.seq), drawing: Number(drawing.id), ...(credential && q.latestEvidence.get(thread) ? { resolved_by: { id: credential.id, name: credential.name }, request_id: requestId } : {}), ...(pull ? { pull_request: Number(pull.number) } : { commit }) }, time });
   threadChanged(store, { project, thread, time });
   return true;
 }

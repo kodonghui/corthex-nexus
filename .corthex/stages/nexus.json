@@ -644,6 +644,11 @@
           "approved": "Optional reopened_at on API-246, API-266 and the API-294 reopen answer exposes the current conversation cycle for the owner-reopen behavior approved through the checkpoint delegate for item 242; it is omitted when not applicable. The delegate’s item 242 decision was given in an Orca reply; the answer is in the project records.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 242 known-risk decision: retain automatic conversation resolution from agent-attested external answers, record the triggering credential and server-generated request ID in the existing audit history, and expose the submitting and resolving credentials. Resolution does not approve a drawing, proposal or stage; reopening remains available. The checkpoint delegate conveyed the maintainer’s risk acceptance in an Orca reply.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
         }
       ],
       "next": "Stage 07: write the sitemap from the spec, the flows and the contract",
@@ -906,6 +911,11 @@
         },
         {
           "approved": "Item 242 safety clarification: exact external answers can resolve; an unmatched answer stays open with its exact source and text and the owner can confirm and close once. Approved by the checkpoint delegate under the maintainer’s delegation. A choice that differs from the recorded decision stays open and shows the original and the agent’s decision side by side for owner confirmation; the checkpoint delegate confirmed this safety rule. The delegate confirmed the choice-mismatch follow-up in an Orca reply; the answer is in the project records.",
+          "by": "오랑이(사용자님 위임)",
+          "date": "2026-11-28"
+        },
+        {
+          "approved": "Item 242 known-risk decision: show the credential that supplied external evidence and the credential that resolved the conversation, retaining the latter after reopening. The checkpoint delegate conveyed the maintainer’s decision in an Orca reply.",
           "by": "오랑이(사용자님 위임)",
           "date": "2026-11-28"
         }

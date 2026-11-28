@@ -309,7 +309,7 @@ describe('an owner request', () => {
     const forbidden = { ...values, owner, someone, ownerEmail: OWNER_EMAIL, someoneEmail: 'someone@example.org', ownerPayload: owner.split('.')[1] };
     assertNoneIn(server.logText(), forbidden);
     for (const answer of answers) assertNoneIn(answer.text, forbidden);
-    const fields = new Set(['time', 'traceId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
+    const fields = new Set(['time', 'traceId', 'requestId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
     for (const line of await server.logged(lines)) {
       for (const field of Object.keys(line)) assert.ok(fields.has(field), field);
       assert.ok(['owner', 'unknown'].includes(line.sender), line.sender);

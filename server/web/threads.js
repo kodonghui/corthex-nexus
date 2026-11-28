@@ -403,6 +403,7 @@ function drawShown(state) {
   refill(box, REPLY_FIELD, h('div', { class: 'thread', role: 'group', 'aria-label': whereOf(state, thread) },
     h('div', { class: 'btns mid' }, h('span', { class: 'small' }, whereOf(state, thread)), stateTag(thread)),
     thread.entries.map((entry) => entryOf(shell, entry)),
+    thread.last_resolution ? h('div', { class: 'small tx' }, thread.last_resolution.current ? '이번 자동 해결 · 에이전트 자격: ' : '이전 자동 해결 · 에이전트 자격: ', thread.last_resolution.by.name, ' (', thread.last_resolution.by.id, ') · ', thread.last_resolution.at) : null,
     open ? replyForm(state, thread) : null,
     open ? closeRow(state, thread) : thread.resolved === true ? closeRow(state, thread, true) : null));
 }
@@ -419,6 +420,7 @@ function entryOf(shell, entry) {
     h('span', { class: 'tx' }, entry.text),
     entry.external_evidence ? h('div', { class: 'external-evidence' },
       h('span', { class: 'small tx' }, '외부 근거: ', entry.external_evidence.source_kind),
+      entry.evidence_reported_by ? h('span', { class: 'small tx' }, '근거를 전한 자격: ', entry.evidence_reported_by.name, ' (', entry.evidence_reported_by.id, ')') : null,
       h('span', { class: 'small tx' }, '출처: ', entry.external_evidence.location),
       h('span', { class: 'small tx' }, '시각: ', entry.external_evidence.at),
       h('blockquote', { class: 'q tx' }, entry.external_evidence.text)) : null,
@@ -676,6 +678,7 @@ function closeOf(state, id, reopen = false) {
       if (t.thread?.id === id && !resolved) {
         Object.assign(t.thread, summaryOf(answer.thread));
         if (reopen) delete t.thread.resolved;
+        if ((reopen || answer.thread.closed_by === 'owner') && t.thread.last_resolution) t.thread.last_resolution.current = false;
       }
       brief(state, id, resolved ? (t.thread?.id === id ? t.thread : listed) : answer.thread);
       drawList(state);
@@ -685,6 +688,7 @@ function closeOf(state, id, reopen = false) {
       if (!reopen && now.removed && !(now.threads ?? []).some((each) => each.state === 'open')) t.host.reload('instead');
       else if (!reopen && answer.thread.state === 'closed' && answer.thread.closed_by === 'reflection') refreshAfterClose(state, id);
       else if (readSinceWrite || diagram !== state.ctx.data.diagram) refreshAfterClose(state, id);
+      else if (reopen && t.shown === id) refreshAfterClose(state, id);
       else if (t.shown === id && (t.thread === null || pendingRead)) readThread(state, id);
       else if (pendingRead) refreshAfterClose(state, id);
     },

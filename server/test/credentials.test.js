@@ -550,7 +550,7 @@ describe('agent credentials', () => {
       assert.equal(text.includes(secret), false, 'a table holds a secret');
       assert.equal(file.includes(secret), false, 'the store file holds a secret');
     }
-    const fields = new Set(['time', 'traceId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
+    const fields = new Set(['time', 'traceId', 'requestId', 'method', 'action', 'sender', 'status', 'code', 'ms', 'reason', 'error', 'aborted']);
     for (const line of await server.logged(lines)) {
       for (const field of Object.keys(line)) assert.ok(fields.has(field), field);
       assert.match(line.traceId, TRACE_ID);

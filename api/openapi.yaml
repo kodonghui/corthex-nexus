@@ -10545,6 +10545,16 @@ components:
           minimum: 0
           maximum: 1000000
           description: Entries that another session claims.
+    CredentialReference:
+      type: object
+      required: [id, name]
+      additionalProperties: false
+      properties:
+        id:
+          $ref: "#/components/schemas/CredentialId"
+        name:
+          type: string
+          maxLength: 64
     Entry:
       type: object
       required: [seq, author, kind, text, made_at]
@@ -10574,6 +10584,8 @@ components:
           $ref: "#/components/schemas/Link"
         external_evidence:
           $ref: "#/components/schemas/ExternalEvidence"
+        evidence_reported_by:
+          $ref: "#/components/schemas/CredentialReference"
         made_at:
           $ref: "#/components/schemas/Time"
     ThreadSummary:
@@ -10649,6 +10661,18 @@ components:
         resolved:
           type: boolean
           description: True when the current closure has verified resolution evidence.
+        last_resolution:
+          type: object
+          required: [by, at, current]
+          additionalProperties: false
+          description: Most recent attributed automatic resolution of a thread containing external evidence, retained after reopening. current is true only for the current closure; otherwise this is historical.
+          properties:
+            by:
+              $ref: "#/components/schemas/CredentialReference"
+            at:
+              $ref: "#/components/schemas/Time"
+            current:
+              type: boolean
         opened_at:
           $ref: "#/components/schemas/Time"
         reopened_at:

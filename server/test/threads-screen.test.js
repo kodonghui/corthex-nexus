@@ -217,11 +217,14 @@ describe('SCR-145 threads', () => {
     const entries = structuredClone(ENTRIES);
     entries[0].made_at = ago(25);
     entries[1].external_evidence = evidence;
+    entries[1].evidence_reported_by = { id: 'ac_000000000001', name: 'example-agent' };
     const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
     try {
       pictureButton(page, 'tbl', 'agent_credentials').click();
       await page.settle();
       const shown = shownThread(page).all('div', 'external-evidence')[0];
+      assert.ok(shown.textContent.includes('example-agent'));
+      assert.ok(shown.textContent.includes('ac_000000000001'));
       assert.ok(shown.textContent.includes(evidence.source_kind));
       assert.ok(shown.textContent.includes(evidence.location));
       assert.ok(shown.textContent.includes(evidence.at));
@@ -568,24 +571,74 @@ describe('SCR-145 threads', () => {
 
   test('a resolved conversation shows its record and can be reopened on a phone', async () => {
     const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
-    const resolved = threadOf('erd', original, { closed_by: 'reflection', resolved: true });
+    const resolved = threadOf('erd', original, { closed_by: 'reflection', resolved: true, last_resolution: { by: { id: 'ac_000000000002', name: 'closing-agent' }, at: ago(3), current: true } });
+    let reopened = false;
+    const latest = { ...resolved, state: 'open', waits_on: 'agent', closed_by: null, resolved: false, last_resolution: { by: { id: 'ac_000000000003', name: 'later-agent' }, at: ago(1), current: false } };
     const page = await openStage('erd', {
       phone: true,
-      more: { [threadPath(T.closed)]: json(200, resolved) },
-      posts: (path) => json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(),
+      more: { [threadPath(T.closed)]: () => json(200, reopened ? latest : resolved)() },
+      posts: (path) => { reopened = true; return json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(); },
     });
     try {
       pictureButton(page, 'tbl', 'project_spaces').click();
       await page.settle();
       assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.resolved]);
+      assert.ok(shownThread(page).textContent.includes('이번 자동 해결 · 에이전트 자격:'));
+      assert.ok(shownThread(page).textContent.includes('closing-agent'));
+      assert.ok(shownThread(page).textContent.includes('ac_000000000002'));
       assert.ok(shownThread(page).all('a').some((link) => link.textContent.includes('/pull/7')));
       buttonOf(shownThread(page), THREAD_WORDS.reopen).click();
       await page.settle();
       assert.equal(page.sent[0].path, `${threadPath(T.closed)}/reopen`);
       assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
+      assert.ok(shownThread(page).textContent.includes('이전 자동 해결 · 에이전트 자격:'));
+      assert.ok(shownThread(page).textContent.includes('later-agent'));
+      assert.equal(shownThread(page).textContent.includes('closing-agent'), false);
+      assert.equal(shownThread(page).textContent.includes('이번 자동 해결'), false);
     } finally {
       page.close();
     }
+  });
+
+  test('reopen refreshes a newly recorded resolution absent from the old view', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const old = threadOf('erd', original, { closed_by: 'reflection', resolved: true });
+    const latest = { ...old, state: 'open', waits_on: 'agent', closed_by: null, resolved: false, last_resolution: { by: { id: 'ac_000000000003', name: 'later-agent' }, at: ago(1), current: false } };
+    let reopened = false;
+    const page = await openStage('erd', {
+      phone: true,
+      more: { [threadPath(T.closed)]: () => json(200, reopened ? latest : old)() },
+      posts: () => { reopened = true; return json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(); },
+    });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.reopen).click();
+      await page.settle();
+      assert.ok(shownThread(page).textContent.includes('이전 자동 해결 · 에이전트 자격:'));
+      assert.ok(shownThread(page).textContent.includes('later-agent'));
+    } finally { page.close(); }
+  });
+
+  test('a failed refresh preserves a successful reopen and labels the earlier resolution', async () => {
+    const original = BRIEFS.erd.find((brief) => brief.id === T.closed);
+    const resolved = threadOf('erd', original, { closed_by: 'reflection', resolved: true, last_resolution: { by: { id: 'ac_000000000002', name: 'closing-agent' }, at: ago(3), current: true } });
+    let reopened = false;
+    const page = await openStage('erd', {
+      phone: true,
+      more: { [threadPath(T.closed)]: () => reopened ? json(500, { code: 'internal', traceId: '0123456789abcdef' })() : json(200, resolved)() },
+      posts: () => { reopened = true; return json(200, { thread: { id: T.closed, state: 'open', waits_on: 'agent', closed_by: null, last_at: ago(0) }, changed: true })(); },
+    });
+    try {
+      pictureButton(page, 'tbl', 'project_spaces').click();
+      await page.settle();
+      buttonOf(shownThread(page), THREAD_WORDS.reopen).click();
+      await page.settle();
+      assert.deepEqual(textsIn(shownThread(page), 'span', 'tag'), [THREAD_WORDS.agents]);
+      assert.ok(shownThread(page).textContent.includes('이전 자동 해결 · 에이전트 자격:'));
+      assert.ok(shownThread(page).textContent.includes('closing-agent'));
+      assert.equal(shownThread(page).textContent.includes('이번 자동 해결'), false);
+    } finally { page.close(); }
   });
 
   test('the thread list marks a resolved conversation before its details are opened', async () => {

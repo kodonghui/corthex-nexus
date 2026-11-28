@@ -331,10 +331,22 @@ describe('agent comments', () => {
     const repository = db.prepare('SELECT repository FROM project_spaces WHERE id = ?').get(example.id).repository;
     const externalThread = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
     const evidence = { source_kind: 'conversation', location: 'example-123', text: 'Use the agreed option.\n', at: '2026-11-23T00:30:00.000Z' };
+    s.confirm(example, board);
+    s.pass(example, '01-domain');
+    s.changeSet(example, board, { origin: 'proposal', state: 'rejected', threadId: externalThread, decidedAt: TIME });
+    const approvalState = () => ['confirmations', 'change_sets', 'stage_passes'].map((table) => db.prepare(`SELECT * FROM ${table} ORDER BY id`).all());
+    const beforeResolution = approvalState();
     const externalResult = await decide(idOf('nc', externalThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name });
     assert.equal(externalResult.status, 201);
     assert.equal(externalResult.json.thread.state, 'closed');
     assert.deepEqual(externalResult.json.entry.external_evidence, evidence);
+    assert.deepEqual(approvalState(), beforeResolution, 'resolving a thread must not approve a drawing, proposal or stage');
+    const actor = { id: idOf('ac', s.agent.key), name: s.agent.name };
+    assert.deepEqual(externalResult.json.entry.evidence_reported_by, actor);
+    const audit = JSON.parse(db.prepare("SELECT detail FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(externalThread).detail);
+    assert.deepEqual(audit.resolved_by, actor);
+    assert.match(audit.request_id, TRACE_ID);
+    assert.ok(server.logText().split('\n').filter(Boolean).map(JSON.parse).some((line) => line.requestId === audit.request_id && line.sender === actor.name && line.action === 'recordDecision'));
     assert.deepEqual(commentsOf(externalThread).at(-1).detail.external_evidence, evidence);
     const punctuation = s.thread(board, { target: 'diagram', author: 'agent', body: text, at: '2026-11-23T00:20:00.000Z' });
     db.prepare('UPDATE comments SET detail = ? WHERE thread_id = ? AND seq = 1').run(JSON.stringify({ asks: 'recommended' }), punctuation);
@@ -375,10 +387,23 @@ describe('agent comments', () => {
     assert.equal(wrongNumber.json.thread.state, 'open');
     const readBack = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
     assert.deepEqual(readBack.json.entries.at(-1).external_evidence, evidence);
+    assert.deepEqual(readBack.json.last_resolution.by, actor);
+    assert.equal(readBack.json.last_resolution.current, true);
     const noEvidence = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?' });
     assert.equal((await decide(idOf('nc', noEvidence), { link: `${repository}/pull/42`, text }, { project: example.name })).json.thread.state, 'open');
     db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_at = NULL, closed_by = NULL WHERE id = ?").run(externalThread);
     db.prepare("INSERT INTO thread_resolution_events (thread_id, event, created_at) VALUES (?, 'reopened', ?)").run(externalThread, at(clock));
+    const reopenedRead = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
+    assert.deepEqual(reopenedRead.json.last_resolution.by, actor);
+    assert.equal(reopenedRead.json.last_resolution.current, false);
+    assert.deepEqual(reopenedRead.json.entries.at(-1).external_evidence, evidence);
+    const laterEvent = db.prepare("INSERT INTO thread_resolution_events (thread_id, event, detail, created_at) VALUES (?, 'resolved', '{}', ?)").run(externalThread, at(clock));
+    db.prepare("UPDATE comment_threads SET state = 'closed', waits_on = NULL, closed_by = 'reflection', closed_at = ? WHERE id = ?").run(at(clock), externalThread);
+    const historicalRead = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
+    assert.deepEqual(historicalRead.json.last_resolution.by, actor);
+    assert.equal(historicalRead.json.last_resolution.current, false);
+    db.prepare('DELETE FROM thread_resolution_events WHERE id = ?').run(laterEvent.lastInsertRowid);
+    db.prepare("UPDATE comment_threads SET state = 'open', waits_on = 'agent', closed_by = NULL, closed_at = NULL WHERE id = ?").run(externalThread);
     const reopenedExternal = await decide(idOf('nc', externalThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name });
     assert.equal(reopenedExternal.json.thread.state, 'open');
     const pendingExternal = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
@@ -395,10 +420,20 @@ describe('agent comments', () => {
     for (let i = 0; i < 201; i++) s.comment(longThread, { author: 'agent', body: 'Status.', at: '2026-11-23T00:40:00.000Z' });
     assert.equal((await decide(idOf('nc', longThread), { link: `${repository}/pull/42`, text, external_evidence: evidence }, { project: example.name })).json.thread.state, 'closed');
     const missingRecord = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
-    const waitingRecord = await decide(idOf('nc', missingRecord), { link: `${repository}/pull/99`, text, external_evidence: evidence }, { project: example.name });
+    const reusedRay = '1234567890abcdef-ABC';
+    const waitingRecord = await decide(idOf('nc', missingRecord), { link: `${repository}/pull/99`, text, external_evidence: evidence }, { project: example.name, headers: { ...s.agent.headers, 'cf-ray': reusedRay } });
     assert.deepEqual([waitingRecord.json.thread.state, waitingRecord.json.thread.waits_on], ['open', 'agent']);
-    const correctedRecord = await decide(idOf('nc', missingRecord), { link: `${repository}/pull/42`, text }, { project: example.name });
+    const secondAgent = s.credential('closing-agent');
+    const correctedRecord = await decide(idOf('nc', missingRecord), { link: `${repository}/pull/42`, text }, { project: example.name, headers: { ...secondAgent.headers, 'cf-ray': reusedRay } });
     assert.equal(correctedRecord.json.thread.state, 'closed');
+    const delayedRead = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', missingRecord)}`, headers: s.agent.headers });
+    assert.deepEqual(delayedRead.json.entries.at(-2).evidence_reported_by, actor);
+    assert.deepEqual(delayedRead.json.last_resolution.by, { id: idOf('ac', secondAgent.key), name: secondAgent.name });
+    const delayedAudit = JSON.parse(db.prepare("SELECT detail FROM thread_resolution_events WHERE thread_id = ? AND event = 'resolved'").get(missingRecord).detail);
+    const sameRay = server.logText().split('\n').filter(Boolean).map(JSON.parse).filter((line) => line.traceId === reusedRay && line.action === 'recordDecision');
+    assert.equal(sameRay.length, 2);
+    assert.notEqual(sameRay[0].requestId, sameRay[1].requestId);
+    assert.ok(sameRay.some((line) => line.requestId === delayedAudit.request_id && line.sender === secondAgent.name));
     const whitespaceTie = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?', at: '2026-11-23T00:20:00.000Z' });
     await decide(idOf('nc', whitespaceTie), { link: `${repository}/pull/99`, text, external_evidence: evidence }, { project: example.name });
     const sameAnswer = await decide(idOf('nc', whitespaceTie), { link: `${repository}/pull/42`, text, external_evidence: { ...evidence, text: evidence.text.trim() } }, { project: example.name });
@@ -901,7 +936,7 @@ describe('agent comments', () => {
     assert.ok(lines.length >= 20);
     for (const line of lines) {
       assert.match(line.traceId, TRACE_ID);
-      assert.ok([s.agent.name, 'unknown', 'owner'].includes(line.sender));
+      assert.ok([s.agent.name, 'closing-agent', 'unknown', 'owner'].includes(line.sender));
     }
     const text = server.logText();
     for (const value of [S1, S2, LINK, 'Is last_used_at needed?', 'Yes: SPEC-050', 'value-that-must-not-come-back', 'TBL-148', folder,

@@ -163,7 +163,7 @@ function changeLatestPass(statements, project, stage, time) {
 }
 
 // See the top of this file. changed is drawSnapshot's list; commit the drawn snapshot's commit.
-export function afterDrawing(store, { project, commit, changed, time }) {
+export function afterDrawing(store, { project, commit, changed, time, credential, requestId }) {
   const statements = statementsOf(store);
   const counts = { confirmations_invalidated: 0, change_sets_reflected: 0, threads_moved: 0 };
   const confirming = new Set();
@@ -221,13 +221,13 @@ export function afterDrawing(store, { project, commit, changed, time }) {
   for (const stage of removedFrom) passStage(store, { project, stage });
 
   // Reflections, at the drawing the diagram shows after the push (reflection.js).
-  counts.change_sets_reflected += reflectMerged(store, { project, commit, time });
+  counts.change_sets_reflected += reflectMerged(store, { project, commit, time, credential, requestId });
 
   for (const diagram of changed) {
     if (diagram.removed || diagram.status !== 'drawn') continue;
-    recheckReflected(store, { project, diagram: diagram.id, time });
+    recheckReflected(store, { project, diagram: diagram.id, time, credential, requestId });
     for (const thread of statements.openThreads.all(diagram.id)) {
-      resolveDecision(store, { project, thread: Number(thread.id), time });
+      resolveDecision(store, { project, thread: Number(thread.id), time, credential, requestId });
     }
   }
 
