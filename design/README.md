@@ -6,7 +6,7 @@ Status: passed on 2026-11-23; the tokens are frozen before development.
 
 Inputs: the screen definitions of stage 08 ([docs/08-screens](../docs/08-screens/README.md), five screens and 39 states), REQ-073 (IBM Carbon components with 8 px corners on controls, 16 px corners on panels and pill-shaped tags), and the click mockup of 2026-11-21, kept in the project's records. The maintainer approved that mockup on 2026-11-22 together with the ten redesign recommendations, which chose the direction: this stage draws that one direction for every screen instead of two candidates per screen.
 
-The source is [base.tokens.json](base.tokens.json), the project's layer of the tokens. The mockup is [mockup/nexus-mockup.html](mockup/nexus-mockup.html).
+The source is [base.tokens.json](base.tokens.json), the project's layer of the tokens. The selected combination is [mockup/nexus-mockup.html](mockup/nexus-mockup.html), with references in [stage 09](../docs/09-mockup/README.md). The earlier 39-state mockup remains at [mockup/legacy-states.html](mockup/legacy-states.html).
 
 ## Follow-up decision: project-first home and phone decisions (2026-11-27)
 

@@ -19,7 +19,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DESIGN = os.path.join(ROOT, "design")
-MOCKUP = os.path.join(DESIGN, "mockup", "nexus-mockup.html")
+MOCKUP = os.path.join(DESIGN, "mockup", "legacy-states.html")
 WIDTHS = (360, 1440)
 COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color|color-mix|light-dark)\(")
 # The named colours of CSS Color Module Level 4, and the system colours of level 4 that set a colour by themselves.
@@ -72,9 +72,9 @@ def walk(node, path, inherited, problems):
             walk(value, where, kind, problems)
 
 
-def mockup_styles(path=MOCKUP):
+def mockup_styles():
     """(the token CSS, every other style of the mockup as declarations, one per line)."""
-    text = read(path)
+    text = read(MOCKUP)
     blocks = re.findall(r"<style\b[^>]*>(.*?)</style>", text, re.S | re.I)
     styles = "\n".join(blocks)
     start, end = styles.index("/* tokens:"), styles.index("/* end of tokens */")

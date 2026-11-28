@@ -2384,7 +2384,7 @@ describe('SCR-145 against the server', () => {
   const failureShows = (page) => assert.deepEqual([texts(page, 'b'), texts(page, 'button').includes('다시 시도')], [[message('internal')], true]);
 
   test('every stage draws from the server by names, and a move is sent and kept (API-274 200)', async () => {
-    const titles = { '01-domain': 'DDD board', '05-erd': 'ERD', '07-sitemap': 'Sitemap', '09-mockup': 'nexus-combination.html' };
+    const titles = { '01-domain': 'DDD board', '05-erd': 'ERD', '07-sitemap': 'Sitemap', '09-mockup': 'nexus-mockup.html' };
     for (const stage of ['01-domain', '02-prd', '03-user-flow', '05-erd', '07-sitemap', '08-screen-states', '09-mockup']) {
       const answer = responses.note('getDiagram', await good.send({ path: diagramRead(stage), headers: owner() }));
       assert.equal(answer.status, 200, stage);

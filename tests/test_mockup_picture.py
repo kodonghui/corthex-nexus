@@ -2,7 +2,7 @@
 
 The mockup drawer (TASK-427) lists the tokens of the stage-09 picture the hub sends: in corthex-hub/0.3, the whole text
 of the page that .corthex/project.json names, which NEXUS reads itself. `server/test/mockup.test.js` draws
-`server/test/mockup-picture.json`, the picture the pinned hub makes of docs/09-mockup/nexus-combination.html, and compares the
+`server/test/mockup-picture.json`, the picture the pinned hub makes of design/mockup/nexus-mockup.html, and compares the
 drawing with the stored one, `server/test/mockup-expected.json`. The server's tests run with Node alone, so this test
 makes the picture again with the pinned hub, the clean checkout at the commit of `hub-ref.json` that
 `CORTHEX_HUB_CHECKOUT` names (prepare it with `python tools/fetch_hub_ref.py`), as the hub's snapshot makes it for this
@@ -31,7 +31,7 @@ from hub_ref import locate_hub  # noqa: E402
 SCRIPTS = "plugins/corthex-nexus/skills/corthex-hub/scripts"
 STAGE = "09-mockup"
 FIXTURE = ROOT / "server" / "test" / "mockup-picture.json"
-ABOUT = ("The pinned hub's stage-09 picture of docs/09-mockup/nexus-combination.html, as its snapshot03.py makes it, and the "
+ABOUT = ("The pinned hub's stage-09 picture of design/mockup/nexus-mockup.html, as its snapshot03.py makes it, and the "
          "SHA-256 of the file. tests/test_mockup_picture.py checks it against the pinned hub and says how to make it again.")
 # The default branch's commit and time, which the picture carries and the fixture leaves out.
 DEFAULT = {"commit": "0" * 40, "time": "2026-11-24T00:00:00+00:00"}
@@ -88,14 +88,14 @@ class MockupPictureTest(unittest.TestCase):
         stored = json.loads(FIXTURE.read_text(encoding="utf-8"))
         made = hub_picture()
         again = "make it again as this file's docstring says"
-        self.assertEqual(stored["sha256"], made["sha256"], f"docs/09-mockup/nexus-combination.html changed since the stored picture: {again}")
-        self.assertEqual(stored, made, f"the pinned hub's picture of docs/09-mockup/nexus-combination.html differs from the stored one: {again}")
+        self.assertEqual(stored["sha256"], made["sha256"], f"design/mockup/nexus-mockup.html changed since the stored picture: {again}")
+        self.assertEqual(stored, made, f"the pinned hub's picture of design/mockup/nexus-mockup.html differs from the stored one: {again}")
 
 
 if __name__ == "__main__":
     if sys.argv[1:] == ["--write"]:
         text = json.dumps(hub_picture(), indent=1, ensure_ascii=False) + "\n"
         FIXTURE.write_text(text, encoding="utf-8", newline="\n")
-        print("Wrote the pinned hub's picture of docs/09-mockup/nexus-combination.html")
+        print("Wrote the pinned hub's picture of design/mockup/nexus-mockup.html")
     else:
         unittest.main()

@@ -228,11 +228,11 @@ describe('snapshot intake', () => {
     // This repository's 13 flows, 5 screens and its mockup page, and no translation copy.
     assert.equal(files.filter((path) => path.startsWith('docs/03-user-flow/FL-')).length, 13);
     assert.equal(files.filter((path) => path.startsWith('docs/08-screens/SCR-')).length, 5);
-    assert.ok(files.includes('docs/09-mockup/nexus-combination.html'));
+    assert.ok(files.includes('design/mockup/nexus-mockup.html'));
     assert.equal(files.length, 19);
     assert.equal(files.some((path) => path.includes('.ko.')), false);
     assert.equal(documents.get('docs/03-user-flow/FL-001-put-a-project-on-nexus.md').stage, '03-user-flow');
-    assert.equal(documents.get('docs/09-mockup/nexus-combination.html').text, readFileSync(new URL('../../docs/09-mockup/nexus-combination.html', import.meta.url), 'utf8'));
+    assert.equal(documents.get('design/mockup/nexus-mockup.html').text, readFileSync(new URL('../../design/mockup/nexus-mockup.html', import.meta.url), 'utf8'));
     assert.deepEqual((await held(name)).json, heldAnswer(name, commit, 1, FORMAT_03));
   });
 

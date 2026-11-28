@@ -6,7 +6,7 @@
 
 입력: 08단계 화면 정의([docs/08-screens](../docs/08-screens/README.ko.md), 화면 5개와 상태 39개), REQ-073(컨트롤은 8px, 패널은 16px 모서리, 태그는 알약 모양인 IBM Carbon 컴포넌트), 그리고 프로젝트 기록에 있는 2026-11-21 클릭 목업. 관리자는 2026-11-22에 재설계 추천안 10개와 함께 이 목업을 승인했고, 그것이 방향을 정했습니다. 그래서 이 단계는 화면마다 후보 둘을 그리지 않고 그 한 방향으로 모든 화면을 그립니다.
 
-원본은 토큰의 프로젝트 층인 [base.tokens.json](base.tokens.json)입니다. 목업은 [mockup/nexus-mockup.html](mockup/nexus-mockup.html)입니다.
+원본은 토큰의 프로젝트 층인 [base.tokens.json](base.tokens.json)입니다. 선택한 조합은 [mockup/nexus-mockup.html](mockup/nexus-mockup.html)이며 참고 자료는 [09단계](../docs/09-mockup/README.ko.md)에 있습니다. 이전 39개 상태 목업은 [mockup/legacy-states.html](mockup/legacy-states.html)에 남아 있습니다.
 
 ## 후속 결정: 프로젝트부터 시작하고 휴대폰에서 결정하기 (2026-11-27)
 

@@ -24,7 +24,7 @@ from hub_ref import locate_hub  # noqa: E402
 TOKENS = "plugins/corthex/skills/corthex-screen/scripts/tokens.py"
 RESOLVER = "design/tokens.resolver.json"
 TARGET = ROOT / "server" / "web" / "tokens.css"
-MOCKUP = ROOT / "design" / "mockup" / "nexus-mockup.html"
+MOCKUP = ROOT / "design" / "mockup" / "legacy-states.html"
 HEAD = ("/* server/web/tokens.css: the tokens of design/, written by tests/test_tokens_css.py --write with the pinned hub's "
         "tokens.py, light then dark. */\n")
 # Each theme as tokens.py css prints it: its arguments after the resolver.
@@ -64,6 +64,7 @@ class TokensCssTest(unittest.TestCase):
 
     def test_the_selected_combination_carries_the_same_tokens(self):
         page = (ROOT / "docs/09-mockup/nexus-combination.html").read_text(encoding="utf-8")
+        self.assertEqual(page, (ROOT / "design/mockup/nexus-mockup.html").read_text(encoding="utf-8"))
         token_css = page.split("<style>", 1)[1].split("</style>", 1)[0].strip()
         self.assertEqual(without_comments(token_css + "\n"), without_comments(TARGET.read_text(encoding="utf-8")))
 

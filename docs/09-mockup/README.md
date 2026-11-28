@@ -9,6 +9,6 @@ On 2026-11-28 the maintainer selected a combination of morning report, to-do, pi
 - [C: picture and pins](references/v2/c-canvas/01-home.html)
 - [I: timeline](references/v3/i-timeline/01-home.html)
 
-[The combined mockup](nexus-combination.html) shows those parts, a confirmation preview and second question, and responsive layout. Its undo control simulates a ten-second wait without sending a decision. The original candidates include other behaviors; they do not supersede the approved stage sources. The earlier full state mockup remains at `design/mockup/nexus-mockup.html`; this combination has not been checked across every screen state.
+[The combined mockup](nexus-combination.html) shows those parts, a confirmation preview and second question, and responsive layout. Its undo control simulates a ten-second wait without sending a decision. The original candidates include other behaviors; they do not supersede the approved stage sources. The earlier full state mockup remains at `design/mockup/legacy-states.html`; this combination has not been checked across every screen state.
 
 The combined mockup's normal home was rendered locally at 1440 and 360 pixels. The CORTHEX page checker reported no errors, warnings or informational findings at either width; the token check found no off-token colours. Those results do not cover the other views and states.
