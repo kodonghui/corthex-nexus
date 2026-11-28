@@ -1,5 +1,5 @@
 // The stored expected drawing of this repository's mockup page (TASK-427): what the mockup drawer draws from
-// mockup-picture.json, the pinned hub's picture of design/mockup/nexus-mockup.html with the file's SHA-256, which
+// mockup-picture.json, the pinned hub's picture of docs/09-mockup/nexus-combination.html with the file's SHA-256, which
 // tests/test_mockup_picture.py makes and checks. test/mockup.test.js compares the drawing with mockup-expected.json
 // exactly. node --test also runs this file, which holds no test and writes nothing.
 //

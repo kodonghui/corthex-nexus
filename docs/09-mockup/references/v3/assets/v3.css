@@ -1,0 +1,33 @@
+/* NEXUS 목업 v3(2차)에서 여러 방향이 같이 쓰는 조각. 색은 common.css의 Carbon g10 값을 따릅니다. */
+
+/* 고르기 버튼(한 번 누르면 답이 되는 버튼) */
+.pick { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--layer); font: inherit; font-size: 16px; font-weight: 600; color: var(--text); cursor: pointer; white-space: nowrap; }
+.pick:hover { background: var(--layer-2); }
+.pick.on { border: 2px solid var(--primary); background: var(--primary-soft); color: #002d9c; padding: 0 17px; }
+.pick.soft { font-weight: 400; color: var(--text-2); }
+.pick.sm { min-height: 36px; font-size: 15px; padding: 0 14px; }
+.picks { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* AI·나 표시 */
+.av { width: 36px; height: 36px; border-radius: 8px; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+.av.ai { background: #d0e2ff; color: #002d9c; }
+.av.me { background: #393939; color: #f4f4f4; border-radius: 50%; }
+.av.sm { width: 28px; height: 28px; font-size: 12px; }
+
+/* 13단계 작은 진행 점 */
+.dots { display: inline-flex; gap: 3px; align-items: center; }
+.dots i { width: 14px; height: 8px; border-radius: 2px; background: var(--border-2); display: inline-block; }
+.dots i.done { background: var(--ok); }
+.dots i.now { background: var(--primary); }
+.dots i.gap { width: 4px; background: transparent; }
+
+/* 확정하면 되는 일(번호 목록, 작은 판) */
+.steps.sm li { padding-bottom: 8px; font-size: 15px; }
+.steps.sm li::before { width: 24px; height: 24px; font-size: 13px; }
+
+/* 상자형 체크박스 */
+.cb { width: 22px; height: 22px; border-radius: 4px; border: 2px solid #525252; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; background: var(--layer); margin-top: 2px; }
+.cb.on { background: var(--ok); border-color: var(--ok); }
+
+.hint { font-size: 14px; color: var(--text-2); }
+.kbdline { display: flex; gap: 18px; font-size: 14px; color: var(--text-2); }

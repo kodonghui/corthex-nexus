@@ -106,7 +106,7 @@ export function repositorySnapshot(format, { commit = newCommit(), replaces, nam
     const files = [
       ['03-user-flow', filesIn('docs/03-user-flow/', /^FL-\d+-.+\.md$/)],
       ['08-screen-states', filesIn('docs/08-screens/', /^SCR-\d+\.md$/)],
-      ['09-mockup', ['design/mockup/nexus-mockup.html']],
+      ['09-mockup', ['docs/09-mockup/nexus-combination.html']],
     ];
     for (const [stage, paths] of files) {
       for (const path of paths) {

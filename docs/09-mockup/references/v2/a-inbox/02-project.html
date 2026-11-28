@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A2 프로젝트 진행</title><link rel="stylesheet" href="../assets/common.css"></head>
+<body><div class="screen"><style>
+.a-body { flex: 1; display: flex; min-height: 0; }
+.a-list { width: 400px; flex: none; background: var(--layer); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+.a-list.narrow { width: 300px; }
+.a-list .lh { padding: 20px 20px 12px; display: flex; align-items: center; gap: 10px; }
+.a-list .grp { padding: 14px 20px 6px; font-size: 14px; font-weight: 600; color: var(--text-2); display: flex; gap: 8px; align-items: center; }
+.a-item { display: block; padding: 12px 20px 12px 17px; border-left: 3px solid transparent; text-decoration: none; color: var(--text); }
+.a-item:hover { background: var(--layer-2); }
+.a-item.on { background: var(--primary-soft); border-left-color: var(--primary); }
+.a-item .t { font-weight: 600; line-height: 1.45; }
+.a-item .m { font-size: 14px; color: var(--text-2); margin-top: 2px; }
+.a-item.done .t { color: var(--text-2); font-weight: 400; text-decoration: line-through; }
+.a-main { flex: 1; min-width: 0; overflow: hidden; }
+.a-detail { padding: 32px 48px 0; max-width: 1040px; }
+.a-crumb { font-size: 14px; color: var(--text-2); margin-bottom: 10px; }
+.a-two { display: grid; grid-template-columns: 1fr 340px; gap: 32px; margin-top: 24px; }
+.a-hints { position: absolute; bottom: 0; left: 400px; right: 0; padding: 12px 48px; border-top: 1px solid var(--border); background: var(--layer); font-size: 14px; color: var(--text-2); display: flex; gap: 20px; align-items: center; }
+.a-stagecol h3 { font-size: 15px; color: var(--text-2); margin-bottom: 8px; }
+.a-st { display: flex; gap: 10px; padding: 9px 12px; border-radius: 6px; align-items: flex-start; }
+.a-st .num { width: 26px; height: 26px; border-radius: 50%; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border-strong); background: var(--layer); }
+.a-st.done .num { background: var(--ok); color: #fff; border-color: var(--ok); }
+.a-st.now { background: var(--primary-soft); outline: 2px solid var(--primary); }
+.a-st.now .num { background: var(--primary); color: #fff; border-color: var(--primary); }
+.a-st .nm { font-weight: 600; line-height: 1.4; }
+.a-st .sub { font-size: 14px; color: var(--text-2); line-height: 1.4; }
+.a-side { width: 360px; flex: none; background: var(--layer); border-left: 1px solid var(--border); padding: 20px; overflow: hidden; }
+.a-canvas-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.a-canvas-top { padding: 14px 20px 6px; background: var(--layer); border-bottom: 1px solid var(--border); }
+</style><header class="shell"><a class="brand" href="#">NEXUS</a>
+<a class="nav" href="01-home.html">할 일 <span class="count">6</span></a>
+<a class="nav on" href="02-project.html">프로젝트</a>
+<span class="spacer"></span><span class="search" role="search">⌕ 찾기·이동 <span class="spacer"></span><kbd>Ctrl</kbd><kbd>K</kbd></span>
+<span class="who" aria-label="내 계정">나</span></header><div class="a-body">
+<aside class="a-list narrow"><div class="lh"><h2>프로젝트</h2><span class="count grey">3</span></div><a class="a-item on" href="#"><div class="t">동네 책방 예약</div><div class="m">1단계 · 할 일 6개</div></a><a class="a-item" href="#"><div class="t">텃밭 나눔 지도</div><div class="m">4단계 · 할 일 1개</div></a><a class="a-item" href="#"><div class="t">가족 사진 앨범</div><div class="m">9단계 · AI가 일하는 중</div></a></aside>
+<main class="a-main" style="padding:32px 48px">
+ <div class="row" style="align-items:flex-start"><div class="grow"><h1>동네 책방 예약</h1><p class="muted">손님이 책을 미리 예약하고 책방에서 받아 가는 서비스</p></div>
+ <button class="btn primary lg">할 일 6개 하나씩 하기</button></div>
+ <div class="note info" style="margin-top:20px;font-size:16px"><b>지금 1단계 ‘무엇을 만드는지 정리’ 중이에요.</b> 내 차례: 질문 3개, 제안 1개, 그림 확정 1개. 이걸 끝내면 AI가 기록하고 2단계로 넘어가요.</div>
+ <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:24px"><section class="a-stagecol"><h3>정하기</h3><div class="a-st now"><span class="num">1</span><div><div class="nm">무엇을 만드는지 정리</div><div class="sub">도메인 · 지금 · 내 차례 6개</div></div></div><div class="a-st "><span class="num">2</span><div><div class="nm">꼭 필요한 기능</div><div class="sub">요구사항 · 아직</div></div></div><div class="a-st "><span class="num">3</span><div><div class="nm">사용하는 순서</div><div class="sub">사용자 흐름 · 아직</div></div></div><div class="a-st "><span class="num">4</span><div><div class="nm">기능 자세히</div><div class="sub">기능 명세 · 아직</div></div></div></section><section class="a-stagecol"><h3>설계</h3><div class="a-st "><span class="num">5</span><div><div class="nm">저장할 자료</div><div class="sub">데이터 구조(ERD) · 아직</div></div></div><div class="a-st "><span class="num">6</span><div><div class="nm">주고받는 약속</div><div class="sub">API · 아직</div></div></div><div class="a-st "><span class="num">7</span><div><div class="nm">화면 목록</div><div class="sub">사이트맵 · 아직</div></div></div></section><section class="a-stagecol"><h3>화면</h3><div class="a-st "><span class="num">8</span><div><div class="nm">화면별 상태</div><div class="sub">화면 상태 · 아직</div></div></div><div class="a-st "><span class="num">9</span><div><div class="nm">화면 시안</div><div class="sub">목업 · 아직</div></div></div></section><section class="a-stagecol"><h3>만들고 마무리</h3><div class="a-st "><span class="num">10</span><div><div class="nm">할 일 나누기</div><div class="sub">작업 목록(WBS) · 아직</div></div></div><div class="a-st "><span class="num">11</span><div><div class="nm">만들기</div><div class="sub">개발 · 아직</div></div></div><div class="a-st "><span class="num">12</span><div><div class="nm">검사</div><div class="sub">QA · 아직</div></div></div><div class="a-st "><span class="num">13</span><div><div class="nm">발표</div><div class="sub">발표 · 아직</div></div></div></section></div>
+ <h2 style="margin-top:28px;font-size:18px">최근 소식</h2>
+ <ul class="small" style="margin:8px 0 0;padding-left:20px;color:var(--text-2)"><li>AI가 ‘서비스 정리 그림’을 새로 보냈어요 · 10분 전</li><li>AI가 질문 3개를 남겼어요 · 10분 전</li><li>내가 프로젝트를 NEXUS에 올렸어요 · 어제</li></ul>
+</main></div><div class="shot-label">A2 프로젝트: 13단계가 어디까지 왔는지</div></div></body></html>

@@ -5,8 +5,8 @@
 //   where its drawing failed.
 // - Every answer of API-293 carries the sandbox header and nosniff, its refusals and faults included.
 // - Every response API-293 lists has a passing test.
-// This repository's page draws as a stored expected list of 95 tokens: test/mockup-picture.json is the pinned hub's
-// picture of design/mockup/nexus-mockup.html with the file's SHA-256, which tests/test_mockup_picture.py checks against
+// This repository's page draws as a stored expected list of 13 tokens: test/mockup-picture.json is the pinned hub's
+// picture of docs/09-mockup/nexus-combination.html with the file's SHA-256, which tests/test_mockup_picture.py checks against
 // the pinned hub; this test fails when the file changes and the picture does not. test/mockup-expected.json is its
 // drawing, compared exactly, so this test fails when the drawing changes and its file does not. To make both again,
 // from the repository's root:
@@ -34,7 +34,7 @@ import { FORMAT_03, newCommit, repositorySnapshot } from './snapshots.js';
 import { localGate, startServer, testStore, TRACE_ID } from './support.js';
 import { checkLayer, checkTables, recordTables } from './tables.js';
 
-const PAGE = 'design/mockup/nexus-mockup.html';
+const PAGE = 'docs/09-mockup/nexus-combination.html';
 const ACTION = 'getMockupPage';
 const NOSNIFF = 'nosniff';
 const JSON_TYPE = { 'Content-Type': 'application/json' };
@@ -67,13 +67,13 @@ describe('the mockup drawer', () => {
     ]);
   });
 
-  test('this repository\'s mockup page draws as the stored expected 95 tokens', () => {
+  test('this repository\'s mockup page draws as the stored expected 13 tokens', () => {
     const stored = storedPicture();
     assert.equal(stored.sha256, sha256(readFileSync(new URL(`../../${PAGE}`, import.meta.url))), `${PAGE} changed: ${AGAIN}`);
     assert.deepEqual([stored.source, stored.part, stored.picture.key, stored.picture.stage], [PAGE, 'nexus', PAGE, STAGE]);
     const drawn = drawingOf(stored);
     assert.deepEqual(drawn, storedDrawing(), `the drawing of ${PAGE} changed: ${AGAIN}`);
-    assert.equal(drawn.elements.length, 95);
+    assert.equal(drawn.elements.length, 13);
     // Every token the page reads, it sets in both themes, the light one first, or in one place for both.
     for (const { kind, name, detail } of drawn.elements) {
       assert.equal(kind, 'token');
@@ -82,9 +82,8 @@ describe('the mockup drawer', () => {
       assert.ok(detail.uses >= 1, name);
     }
     const background = drawn.elements.find((element) => element.name === '--background');
-    assert.deepEqual(background.detail, { values: ['#f4f4f4', '#161616'], uses: 6 });
-    // Six tokens are read only in style attributes of the page's templates.
-    assert.ok(drawn.elements.some((element) => element.name === '--corthex-sticky-hotspot'));
+    assert.deepEqual(background.detail, { values: ['#f4f4f4', '#161616'], uses: 1 });
+    assert.ok(drawn.elements.some((element) => element.name === '--interactive'));
   });
 
   test('reads var() in every style element and style attribute, templates included, and nowhere else (Q1)', () => {
@@ -317,7 +316,7 @@ describe('API-293, the mockup page', () => {
     const pushed = await push(snapshotWith(name, stored.picture.source.text));
     assert.equal(pushed.status, 201);
     const diagram = diagramOf(name);
-    assert.deepEqual([diagram.kind, diagram.name, diagram.stage], ['mockup', 'nexus-mockup.html', STAGE]);
+    assert.deepEqual([diagram.kind, diagram.name, diagram.stage], ['mockup', 'nexus-combination.html', STAGE]);
     const [drawing] = drawings(diagram.id);
     assert.equal(drawing.status, 'drawn');
     // The server's own drawer drew the stored expected tokens.
@@ -359,7 +358,7 @@ describe('API-293, the mockup page', () => {
     assert.deepEqual([answer.status, answer.json.code], [409, 'not_drawn']);
     assert.equal(answer.json.detail, 'the mockup\'s document has never drawn; fix it and push again');
     // The diagram is named by its file while it has never drawn.
-    assert.equal(diagramOf(name).name, 'nexus-mockup.html');
+    assert.equal(diagramOf(name).name, 'nexus-combination.html');
   });
 
   test('a removed mockup still serves its last good page (Q9)', async () => {

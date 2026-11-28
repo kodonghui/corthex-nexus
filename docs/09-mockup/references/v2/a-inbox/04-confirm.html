@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A4 확정 전 확인</title><link rel="stylesheet" href="../assets/common.css"></head>
+<body><div class="screen"><style>
+.a-body { flex: 1; display: flex; min-height: 0; }
+.a-list { width: 400px; flex: none; background: var(--layer); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+.a-list.narrow { width: 300px; }
+.a-list .lh { padding: 20px 20px 12px; display: flex; align-items: center; gap: 10px; }
+.a-list .grp { padding: 14px 20px 6px; font-size: 14px; font-weight: 600; color: var(--text-2); display: flex; gap: 8px; align-items: center; }
+.a-item { display: block; padding: 12px 20px 12px 17px; border-left: 3px solid transparent; text-decoration: none; color: var(--text); }
+.a-item:hover { background: var(--layer-2); }
+.a-item.on { background: var(--primary-soft); border-left-color: var(--primary); }
+.a-item .t { font-weight: 600; line-height: 1.45; }
+.a-item .m { font-size: 14px; color: var(--text-2); margin-top: 2px; }
+.a-item.done .t { color: var(--text-2); font-weight: 400; text-decoration: line-through; }
+.a-main { flex: 1; min-width: 0; overflow: hidden; }
+.a-detail { padding: 32px 48px 0; max-width: 1040px; }
+.a-crumb { font-size: 14px; color: var(--text-2); margin-bottom: 10px; }
+.a-two { display: grid; grid-template-columns: 1fr 340px; gap: 32px; margin-top: 24px; }
+.a-hints { position: absolute; bottom: 0; left: 400px; right: 0; padding: 12px 48px; border-top: 1px solid var(--border); background: var(--layer); font-size: 14px; color: var(--text-2); display: flex; gap: 20px; align-items: center; }
+.a-stagecol h3 { font-size: 15px; color: var(--text-2); margin-bottom: 8px; }
+.a-st { display: flex; gap: 10px; padding: 9px 12px; border-radius: 6px; align-items: flex-start; }
+.a-st .num { width: 26px; height: 26px; border-radius: 50%; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border-strong); background: var(--layer); }
+.a-st.done .num { background: var(--ok); color: #fff; border-color: var(--ok); }
+.a-st.now { background: var(--primary-soft); outline: 2px solid var(--primary); }
+.a-st.now .num { background: var(--primary); color: #fff; border-color: var(--primary); }
+.a-st .nm { font-weight: 600; line-height: 1.4; }
+.a-st .sub { font-size: 14px; color: var(--text-2); line-height: 1.4; }
+.a-side { width: 360px; flex: none; background: var(--layer); border-left: 1px solid var(--border); padding: 20px; overflow: hidden; }
+.a-canvas-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.a-canvas-top { padding: 14px 20px 6px; background: var(--layer); border-bottom: 1px solid var(--border); }
+</style><header class="shell"><a class="brand" href="#">NEXUS</a>
+<a class="nav on" href="01-home.html">할 일 <span class="count">3</span></a>
+<a class="nav" href="02-project.html">프로젝트</a>
+<span class="spacer"></span><span class="search" role="search">⌕ 찾기·이동 <span class="spacer"></span><kbd>Ctrl</kbd><kbd>K</kbd></span>
+<span class="who" aria-label="내 계정">나</span></header><div class="a-body"><aside class="a-list narrow"><div class="lh"><h2>할 일</h2><span class="count">3</span><span class="spacer" style="flex:1"></span><span class="meta">모든 프로젝트</span></div><div style="overflow:hidden"><div class="grp"><span class="tag blue">답할 질문</span> 1</div><a class="a-item" href="#"><div class="t">텃밭을 나눌 때 사진이 꼭 있어야 하나요?</div><div class="m">텃밭 나눔 지도 · 4단계 · 어제</div></a><div class="grp"><span class="tag purple">정할 제안</span> 1</div><a class="a-item" href="#"><div class="t">‘손님에게 알림 보냄’을 그림에 넣을까요?</div><div class="m">동네 책방 예약 · 1단계 · 10분 전</div></a><div class="grp"><span class="tag green">확정할 그림</span> 1</div><a class="a-item on" href="#"><div class="t">서비스 정리 그림 확정하기</div><div class="m">동네 책방 예약 · 1단계 · 준비됨</div></a></div></aside>
+<div class="a-canvas-wrap"><div class="a-canvas-top">
+ <div class="row"><div class="grow"><div class="meta">동네 책방 예약 › 1단계 무엇을 만드는지 정리</div><h2>서비스 정리 그림</h2></div><span class="tag">확정 전</span></div>
+ <ol class="flow" style="margin-top:10px"><li class="done"><span class="n">✓</span><b>질문 답하기</b></li><li class="now"><span class="n">2</span><b>그림 확정</b> 내 차례</li><li><span class="n">3</span>AI가 기록</li><li><span class="n">4</span>1단계 끝</li></ol>
+</div>
+<div class="canvas" style="flex:1;padding:20px"><svg viewBox="0 0 1180 620" width="740" role="img" aria-label="서비스 정리 그림" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans KR, sans-serif"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8d8d8d"/></marker></defs><rect x="0" y="0" width="1180" height="200" rx="8" fill="#f2f4f8" stroke="#e0e0e0"/><text x="20" y="108" font-size="17" font-weight="600" fill="#393939">예약하기</text><rect x="0" y="210" width="1180" height="200" rx="8" fill="#f2f4f8" stroke="#e0e0e0"/><text x="20" y="318" font-size="17" font-weight="600" fill="#393939">책 도착</text><rect x="0" y="420" width="1180" height="200" rx="8" fill="#f2f4f8" stroke="#e0e0e0"/><text x="20" y="528" font-size="17" font-weight="600" fill="#393939">취소</text><line x1="292" y1="100.0" x2="311" y2="100.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="467" y1="100.0" x2="486" y2="100.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="642" y1="100.0" x2="661" y2="100.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="817" y1="100.0" x2="836" y2="100.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="467" y1="310.0" x2="486" y2="310.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="642" y1="310.0" x2="661" y2="310.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="817" y1="310.0" x2="836" y2="310.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><line x1="467" y1="520.0" x2="486" y2="520.0" stroke="#8d8d8d" stroke-width="2" marker-end="url(#ar)"/><rect x="150" y="52" width="140" height="96" rx="4" fill="#fddc69" stroke="rgba(0,0,0,.12)"/><text x="160" y="74" font-size="13" fill="#393939">사람</text><text x="160" y="110" font-size="17" font-weight="600" fill="#161616">손님</text><rect x="315" y="52" width="150" height="96" rx="4" fill="#d0e2ff" stroke="rgba(0,0,0,.12)"/><text x="325" y="74" font-size="13" fill="#393939">누가 하는 일</text><text x="325" y="110" font-size="17" font-weight="600" fill="#161616">예약 신청하기</text><rect x="490" y="52" width="150" height="96" rx="4" fill="#ffd9be" stroke="rgba(0,0,0,.12)"/><text x="500" y="74" font-size="13" fill="#393939">일어난 일</text><text x="500" y="110" font-size="17" font-weight="600" fill="#161616">예약 신청됨</text><rect x="665" y="52" width="150" height="96" rx="4" fill="#d0e2ff" stroke="rgba(0,0,0,.12)"/><text x="675" y="74" font-size="13" fill="#393939">누가 하는 일</text><text x="675" y="102" font-size="17" font-weight="600" fill="#161616">주인이 예약</text><text x="675" y="123" font-size="17" font-weight="600" fill="#161616">받기</text><rect x="840" y="52" width="150" height="96" rx="4" fill="#ffd9be" stroke="rgba(0,0,0,.12)"/><text x="850" y="74" font-size="13" fill="#393939">일어난 일</text><text x="850" y="110" font-size="17" font-weight="600" fill="#161616">예약 확정됨</text><rect x="833" y="45" width="164" height="110" rx="8" fill="none" stroke="#0f62fe" stroke-width="4"/><rect x="1015" y="52" width="150" height="96" rx="4" fill="#ffd6e8" stroke="rgba(0,0,0,.12)"/><text x="1025" y="74" font-size="13" fill="#393939">아직 못 정함</text><text x="1025" y="96" font-size="17" font-weight="600" fill="#161616">예약한 책을</text><text x="1025" y="117" font-size="17" font-weight="600" fill="#161616">며칠 붙잡아</text><text x="1025" y="138" font-size="17" font-weight="600" fill="#161616">둘까?</text><rect x="315" y="262" width="150" height="96" rx="4" fill="#ffd9be" stroke="rgba(0,0,0,.12)"/><text x="325" y="284" font-size="13" fill="#393939">일어난 일</text><text x="325" y="320" font-size="17" font-weight="600" fill="#161616">책 도착함</text><rect x="490" y="262" width="150" height="96" rx="4" fill="#e8daff" stroke="rgba(0,0,0,.12)"/><text x="500" y="284" font-size="13" fill="#393939">규칙</text><text x="500" y="312" font-size="17" font-weight="600" fill="#161616">책이 오면</text><text x="500" y="333" font-size="17" font-weight="600" fill="#161616">손님에게 알리기</text><rect x="665" y="262" width="150" height="96" rx="4" fill="#fff7f0" stroke="#ba4e00" stroke-width="2" stroke-dasharray="7 5"/><text x="675" y="284" font-size="13" fill="#393939">AI 제안 · 일어난 일</text><text x="675" y="312" font-size="17" font-weight="600" fill="#161616">손님에게</text><text x="675" y="333" font-size="17" font-weight="600" fill="#161616">알림 보냄</text><rect x="840" y="262" width="150" height="96" rx="4" fill="#a7f0ba" stroke="rgba(0,0,0,.12)"/><text x="850" y="284" font-size="13" fill="#393939">보는 정보</text><text x="850" y="312" font-size="17" font-weight="600" fill="#161616">예약 목록</text><text x="850" y="333" font-size="17" font-weight="600" fill="#161616">(주인이 봄)</text><rect x="315" y="472" width="150" height="96" rx="4" fill="#d0e2ff" stroke="rgba(0,0,0,.12)"/><text x="325" y="494" font-size="13" fill="#393939">누가 하는 일</text><text x="325" y="530" font-size="17" font-weight="600" fill="#161616">예약 취소하기</text><rect x="490" y="472" width="150" height="96" rx="4" fill="#ffd9be" stroke="rgba(0,0,0,.12)"/><text x="500" y="494" font-size="13" fill="#393939">일어난 일</text><text x="500" y="530" font-size="17" font-weight="600" fill="#161616">예약 취소됨</text><rect x="665" y="472" width="150" height="96" rx="4" fill="#ffd6e8" stroke="rgba(0,0,0,.12)"/><text x="675" y="494" font-size="13" fill="#393939">아직 못 정함</text><text x="675" y="522" font-size="17" font-weight="600" fill="#161616">주인도 취소할</text><text x="675" y="543" font-size="17" font-weight="600" fill="#161616">수 있나?</text></svg>
+ <div style="position:absolute;left:20px;bottom:16px"><div class="zoombar" role="toolbar" aria-label="그림 보기">
+<button class="z" title="화면에 맞추기 (Shift+1)">⤢ 화면에 맞추기</button><span class="sep"></span>
+<button class="z" aria-label="작게 보기">−</button><span class="pct">63%</span><button class="z" aria-label="크게 보기">+</button>
+<span class="sep"></span><button class="z" title="되돌리기 (Ctrl+Z)">↶ 되돌리기</button><button class="z" title="다시 하기 (Ctrl+Shift+Z)">↷ 다시 하기</button>
+</div></div></div>
+<div style="padding:10px 20px;background:var(--layer);border-top:1px solid var(--border)"><div class="legend">
+<span><i style="background:var(--s-event)"></i>일어난 일 <span class="term">(이벤트)</span></span>
+<span><i style="background:var(--s-command)"></i>누가 하는 일 <span class="term">(명령)</span></span>
+<span><i style="background:var(--s-actor)"></i>사람</span>
+<span><i style="background:var(--s-policy)"></i>규칙 <span class="term">(정책)</span></span>
+<span><i style="background:var(--s-read)"></i>보는 정보</span>
+<span><i style="background:var(--s-hot)"></i>아직 못 정함</span>
+<span><i style="background:#fff7f0;border:2px dashed #ba4e00"></i>AI 제안</span>
+</div></div>
+</div><aside class="a-side">
+<h2>이 그림 확정하기</h2>
+<ul class="check" style="margin-top:8px">
+ <li class="done"><span class="ic">✓</span><div>AI 질문 3개에 모두 답했어요</div></li>
+ <li><span class="ic" style="border-color:#b28600;color:#8e6a00">!</span><div>AI 제안 1개가 남았어요.<div class="meta">확정에는 들어가지 않아요. <a href="#">제안 보기</a></div></div></li>
+ <li><span class="ic">2</span><div>지난번과 바뀐 곳 2군데<div class="meta"><a href="#">바뀐 곳만 보기</a></div></div></li>
+</ul>
+<button class="btn primary lg block" style="margin-top:12px">이 그림 확정하기</button>
+<p class="meta" style="margin-top:8px">누르기 전에 무엇이 되는지 한 번 더 보여 드려요.</p>
+<hr class="hr" style="margin:20px 0">
+<h3>고른 상자: 예약 확정됨</h3>
+<p class="meta">일어난 일 · 손님의 예약을 주인이 받으면 생겨요</p>
+<label class="field" for="op" style="margin-top:12px">이 상자에 의견 남기기</label>
+<textarea id="op" rows="3" placeholder="예: ‘예약 확정됨’ 다음에 손님에게 문자 보내기"></textarea>
+<button class="btn secondary block" style="margin-top:10px">이 상자에 의견 보내기</button>
+</aside></div><div class="scrim"><div class="dialog" role="dialog" aria-labelledby="dt">
+<div class="dh"><h2 id="dt">이 그림을 확정할까요?</h2><p class="muted" style="margin-top:4px">확정은 ‘이 그림이 맞아요’라고 표시하는 거예요.</p></div>
+<div class="db"><b>확정하면 이렇게 돼요</b>
+<ol class="steps"><li>지금 보이는 그림(오늘 14:20에 받은 버전)이 맞다고 표시돼요.</li>
+<li>AI가 이 그림을 프로젝트 기록에 남겨요. 보통 몇 분 걸리고, 따로 하실 일은 없어요.</li>
+<li>1단계 그림 2개가 모두 기록되면 1단계가 끝나고 2단계 ‘꼭 필요한 기능’이 시작돼요.</li></ol>
+<div class="note warn">남은 AI 제안 1개(‘손님에게 알림 보냄’)는 이번 확정에 들어가지 않아요.</div>
+<p class="meta" style="margin-top:12px">마음이 바뀌면 ‘확정 취소’로 언제든 되돌릴 수 있어요.</p></div>
+<div class="df"><button class="btn ghost">아직 안 할래요</button><button class="btn primary">네, 이 그림 확정하기</button></div>
+</div></div><div class="shot-label">A4 확정: 누르기 전에 결과를 보여 줌</div></div></body></html>
