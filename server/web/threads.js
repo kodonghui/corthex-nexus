@@ -21,7 +21,6 @@
 import { diagramApi, isThreadId, projectApi, projectHref, stageHref } from './address.js';
 import { newRequestKey, read } from './api.js';
 import { fill, h } from './dom.js';
-import { sameDecisionAnswer } from './decision-match.js';
 
 // The most characters a comment holds (Text in the contract).
 export const TEXT_LIMIT = 4000;
@@ -488,7 +487,7 @@ function closeRow(state, thread, reopen = false) {
   const busy = t.sending.has(what);
   const last = thread.entries.at(-1);
   const evidence = !reopen && last?.kind === 'decision' ? last.external_evidence : null;
-  const needsConfirmation = evidence && !sameDecisionAnswer(evidence.text, last.text);
+  const needsConfirmation = evidence && thread.waits_on === 'owner';
   return [
     needsConfirmation ? h('p', { class: 'external-summary' }, '봇이 정리 요청: ', evidence.source_kind, ' ', evidence.location, ', 원문 "', evidence.text, '"') : null,
     h('div', { class: 'btns' }, h('button', {

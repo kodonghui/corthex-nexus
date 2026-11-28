@@ -346,6 +346,9 @@ describe('agent comments', () => {
       assert.equal(answer.json.thread.waits_on, 'owner');
       assert.equal(answer.json.entry.external_evidence.text, original);
     }
+    const numberThread = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which value?', at: '2026-11-23T00:20:00.000Z' });
+    const wrongNumber = await decide(idOf('nc', numberThread), { link: `${repository}/pull/42`, text, external_evidence: { ...evidence, text: 'Use the agreed option 1.5.' } }, { project: example.name });
+    assert.equal(wrongNumber.json.thread.state, 'open');
     const readBack = await server.send({ method: 'GET', path: `/api/spaces/${example.name}/comments/${idOf('nc', externalThread)}`, headers: s.agent.headers });
     assert.deepEqual(readBack.json.entries.at(-1).external_evidence, evidence);
     const noEvidence = s.thread(board, { target: 'diagram', author: 'agent', body: 'Which option?' });

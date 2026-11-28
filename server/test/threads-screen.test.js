@@ -233,6 +233,17 @@ describe('SCR-145 threads', () => {
       assert.equal(page.sent.at(-1).path, `${threadPath(T.mine)}/close`);
     } finally { page.close(); }
   });
+
+  test('a question-shaped answer still asks the owner to confirm', async () => {
+    const entries = structuredClone(ENTRIES);
+    entries[1].external_evidence = { source_kind: 'conversation', location: 'example-123', text: '자격은 해시로만 저장했어요?', at: ago(20) };
+    const page = await openStage('erd', { phone: true, more: { [threadPath(T.mine)]: json(200, threadOf('erd', BRIEFS.erd[1], { entries })) } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click();
+      await page.settle();
+      assert.ok(buttonOf(shownThread(page), '맞아요, 닫기'));
+    } finally { page.close(); }
+  });
   test('with nothing chosen the section lists every thread of the diagram, open ones first, each named by where it is', async () => {
     const page = await openStage('erd');
     try {
