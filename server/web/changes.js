@@ -537,9 +537,9 @@ function ask(state, set, verb) {
     if (!state.ctx.shell.pending) throw new Error('storage unavailable');
     let pendingKey = null;
     const retry = () => {
-      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey);
-      if (item) state.ctx.shell.pending.retry(item, hooks);
-      else { changes.said = null; ask(state, set, verb); }
+      const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey)
+        ?? { key: pendingKey, path, body: {}, state: 'unconfirmed' };
+      state.ctx.shell.pending.retry(item, hooks);
     };
     const hooks = {
       done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },

@@ -27,8 +27,8 @@ export function write(method, path, body, key, { raw = false, keepalive = false 
 }
 
 // The contract's write ID, the request key's value: nw_ and 12 random characters of its base 32. The caller keeps a
-// key only after a timeout or a lost connection, so that a retry that reaches a write that went through gets its
-// first answer, and makes a new one when its input changes or after any answer.
+// key after an outcome that may need a retry, so that a retry that reaches a write that went through gets its
+// first answer; a new action uses a new key.
 const BASE32 = '0123456789abcdefghjkmnpqrstvwxyz';
 
 export function newRequestKey() {

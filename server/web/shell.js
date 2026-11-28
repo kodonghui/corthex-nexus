@@ -58,7 +58,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
         h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => pending.undo(item.key) } }, '되돌리기'))),
       recovered.map((item) => h('div', { class: 'nt warn', role: 'alert' }, item.state === 'waiting'
         ? '아직 전송되지 않았거나 다른 화면에서 기다리는 중이에요. 내용을 확인해 주세요. '
-        : item.state === 'failed' ? '보내지 못한 결정이 있어요. 그림의 현재 상태를 확인해 주세요. '
+        : item.state === 'failed' ? (item.path.endsWith('/comments') ? '보내지 못한 답변이 있어요. 대화의 현재 상태를 확인해 주세요. ' : '보내지 못한 결정이 있어요. 그림의 현재 상태를 확인해 주세요. ')
           : '전송 결과를 확인하지 못했어요. 다시 보내기 전에 확인해 주세요. ',
         h('p', {}, `${item.path.split('/')[3]} · `, typeof item.body.text === 'string' ? `답변: ${item.body.text}` : item.path.endsWith('/accept') ? '제안 넣기' : '제안 빼기'),
         item.state === 'failed' ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: async () => { const result = await pending.retry(item); if (result?.status >= 400 && result.status < 500 && !isRetryableOutcome(result)) reload(); } } }, '다시 보내기'),

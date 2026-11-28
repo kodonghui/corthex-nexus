@@ -217,3 +217,5 @@ The next implementation review also raised possible cost from rereading browser 
 The mockup review also raised unverified focus and announcement ordering when the preview changes to a restricted state during a pending timer, and a possible duplicate announcement when the last decision finishes after confirmation. Check these sequences with assistive technology in the later full-state mockup pass.
 
 The final mockup follow-up review found no defect in hiding an answered pin or keeping the pending confirmation in the inbox. It raised unverified demo focus behavior when a mouse or keyboard user reaches confirmation from the inbox, and the lack of a repeatable browser test for those mockup interactions; the local Chromium checks were manual. Include these in the later full-state and assistive-technology pass.
+
+A review also noted that failed action notices can accumulate until the owner dismisses them. They are retained to avoid silently losing an unsent answer; consider a clearer way to manage many notices without discarding their contents.

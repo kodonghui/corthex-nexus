@@ -120,3 +120,15 @@ test('a later different reply does not erase a failed answer to the same thread'
   queue.enqueue(path, { text: '다른 답변' }); await timers[1]();
   assert.deepEqual(queue.recovered().map((item) => [item.state, item.body.text]), [['failed', '첫 답변']]);
 });
+
+
+test('a later successful identical reply clears its failed notice', async () => {
+  const store = storage(); const timers = []; let status = 409;
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return timers.length; },
+    cancelTimer: () => {}, send: async () => ({ status }) });
+  const path = '/api/projects/demo/threads/nc_000000000001/comments';
+  queue.enqueue(path, { text: '같은 답변' }); await timers[0]();
+  status = 201;
+  queue.enqueue(path, { text: '같은 답변' }); await timers[1]();
+  assert.equal(queue.recovered().length, 0);
+});

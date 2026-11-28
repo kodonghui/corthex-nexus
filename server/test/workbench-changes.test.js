@@ -507,6 +507,20 @@ describe('SCR-145 changes', () => {
     }
   });
 
+  test('a proposal retry retains its key even if its stored marker disappeared', async () => {
+    let calls = 0;
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? () => new TypeError('Failed to fetch') : problem(409, 'change_set_state') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      const item = page.shell.pending.recovered()[0];
+      assert.equal(page.shell.pending.discard(item), true);
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
   test('a temporarily limited proposal retry keeps the same request key', async () => {
     let calls = 0;
     const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
