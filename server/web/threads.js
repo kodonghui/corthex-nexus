@@ -552,6 +552,11 @@ async function write(state, what, text, action, kept = null) {
   if (what.startsWith('reply ') && kept !== null) {
     const pending = state.ctx.shell.pending;
     const conflict = pending?.hasOtherTarget(path, kept.key);
+    // Dismissing the recovery notice permits a different answer to enter a fresh undo window.
+    if (pending && text !== kept.text && !conflict && pending.wasDiscarded(kept.key)) {
+      t.errors.delete(what);
+      return write(state, what, text, action);
+    }
     if (!pending || text !== kept.text || conflict) {
       const message = !pending ? '전송 준비를 할 수 없어요. 화면을 다시 열고 대화를 확인해 주세요.'
         : conflict ? '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.'
@@ -579,6 +584,7 @@ async function write(state, what, text, action, kept = null) {
   if (what.startsWith('reply ') && kept === null) {
     try {
       if (!state.ctx.shell.pending) throw new Error('storage unavailable');
+      t.errors.delete(what);
       t.sending.add(what);
       const clear = () => { t.sending.delete(what); if (t.host.live()) redraw(state, what); };
       state.ctx.shell.pending.enqueue(path, body, {
@@ -596,7 +602,7 @@ async function write(state, what, text, action, kept = null) {
         redraw(state, what);
         return;
       }
-      t.errors.set(what, { by: 'other', outcome: { failure: 'network' }, action, kept: null });
+      t.errors.set(what, { by: 'field', text: error.message === 'storage unavailable' ? '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.' });
       redraw(state, what);
     }
     return;
@@ -712,7 +718,7 @@ function replyOf(state, id, text) {
       brief(state, id, summary, added);
       if (t.shown === id && (t.thread === null || pendingRead || gap)) readThread(state, id);
       else if (pendingRead || diagram !== state.ctx.data.diagram || (listed && added > 1)) refreshAfterClose(state, id);
-      keepText(state, `reply ${id}`, '');
+      if (textOf(state, `reply ${id}`) === text) keepText(state, `reply ${id}`, '');
       drawList(state);
       drawShown(state);
     },

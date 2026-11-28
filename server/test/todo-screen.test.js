@@ -179,6 +179,27 @@ describe('SCR-142', () => {
     } finally { page.close(); }
   });
 
+  test('an uncertain confirmation retries with the same request key', async () => {
+    const entry = ENTRIES.find((each) => each.kind === 'confirm');
+    const path = `/api/projects/${entry.project}/diagrams/${entry.diagram}`;
+    const known = answersOf({ todo: { entries: [entry], morning: [entry], backup: null } });
+    known[path] = json(200, { drawing: { id: 'dr_000000000001', status: 'drawn' }, confirmation: { state: 'waiting' }, elements: [], overlays: [], since_confirmation: null });
+    const keys = [];
+    const page = await openPage('/', { answers: (url, init) => {
+      if (init?.method === 'POST') { keys.push(init.headers['idempotency-key']); return keys.length === 1 ? new Error('lost') : json(200, {})(); }
+      return known[url](url, init);
+    } });
+    try {
+      const click = (name) => mainOf(page).all('button').find((button) => button.textContent === name).click();
+      click('이 그림 확정하기'); await page.settle();
+      click('네, 확정할게요'); await page.settle();
+      assert.match(mainOf(page).textContent, /확정 결과를 확인하지 못했어요/);
+      click('결과 다시 확인'); await page.settle();
+      assert.equal(keys.length, 2);
+      assert.equal(keys[1], keys[0]);
+    } finally { page.close(); }
+  });
+
   test('a morning answer draft survives a screen reload', async () => {
     const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
     const page = await openPage('/', { answers: answersOf({ todo: { entries: [question], morning: [question], backup: null } }) });
@@ -190,6 +211,37 @@ describe('SCR-142', () => {
       await page.settle();
       assert.equal(mainOf(page).all('textarea')[0].value, '아직 적는 중이에요');
     } finally { page.close(); }
+  });
+
+  test('a morning answer explains when recovery storage is unavailable', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const page = await openPage('/', { answers: answersOf({ todo: { entries: [question], morning: [question], backup: null } }) });
+    try {
+      page.local.setItem = () => { throw new Error('full'); };
+      const field = mainOf(page).all('textarea')[0];
+      field.value = '답변'; field.dispatch('input');
+      mainOf(page).all('form')[0].dispatch('submit'); await page.settle();
+      assert.match(mainOf(page).textContent, /브라우저 저장 공간을 사용할 수 없어 보내지 못했어요/);
+    } finally { page.close(); }
+  });
+
+  test('recovering a morning answer after reopening clears only the sent draft', async () => {
+    const question = { ...ENTRIES.find((entry) => entry.kind === 'question'), question_text: '답해 주세요.' };
+    const answers = answersOf({ todo: { entries: [question], morning: [question], backup: null } });
+    const first = await openPage('/', { answers: (url, init) => init?.method === 'POST' ? new Error('lost') : answers[url](url, init) });
+    let session; let local;
+    try {
+      const field = mainOf(first).all('textarea')[0];
+      field.value = '  답변  '; field.dispatch('input');
+      mainOf(first).all('form')[0].dispatch('submit'); await first.settle();
+      session = Object.fromEntries(first.session.entries); local = Object.fromEntries(first.local.entries);
+    } finally { first.close(); }
+    const next = await openPage('/', { session, local, answers: (url, init) => init?.method === 'POST' ? json(201, {})() : answers[url](url, init) });
+    try {
+      assert.equal(mainOf(next).all('textarea')[0].value, '  답변  ');
+      await next.shell.pending.retry(next.shell.pending.recovered()[0]); await next.settle();
+      assert.equal(mainOf(next).all('textarea')[0].value, '');
+    } finally { next.close(); }
   });
 
   test('a later question in the same thread does not reuse an earlier draft', async () => {

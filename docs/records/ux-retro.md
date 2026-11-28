@@ -221,3 +221,7 @@ The final mockup follow-up review found no defect in hiding an answered pin or k
 A review also noted that failed action notices can accumulate until the owner dismisses them. They are retained to avoid silently losing an unsent answer; consider a clearer way to manage many notices without discarding their contents.
 
 The final recovery review found that overlapping retries could leave a reply marked busy or race an opposite proposal decision. The queue now reports the existing in-flight action, blocks a different decision on the same target, and never bypasses the ten-second queue for a changed reply. The new focused checks simulate these races; they are not a substitute for a real person's use.
+
+If browser storage is blocked or full, the ten-second queue cannot keep its recovery promise and does not send the action; the screen explains why. An accessible recovery path for that case is a candidate for the next pass. The same review also flagged repeated storage scans, a possible large-inbox payload cost, and duplicated confirmation eligibility logic as follow-up work.
+
+The cross-tab recovery tests cover stale notices and a second tab sending during the undo window. They do not establish atomic behavior when two tabs act at exactly the same instant or when the system clock changes abruptly; stronger cross-tab coordination is a follow-up candidate.

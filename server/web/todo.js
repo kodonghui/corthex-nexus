@@ -112,13 +112,15 @@ function morningCard(entry, shell, titles = new Map()) {
     try {
       if (!shell.pending) throw new Error('storage unavailable');
       shell.pending.enqueue(url, body, {
+        draft: submittedDraft === null ? null : draftKey,
+        draftText: submittedDraft,
         done: () => { if (submittedDraft !== null && shell.draftOf(draftKey) === submittedDraft) shell.keepDraft(draftKey, ''); shell.reload(); },
-        undone: () => { notice.textContent = '되돌렸어요. 아직 보내지 않았어요.'; },
+        undone: (reason) => { notice.textContent = reason === 'elsewhere' ? '다른 화면에서 상태가 바뀌었어요. 현재 내용을 확인해 주세요.' : '되돌렸어요. 아직 보내지 않았어요.'; },
         failed: (outcome) => { notice.textContent = isRetryableOutcome(outcome)
           ? '전송 결과를 확인하지 못했어요. 위의 안내를 확인해 주세요.' : '보내지 못했어요. 위의 안내를 확인해 주세요.'; },
       });
       notice.textContent = '10초 뒤 보내요. 위에서 되돌릴 수 있어요.';
-    } catch (error) { notice.textContent = error.message === 'already pending' ? '이 항목은 처리 중이에요. 위 안내를 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
+    } catch (error) { notice.textContent = error.message === 'already pending' ? '이 항목은 처리 중이에요. 위 안내를 확인해 주세요.' : error.message === 'storage unavailable' ? '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.' : '보내기를 준비하지 못했어요. 다시 시도해 주세요.'; }
   };
   const field = entry.kind === 'question' ? h('textarea', { 'aria-label': '답변', rows: '3', on: { input: () => shell.keepDraft(draftKey, field.value) } }) : null;
   if (field) field.value = shell.draftOf(draftKey);
@@ -170,14 +172,21 @@ function confirmationCard(entry, shell) {
       names.length ? h('ul', {}, names.slice(0, 6).map((name) => h('li', {}, name))) : h('p', {}, '그림에서 내용을 확인해 주세요.'),
       names.length > 6 ? h('p', {}, `이 밖에 ${names.length - 6}개가 더 있어요.`) : null,
       h('a', { href: stageHref(entry.project, entry.part, entry.stage, { diagram: entry.diagram }), class: 'btn tertiary' }, '전체 그림 보기'));
-    const yes = h('button', { type: 'button', class: 'btn primary', on: { click: async () => {
+    const requestKey = newRequestKey();
+    const confirm = async () => {
       if (busy) return;
-      busy = true; yes.setAttribute('disabled', '');
-      const outcome = await shell.write('POST', `${path}/confirmation`, { drawing: diagram.drawing.id }, newRequestKey());
+      busy = true; fill(area, h('p', { role: 'status' }, '확정 결과를 확인하고 있어요.'));
+      const outcome = await shell.write('POST', `${path}/confirmation`, { drawing: diagram.drawing.id }, requestKey);
       busy = false;
       if (outcome.status === 200 || outcome.status === 201) { shell.announce('이 그림을 확정했어요. 함께 일하는 AI가 기록할 차례예요.'); shell.reload(); return; }
+      if (outcome.status === 401 || outcome.status === 403 || outcome.failure === 'gate') return;
+      if (isRetryableOutcome(outcome)) {
+        fill(area, h('p', { role: 'alert' }, '확정 결과를 확인하지 못했어요. 다시 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: confirm } }, '결과 다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
+        return;
+      }
       fill(area, h('p', { role: 'alert' }, '확정하지 못했어요. 그림의 현재 상태를 다시 확인해 주세요.'), h('button', { type: 'button', class: 'btn tertiary', on: { click: open } }, '다시 확인'), h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
-    } } }, '네, 확정할게요');
+    };
+    const yes = h('button', { type: 'button', class: 'btn primary', on: { click: confirm } }, '네, 확정할게요');
     fill(area, preview, h('p', {}, summary), h('p', {}, '확정하면 함께 일하는 AI가 기록해요. 모든 그림과 표의 기록이 끝나면 단계가 통과돼요.'),
       yes, h('button', { type: 'button', class: 'btn tertiary', on: { click: reset } }, '취소'));
   };

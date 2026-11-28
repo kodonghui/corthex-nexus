@@ -43,10 +43,10 @@ test('storage failure refuses to start an action', () => {
 
 test('a recovered action is retried once with its original key and can be dismissed', async () => {
   const store = storage();
-  const first = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {} });
+  const first = pendingActions({ storage: store, now: () => 0, schedule: () => 1, cancelTimer: () => {} });
   const key = first.enqueue('/api/projects/demo/change-sets/np_000000000001/accept', {});
   let release; let calls = 0;
-  const next = pendingActions({ storage: store, send: () => { calls += 1; return new Promise((resolve) => { release = resolve; }); } });
+  const next = pendingActions({ storage: store, now: () => UNDO_MS, send: () => { calls += 1; return new Promise((resolve) => { release = resolve; }); } });
   const item = next.recovered()[0];
   const sent = next.retry(item);
   let attachedFailure = null;
@@ -160,10 +160,10 @@ test('a recovered retry cannot race a different pending proposal decision', asyn
 
 test('a completed retry refreshes the shell when its screen handler is no longer live', async () => {
   const store = storage();
-  const first = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {} });
+  const first = pendingActions({ storage: store, now: () => 0, schedule: () => 1, cancelTimer: () => {} });
   first.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
   const changes = [];
-  const next = pendingActions({ storage: store, send: async () => ({ status: 201, body: {} }),
+  const next = pendingActions({ storage: store, now: () => UNDO_MS, send: async () => ({ status: 201, body: {} }),
     onChange: (result, handled) => { if (result) changes.push(handled); } });
   await next.retry(next.recovered()[0], { active: () => false, done: () => {} });
   assert.deepEqual(changes, [false]);
@@ -190,9 +190,9 @@ test('a recovered action retains its original screen handler for a global retry'
 
 test('a broken screen callback cannot suppress joined callbacks or the refresh signal', async () => {
   const store = storage(); let release; const changes = [];
-  const first = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {} });
+  const first = pendingActions({ storage: store, now: () => 0, schedule: () => 1, cancelTimer: () => {} });
   first.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
-  const queue = pendingActions({ storage: store, send: () => new Promise((resolve) => { release = resolve; }),
+  const queue = pendingActions({ storage: store, now: () => UNDO_MS, send: () => new Promise((resolve) => { release = resolve; }),
     onChange: (result, handled, failed) => { if (result) changes.push([handled, failed]); } });
   const item = queue.recovered()[0]; let joined = false;
   const sent = queue.retry(item, { done: () => { throw new Error('broken view'); } });
@@ -223,4 +223,54 @@ test('a broken pending notice does not leave the send in flight forever', async 
   queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
   await timers[0]();
   assert.equal(store.length, 0);
+});
+
+test('another tab cannot send or dismiss a waiting action before its undo window ends', async () => {
+  const store = storage(); let time = 1000; let sends = 0;
+  const options = { storage: store, now: () => time, schedule: () => 1, cancelTimer: () => {}, send: async () => { sends += 1; return { status: 200 }; } };
+  const owner = pendingActions(options); const other = pendingActions(options);
+  const key = owner.enqueue('/api/projects/demo/change-sets/np_000000000001/reject', {});
+  const item = other.recovered()[0];
+  assert.equal((await other.retry(item)).failure, 'pending');
+  assert.equal(other.discard(item), false);
+  assert.equal(sends, 0);
+  assert.equal(owner.undo(key), true);
+  time += UNDO_MS;
+  assert.equal((await other.retry(item)).failure, 'stale');
+  assert.equal(sends, 0);
+  const nextKey = owner.enqueue('/api/projects/demo/change-sets/np_000000000001/reject', {});
+  const next = other.recovered()[0];
+  time += UNDO_MS;
+  assert.equal(owner.undo(nextKey), false);
+  assert.equal(sends, 0);
+  owner.flush();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(sends, 1);
+  assert.equal(next.key, nextKey);
+});
+
+test('another tab cannot discard an action that is being sent', async () => {
+  const store = storage(); let release;
+  const owner = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {}, send: () => new Promise((resolve) => { release = resolve; }) });
+  const other = pendingActions({ storage: store });
+  owner.enqueue('/api/projects/demo/change-sets/np_000000000001/reject', {});
+  const old = other.recovered()[0];
+  owner.flush();
+  assert.equal(other.discard(old), false);
+  assert.equal(other.recovered()[0].state, 'sending');
+  release({ failure: 'network' }); await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(other.recovered()[0].state, 'unconfirmed');
+});
+
+test('explicitly dismissing an orphaned waiting action prevents its owner timer from sending it', async () => {
+  const store = storage(); const timers = []; let sends = 0; let reason = null;
+  const owner = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {}, send: async () => { sends += 1; return { status: 200 }; } });
+  const other = pendingActions({ storage: store });
+  owner.enqueue('/api/projects/demo/change-sets/np_000000000001/reject', {}, { undone: (why) => { reason = why; } });
+  const item = other.recovered()[0];
+  assert.equal(other.canForceDiscard(item), true);
+  assert.equal(other.discard(item, true), true);
+  await timers[0]();
+  assert.equal(sends, 0);
+  assert.equal(reason, 'elsewhere');
 });

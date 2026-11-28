@@ -224,6 +224,8 @@ function drawLine(state) {
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => readAgain(state) } }, CHANGE_WORDS.reload)));
   } else if (said.kind === 'pending') {
     fill(changes.line, h('div', { class: 'nt warn', role: 'status' }, '이 제안의 결정이 처리 중이에요. 위 안내를 확인해 주세요.'));
+  } else if (said.kind === 'storage') {
+    fill(changes.line, h('div', { class: 'nt warn', role: 'alert' }, '브라우저 저장 공간을 사용할 수 없어 보내지 못했어요. 저장 공간을 확인해 주세요.'));
   } else if (said.kind === 'refused') {
     // A request the server refuses as it is (400, 413): its message, and no 다시 시도, which would send it again.
     fill(changes.line,
@@ -560,12 +562,13 @@ function ask(state, set, verb) {
       undone: () => { if (state.live()) drawChanges(state); },
     };
     pendingKey = state.ctx.shell.pending.enqueue(path, {}, hooks);
-    drawChanges(state);
   } catch (error) {
     if (error.message === 'already pending') { drawChanges(state); return; }
-    changes.said = { kind: 'error', outcome: { failure: 'network' }, retry: () => ask(state, set, verb) };
+    changes.said = error.message === 'storage unavailable' ? { kind: 'storage' } : { kind: 'error', outcome: { failure: 'network' }, retry: () => ask(state, set, verb) };
     drawChanges(state);
+    return;
   }
+  drawChanges(state);
 }
 
 function stopAsking(state, set) {

@@ -469,6 +469,21 @@ describe('SCR-145 threads', () => {
     }
   });
 
+  test('text typed after sending a reply remains in the draft when the earlier reply succeeds', async () => {
+    let release;
+    const page = await openStage('erd', { posts: (path, body) => new Promise((resolve) => { release = () => resolve(written(path, body)); }) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      const field = fieldOf(page, 'th-reply');
+      field.value = '첫 답변'; field.dispatch('input'); formOf(field).dispatch('submit');
+      await waitFor(() => typeof release === 'function');
+      fieldOf(page, 'th-reply').value = '이어 적은 글'; fieldOf(page, 'th-reply').dispatch('input');
+      release(); await page.settle();
+      assert.equal(fieldOf(page, 'th-reply').value, '이어 적은 글');
+      assert.equal(drafts(page)[0][1], '이어 적은 글');
+    } finally { page.close(); }
+  });
+
   test('a new comment goes on the element, the row or the diagram, at the drawing shown, and opens its thread', async () => {
     const erd = await openStage('erd');
     try {
@@ -1402,7 +1417,7 @@ describe('SCR-145 threads', () => {
     } finally { page.close(); }
   });
 
-  test('a changed reply is not sent directly after its recovery marker was dismissed', async () => {
+  test('a changed reply after dismissing recovery enters a new undo window', async () => {
     const page = await openStage('erd', { posts: () => new Error('lost') });
     try {
       pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
@@ -1410,10 +1425,9 @@ describe('SCR-145 threads', () => {
       assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
       fieldOf(page, 'th-reply').value = '다른 답변'; fieldOf(page, 'th-reply').dispatch('input');
       buttonOf(shownThread(page), '다시 시도').click(); await page.settle();
-      assert.equal(page.sent.length, 1);
-      assert.match(shownThread(page).textContent, /전송 결과가 확인되지 않았어요/);
-      formOf(fieldOf(page, 'th-reply')).dispatch('submit'); await page.settle();
-      assert.equal(page.sent.length, 1);
+      assert.equal(page.sent.length, 2);
+      assert.notEqual(page.sent[1].key, page.sent[0].key);
+      assert.equal(page.sent[1].body.text, '다른 답변');
     } finally { page.close(); }
   });
 
