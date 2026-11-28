@@ -1273,8 +1273,8 @@ TASK-455 (SPEC-042, SPEC-010) is SCR-142, the page at `/`: what waits on the own
 - **Groups.** A group is headed by its project's title from API-262, or by its name when the list leaves it out, with 프로젝트 보기 to SCR-144.
 - **Rows.** A row shows:
   - its kind as the mockup's tag: 확정, AI 제안 or 질문;
-  - the stage and the diagram's name, such as "05 ERD · ERD";
-  - for a confirmation, why it waits: "아직 확정한 적이 없어요", "새 문서로 확정이 풀렸어요" or "확정을 취소했어요";
+  - the project and the plain-language stage name, with a smaller technical name and, when different, the diagram name;
+  - for a confirmation, why it waits: "아직 확정한 적이 없어요", "지난 확정 뒤 확인할 내용이 생겼어요. 그림을 다시 확인해 주세요" or "확정을 취소했어요";
   - how long it has waited.
 
   It opens SCR-145 at its diagram (`?d=`), and at its thread (`?thread=`) when it has one: a question, or a proposal on a thread. No ID shows (SPEC-010).

@@ -13,9 +13,10 @@
       "description": "The morning report shows at most five owner items, prioritizing questions and proposals on diagrams awaiting confirmation and then ordering by age. Cards offer reply and proposal decisions, or a confirmation result preview and another question. The full to-do at ?view=todo is oldest first; the header links to all projects. Label capped counts, failed reads and old data, and keep the backup warning. On a phone the same structure folds into one column.",
       "responses": [
        "API-262#200",
-       "API-263#200"
+       "API-263#200",
+       "API-264#200"
       ],
-      "where": "docs/08-screens/SCR-142.md:30",
+      "where": "docs/08-screens/SCR-142.md:32",
       "box": {
        "x": 0,
        "y": 0,
@@ -32,7 +33,7 @@
      "detail": {
       "description": "Grey rows in the list's places, two per project group; no buttons.",
       "responses": [],
-      "where": "docs/08-screens/SCR-142.md:31",
+      "where": "docs/08-screens/SCR-142.md:33",
       "box": {
        "x": 340,
        "y": 0,
@@ -52,7 +53,7 @@
        "API-262#200",
        "API-263#200"
       ],
-      "where": "docs/08-screens/SCR-142.md:32",
+      "where": "docs/08-screens/SCR-142.md:34",
       "box": {
        "x": 680,
        "y": 0,
@@ -67,12 +68,14 @@
      "name": "SCR-142#error",
      "status": null,
      "detail": {
-      "description": "\"Something went wrong. Try again.\" with a retry and the request's traceId; the header still works.",
+      "description": "\"Something went wrong. Try again.\" with a retry and the request's traceId; the header still works. A missing or failed progress read is labelled in its own area with a retry.",
       "responses": [
        "API-262#default",
-       "API-263#default"
+       "API-263#default",
+       "API-264#404",
+       "API-264#default"
       ],
-      "where": "docs/08-screens/SCR-142.md:33",
+      "where": "docs/08-screens/SCR-142.md:35",
       "box": {
        "x": 0,
        "y": 332,
@@ -92,9 +95,11 @@
        "API-262#401",
        "API-262#403",
        "API-263#401",
-       "API-263#403"
+       "API-263#403",
+       "API-264#401",
+       "API-264#403"
       ],
-      "where": "docs/08-screens/SCR-142.md:34",
+      "where": "docs/08-screens/SCR-142.md:36",
       "box": {
        "x": 340,
        "y": 332,
@@ -111,7 +116,7 @@
      "detail": {
       "description": "\"Read at 10:42\" beside the title; the list reads again when the tab comes back into view. A failed refresh keeps the previous counts or list marked as old with a retry; an initial failure never displays zero. An entry answered meanwhile opens to its new state on SCR-145.",
       "responses": [],
-      "where": "docs/08-screens/SCR-142.md:35",
+      "where": "docs/08-screens/SCR-142.md:37",
       "box": {
        "x": 680,
        "y": 332,

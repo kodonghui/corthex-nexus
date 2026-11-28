@@ -116,7 +116,7 @@ export const SCREENS = Object.freeze({
     },
     fixedTitle: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',
     title: ({ address }) => address.view === 'todo' ? '모든 할 일' : '아침 보고',
-    description: ({ address }) => address.view === 'todo' ? '모든 프로젝트에서 나를 기다리는 일이에요. 오래된 일부터 보여요.' : '오늘 할 일을 확인해 주세요.',
+    description: ({ address }) => address.view === 'todo' ? '모든 프로젝트에서 나를 기다리는 일이에요. 오래된 일부터 보여요.' : null,
     skeleton: () => [skeletonGroup(2), skeletonGroup(2)],
     render: todoBody,
   },
