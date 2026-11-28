@@ -219,3 +219,5 @@ The mockup review also raised unverified focus and announcement ordering when th
 The final mockup follow-up review found no defect in hiding an answered pin or keeping the pending confirmation in the inbox. It raised unverified demo focus behavior when a mouse or keyboard user reaches confirmation from the inbox, and the lack of a repeatable browser test for those mockup interactions; the local Chromium checks were manual. Include these in the later full-state and assistive-technology pass.
 
 A review also noted that failed action notices can accumulate until the owner dismisses them. They are retained to avoid silently losing an unsent answer; consider a clearer way to manage many notices without discarding their contents.
+
+The final recovery review found that overlapping retries could leave a reply marked busy or race an opposite proposal decision. The queue now reports the existing in-flight action, blocks a different decision on the same target, and never bypasses the ten-second queue for a changed reply. The new focused checks simulate these races; they are not a substitute for a real person's use.

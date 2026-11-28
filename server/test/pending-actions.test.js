@@ -49,11 +49,13 @@ test('a recovered action is retried once with its original key and can be dismis
   const next = pendingActions({ storage: store, send: () => { calls += 1; return new Promise((resolve) => { release = resolve; }); } });
   const item = next.recovered()[0];
   const sent = next.retry(item);
-  next.retry(item);
+  let attachedFailure = null;
+  const attached = next.retry(item, { failed: (result) => { attachedFailure = result.failure; } });
   assert.equal(calls, 1);
   assert.equal(next.discard(item), false);
   release({ failure: 'network' });
-  await sent;
+  await sent; await attached;
+  assert.equal(attachedFailure, 'network');
   assert.equal(next.recovered()[0].key, key);
   assert.equal(next.discard(item), true);
   assert.equal(next.recovered().length, 0);
@@ -131,4 +133,94 @@ test('a later successful identical reply clears its failed notice', async () => 
   status = 201;
   queue.enqueue(path, { text: '같은 답변' }); await timers[1]();
   assert.equal(queue.recovered().length, 0);
+});
+
+test('a different pending action on the same proposal is detected without blocking its own key', () => {
+  const queue = pendingActions({ storage: storage(), schedule: () => 1, cancelTimer: () => {} });
+  const accept = '/api/projects/demo/change-sets/np_000000000001/accept';
+  const reject = accept.replace('/accept', '/reject');
+  const key = queue.enqueue(reject, {});
+  assert.equal(queue.hasOtherTarget(accept, key), false);
+  assert.equal(queue.hasOtherTarget(accept, 'nw_000000000000'), true);
+});
+
+
+test('a recovered retry cannot race a different pending proposal decision', async () => {
+  const store = storage(); let sends = 0;
+  const queue = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {},
+    send: async () => { sends += 1; return { status: 200 }; } });
+  const accept = '/api/projects/demo/change-sets/np_000000000001/accept';
+  const reject = accept.replace('/accept', '/reject');
+  const other = queue.enqueue(reject, {});
+  const result = await queue.retry({ key: 'nw_000000000000', path: accept, body: {}, state: 'unconfirmed' });
+  assert.equal(result.failure, 'pending');
+  assert.equal(sends, 0);
+  assert.equal(queue.undo(other), true);
+});
+
+test('a completed retry refreshes the shell when its screen handler is no longer live', async () => {
+  const store = storage();
+  const first = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {} });
+  first.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  const changes = [];
+  const next = pendingActions({ storage: store, send: async () => ({ status: 201, body: {} }),
+    onChange: (result, handled) => { if (result) changes.push(handled); } });
+  await next.retry(next.recovered()[0], { active: () => false, done: () => {} });
+  assert.deepEqual(changes, [false]);
+});
+
+test('an enqueued action uses its live-screen guard on completion', async () => {
+  const timers = []; const changes = [];
+  const queue = pendingActions({ storage: storage(), schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => ({ status: 201 }), onChange: (result, handled) => { if (result) changes.push(handled); } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' }, { active: () => false, done: () => {} });
+  await timers[0]();
+  assert.deepEqual(changes, [false]);
+});
+
+test('a recovered action retains its original screen handler for a global retry', async () => {
+  const timers = []; let calls = 0; let completed = 0;
+  const queue = pendingActions({ storage: storage(), schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => ++calls === 1 ? { failure: 'network' } : { status: 201 } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' }, { done: () => { completed += 1; } });
+  await timers[0]();
+  await queue.retry(queue.recovered()[0]);
+  assert.equal(completed, 1);
+});
+
+test('a broken screen callback cannot suppress joined callbacks or the refresh signal', async () => {
+  const store = storage(); let release; const changes = [];
+  const first = pendingActions({ storage: store, schedule: () => 1, cancelTimer: () => {} });
+  first.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  const queue = pendingActions({ storage: store, send: () => new Promise((resolve) => { release = resolve; }),
+    onChange: (result, handled, failed) => { if (result) changes.push([handled, failed]); } });
+  const item = queue.recovered()[0]; let joined = false;
+  const sent = queue.retry(item, { done: () => { throw new Error('broken view'); } });
+  const another = queue.retry(item, { done: () => { joined = true; } });
+  release({ status: 201 });
+  await Promise.all([sent, another]);
+  assert.equal(joined, true);
+  assert.deepEqual(changes, [[true, true]]);
+});
+
+test('a screen retry joining a global retry replaces the remembered callback', async () => {
+  const timers = []; let calls = 0; let release; const completed = [];
+  const queue = pendingActions({ storage: storage(), schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: () => ++calls === 1 ? Promise.resolve({ failure: 'network' }) : new Promise((resolve) => { release = resolve; }) });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' }, { done: () => completed.push('remembered') });
+  await timers[0]();
+  const item = queue.recovered()[0];
+  const global = queue.retry(item);
+  const screen = queue.retry(item, { done: () => completed.push('screen') });
+  release({ status: 201 }); await Promise.all([global, screen]);
+  assert.deepEqual(completed, ['screen']);
+});
+
+test('a broken pending notice does not leave the send in flight forever', async () => {
+  const store = storage(); const timers = []; let changes = 0;
+  const queue = pendingActions({ storage: store, schedule: (fn) => { timers.push(fn); return 1; }, cancelTimer: () => {},
+    send: async () => ({ status: 201 }), onChange: () => { if (++changes === 2) throw new Error('broken notice'); } });
+  queue.enqueue('/api/projects/demo/threads/nc_000000000001/comments', { text: '답변' });
+  await timers[0]();
+  assert.equal(store.length, 0);
 });

@@ -162,13 +162,14 @@ function written(path, body) {
 
 // Opens which's stage with answers by path, the writes answered by posts (a function of the path, the body and the
 // key); every write is kept in page.sent as { path, body, key }.
-async function openStage(which, { search = '', more = {}, posts = written, phone = false, session = {}, answers = null } = {}) {
+async function openStage(which, { search = '', more = {}, posts = written, phone = false, session = {}, local = {}, answers = null } = {}) {
   const known = answersOf(more);
   const sent = [];
   const page = await openPage(`/p/${P}/_/${STAGE[which]}`, {
     search,
     phone,
     session,
+    local,
     answers: (path, init) => {
       if (init?.method === 'POST') {
         const body = JSON.parse(init.body);
@@ -1385,6 +1386,117 @@ describe('SCR-145 threads', () => {
     } finally {
       page.close();
     }
+  });
+
+  test('a reply retry keeps its key when its recovery marker was dismissed', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const item = page.shell.pending.recovered()[0];
+      assert.equal(page.shell.pending.discard(item), true);
+      fail = false;
+      buttonOf(shownThread(page), '다시 시도').click(); await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
+  test('a changed reply is not sent directly after its recovery marker was dismissed', async () => {
+    const page = await openStage('erd', { posts: () => new Error('lost') });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      fieldOf(page, 'th-reply').value = '다른 답변'; fieldOf(page, 'th-reply').dispatch('input');
+      buttonOf(shownThread(page), '다시 시도').click(); await page.settle();
+      assert.equal(page.sent.length, 1);
+      assert.match(shownThread(page).textContent, /전송 결과가 확인되지 않았어요/);
+      formOf(fieldOf(page, 'th-reply')).dispatch('submit'); await page.settle();
+      assert.equal(page.sent.length, 1);
+    } finally { page.close(); }
+  });
+
+  test('the main send button retries an uncertain reply with its original key', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      fail = false;
+      formOf(fieldOf(page, 'th-reply')).dispatch('submit'); await page.settle();
+      assert.equal(page.sent[1].key, page.sent[0].key);
+    } finally { page.close(); }
+  });
+
+  test('a global successful reply retry clears its draft and error without sending twice', async () => {
+    let fail = true;
+    const page = await openStage('erd', { posts: (path, body) => fail ? new Error('lost') : written(path, body) });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      fail = false;
+      await page.shell.pending.retry(page.shell.pending.recovered()[0]); await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(fieldOf(page, 'th-reply').value, '');
+      assert.deepEqual(drafts(page), []);
+      assert.equal(buttonOf(shownThread(page), '다시 시도'), undefined);
+      assert.equal(page.shell.pending.recovered().length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a reply recovered after reopening clears the matching draft in that tab', async () => {
+    const first = await openStage('erd', { posts: () => new Error('lost') });
+    let session; let local;
+    try {
+      pictureButton(first, 'tbl', 'agent_credentials').click(); await first.settle();
+      await send(first, 'th-reply', '기존 답변');
+      session = Object.fromEntries(first.session.entries);
+      local = Object.fromEntries(first.local.entries);
+    } finally { first.close(); }
+    const next = await openStage('erd', { session, local });
+    try {
+      assert.equal(drafts(next).length, 1);
+      await next.shell.pending.retry(next.shell.pending.recovered()[0]); await next.settle();
+      assert.deepEqual(drafts(next), []);
+      assert.equal(next.sent.length, 1);
+    } finally { next.close(); }
+  });
+
+  test('a joined successful reply retry clears the original draft without sending twice', async () => {
+    let calls = 0, release;
+    const page = await openStage('erd', { posts: (path, body) => {
+      calls += 1;
+      return calls === 1 ? new Error('lost') : new Promise((resolve) => { release = () => resolve(written(path, body)); });
+    } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      buttonOf(shownThread(page), '다시 시도').click();
+      release(); await inflight; await page.settle();
+      assert.equal(page.sent.length, 2);
+      assert.equal(fieldOf(page, 'th-reply').value, '');
+      assert.equal(page.shell.pending.recovered().length, 0);
+    } finally { page.close(); }
+  });
+
+  test('a simultaneous reply retry does not leave the reply box busy', async () => {
+    let calls = 0, release;
+    const page = await openStage('erd', { posts: () => {
+      calls += 1;
+      return calls === 1 ? new Error('lost') : new Promise((resolve) => { release = () => resolve(problem(500, 'internal')()); });
+    } });
+    try {
+      pictureButton(page, 'tbl', 'agent_credentials').click(); await page.settle();
+      await send(page, 'th-reply', '기존 답변');
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      buttonOf(shownThread(page), '다시 시도').click();
+      release(); await inflight; await page.settle();
+      assert.ok(buttonOf(shownThread(page), '다시 시도'));
+      assert.equal(page.sent.length, 2);
+    } finally { page.close(); }
   });
 
   test('a thread\'s text, quote and links go in as text, and only an https address becomes a link', async () => {

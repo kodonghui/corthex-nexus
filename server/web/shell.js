@@ -44,9 +44,14 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
   const noticeArea = h('div', { role: 'status' });
   let pending = null;
   try {
-    pending = pendingActions({ ...pendingOptions, send: (method, path, body, key, options) => writeOf(method, path, body, key, options), onChange: (result, handled) => {
+    pending = pendingActions({ ...pendingOptions, send: (method, path, body, key, options) => writeOf(method, path, body, key, options), onChange: (result, handled, viewFailed, item) => {
+      // A retry after reloading has no old screen callback. Clear only the exact answer that was delivered.
+      if ((result?.status === 200 || result?.status === 201) && typeof item?.draft === 'string' && typeof item.body.text === 'string') {
+        const [, , , project, , thread] = item.path.split('/');
+        if (item.draft.startsWith(`/p/${project} `) && item.draft.endsWith(` reply ${thread}`) && draftOf(item.draft) === item.body.text) keepDraft(item.draft, '');
+      }
       drawPending();
-      if (!handled && (result?.status === 200 || result?.status === 201)) reload();
+      if (viewFailed || (!handled && (result?.status === 200 || result?.status === 201))) reload();
     } });
   } catch { /* Storage unavailable: actions cannot promise recovery. */ }
   function drawPending() {
@@ -61,7 +66,7 @@ export function startShell(root, screen, address, { pendingOptions = {} } = {}) 
         : item.state === 'failed' ? (item.path.endsWith('/comments') ? '보내지 못한 답변이 있어요. 대화의 현재 상태를 확인해 주세요. ' : '보내지 못한 결정이 있어요. 그림의 현재 상태를 확인해 주세요. ')
           : '전송 결과를 확인하지 못했어요. 다시 보내기 전에 확인해 주세요. ',
         h('p', {}, `${item.path.split('/')[3]} · `, typeof item.body.text === 'string' ? `답변: ${item.body.text}` : item.path.endsWith('/accept') ? '제안 넣기' : '제안 빼기'),
-        item.state === 'failed' ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: async () => { const result = await pending.retry(item); if (result?.status >= 400 && result.status < 500 && !isRetryableOutcome(result)) reload(); } } }, '다시 보내기'),
+        item.state === 'failed' ? null : h('button', { type: 'button', class: 'btn tertiary sm', on: { click: async () => { const result = await pending.retry(item); if (result?.failure === 'pending') shell.announce('다른 결정이나 답변이 처리 중이에요. 위 안내를 확인해 주세요.'); else if (result?.status >= 400 && result.status < 500 && !isRetryableOutcome(result)) reload(); } } }, '다시 보내기'),
         h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => { if (pending.discard(item)) reload(); } } }, '안내 지우기'))));
   }
   globalThis.addEventListener?.('pagehide', () => pending?.flush());

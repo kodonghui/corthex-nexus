@@ -475,7 +475,8 @@ function textForm(state, { id, what, label, placeholder, action }) {
     event?.preventDefault?.();
     const text = field.value ?? '';
     keepText(state, what, text);
-    write(state, what, text, action);
+    // A main-button submission after an uncertain reply must also reuse its saved key.
+    write(state, what, text, action, what.startsWith('reply ') ? error?.kept ?? null : null);
   };
   return h('form', { class: 'th-form', novalidate: true, on: { submit } },
     h('label', { class: 'l', for: id }, label),
@@ -521,7 +522,8 @@ function errorOf(state, what, error, id) {
   const { shell } = state.ctx;
   if (error.by === 'field') {
     // A div, not a p, as in projects.js: the shell's `.nx p{margin:0}` would take away err-text's space under the field.
-    return h('div', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null);
+    return h('div', { class: 'err-text', id: `${id}-error` }, error.text, error.limit ? ` ${THREAD_WORDS.limit}` : null,
+      error.kept ? h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => write(state, what, textOf(state, what), error.action, error.kept) } }, '다시 시도') : null);
   }
   if (error.by === 'gone') {
     return h('div', { class: 'nt warn', role: 'alert' }, h('div', { class: 'b' }, h('b', {}, shell.message(error.code))),
@@ -548,22 +550,31 @@ async function write(state, what, text, action, kept = null) {
   }
   const { path, body, done } = action(text);
   if (what.startsWith('reply ') && kept !== null) {
-    const item = state.ctx.shell.pending?.recovered().find((candidate) => candidate.key === kept.key);
-    if (item) {
-      if (text !== kept.text) {
-        t.errors.set(what, { by: 'field', text: '이전 답변의 전송 결과가 확인되지 않았어요. 위 안내를 먼저 확인해 주세요.' });
-        redraw(state, what);
-        return;
-      }
-      t.errors.delete(what);
-      t.sending.add(what);
+    const pending = state.ctx.shell.pending;
+    const conflict = pending?.hasOtherTarget(path, kept.key);
+    if (!pending || text !== kept.text || conflict) {
+      const message = !pending ? '전송 준비를 할 수 없어요. 화면을 다시 열고 대화를 확인해 주세요.'
+        : conflict ? '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.'
+          : '이전 답변의 전송 결과가 확인되지 않았어요. 대화를 확인하고 이전 답변으로 되돌린 뒤 다시 시도해 주세요.';
+      t.errors.set(what, { by: 'field', text: message, action, kept: pending ? kept : null });
       redraw(state, what);
-      await state.ctx.shell.pending.retry(item, {
-        done: (answer) => { t.sending.delete(what); if (t.host.live()) done(answer); },
-        failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
-      });
       return;
     }
+    const item = pending.recovered().find((candidate) => candidate.key === kept.key)
+      ?? { key: kept.key, path, body, draft: draftKey(state.ctx.data.diagram, what), state: 'unconfirmed' };
+    t.errors.delete(what);
+    t.sending.add(what);
+    redraw(state, what);
+    const result = await pending.retry(item, {
+      active: () => t.host.live(),
+      done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
+      failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
+    });
+    if (result?.failure === 'pending') {
+      t.sending.delete(what);
+      if (t.host.live()) { t.errors.set(what, { by: 'field', text: '다른 답변이 처리 중이에요. 위 안내를 확인해 주세요.', action, kept }); redraw(state, what); }
+    }
+    return;
   }
   if (what.startsWith('reply ') && kept === null) {
     try {
@@ -571,7 +582,9 @@ async function write(state, what, text, action, kept = null) {
       t.sending.add(what);
       const clear = () => { t.sending.delete(what); if (t.host.live()) redraw(state, what); };
       state.ctx.shell.pending.enqueue(path, body, {
-        done: (answer) => { t.sending.delete(what); if (t.host.live()) done(answer); },
+        draft: draftKey(state.ctx.data.diagram, what),
+        active: () => t.host.live(),
+        done: (answer) => { t.sending.delete(what); t.errors.delete(what); if (t.host.live()) done(answer); },
         failed: (outcome, key) => { t.sending.delete(what); if (t.host.live()) finishWrite(state, what, text, action, done, key, outcome); },
         undone: clear,
       });

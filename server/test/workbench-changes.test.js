@@ -507,6 +507,33 @@ describe('SCR-145 changes', () => {
     }
   });
 
+  test('a simultaneous proposal retry explains the request already in flight', async () => {
+    let calls = 0; const answer = held(problem(500, 'internal'));
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),
+      posted: () => ++calls === 1 ? () => new TypeError('lost') : answer.answer });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      const inflight = page.shell.pending.retry(page.shell.pending.recovered()[0]);
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      assert.match(lineOf(page).textContent, /처리 중/);
+      answer.release(); await inflight; await page.settle();
+      assert.equal(page.sent.length, 2);
+    } finally { page.close(); }
+  });
+
+  test('an old proposal retry cannot race a different pending decision', async () => {
+    const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }), posted: () => () => new TypeError('lost') });
+    try {
+      byId(page, `p-${PROPOSED.id}-accept`).click(); await page.settle();
+      assert.equal(page.shell.pending.discard(page.shell.pending.recovered()[0]), true);
+      const other = page.shell.pending.enqueue(changeSetPath(PROPOSED.id, 'reject'), {});
+      lineOf(page).all('button').find((button) => button.textContent === '다시 시도').click();
+      assert.equal(page.sent.length, 1);
+      assert.match(lineOf(page).textContent, /처리 중/);
+      assert.equal(page.shell.pending.undo(other), true);
+    } finally { page.close(); }
+  });
+
   test('a proposal retry retains its key even if its stored marker disappeared', async () => {
     let calls = 0;
     const page = await openStage('erd', { diagram: diagramOf('erd', { overlays: [PROPOSED] }),

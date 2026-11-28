@@ -222,6 +222,8 @@ function drawLine(state) {
     fill(changes.line, h('div', { class: 'nt warn', role: 'alert' },
       h('div', { class: 'b' }, h('b', {}, shell.message(said.code)), kept === null ? null : h('span', {}, kept)),
       h('button', { type: 'button', class: 'btn tertiary sm', on: { click: () => readAgain(state) } }, CHANGE_WORDS.reload)));
+  } else if (said.kind === 'pending') {
+    fill(changes.line, h('div', { class: 'nt warn', role: 'status' }, '이 제안의 결정이 처리 중이에요. 위 안내를 확인해 주세요.'));
   } else if (said.kind === 'refused') {
     // A request the server refuses as it is (400, 413): its message, and no 다시 시도, which would send it again.
     fill(changes.line,
@@ -536,12 +538,19 @@ function ask(state, set, verb) {
   try {
     if (!state.ctx.shell.pending) throw new Error('storage unavailable');
     let pendingKey = null;
-    const retry = () => {
+    const retry = async () => {
+      if (!state.live()) return;
+      if (state.ctx.shell.pending.hasOtherTarget(path, pendingKey)) {
+        changes.said = { kind: 'pending' }; drawLine(state); return;
+      }
       const item = state.ctx.shell.pending.recovered().find((candidate) => candidate.key === pendingKey)
         ?? { key: pendingKey, path, body: {}, state: 'unconfirmed' };
-      state.ctx.shell.pending.retry(item, hooks);
+      changes.said = { kind: 'pending' }; drawLine(state);
+      const result = await state.ctx.shell.pending.retry(item, hooks);
+      if (result?.failure === 'pending' && state.live()) { changes.said = { kind: 'pending' }; drawLine(state); }
     };
     const hooks = {
+      active: () => state.live(),
       done: (_body, outcome) => { if (state.live()) met(state, outcome, { verb, retry, focus: 'proposals-heading' }); },
       failed: (outcome) => {
         if (!state.live()) return;
