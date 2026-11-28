@@ -644,7 +644,7 @@ SPEC-009, API-265, API-293 and the stage-09 mockup left the rules below open. Th
 | Name, key and order | The property as the page writes it, with its leading `--`, as the stage-09 panel lists `--button-primary`; its case kept, since custom properties are case-sensitive; its CSS escapes resolved, so `--a\:b` and `--a\3a b` are one token `--a:b`. Its key is `token:` and its name, as `elementKey` makes it. The tokens come in the order the page first reads them. | The tokens by name. |
 | `detail` | `{ values, uses }`. `values` are the distinct values the page's CSS sets for the property, in the page's order, up to 10, each cut to 200 characters, white space made single spaces and `!important` left out; here the light theme's and then the dark's. The screen can draw a swatch of the first. `uses` is how many `var()` read it. | `{}`, the name only. |
 | A box | None. The stage-09 mockup lists the tokens in the panel beside the frame, not on a canvas, so `layout.js` places none. A token has no position: TASK-441 answers its `position` null, and TASK-442 refuses to move one. | A box per token, sized for its name, in one column placed by `layout.js`. |
-| The diagram's name | The file's name, as `drawing.js` names a file's picture, here `nexus-mockup.html`. | The page's `<title>`. |
+| The diagram's name | The file's name, as `drawing.js` names a file's picture, here `nexus-combination.html`. | The page's `<title>`. |
 | A page that cannot be drawn | Only a page that reads more custom properties than a drawing's 5000 elements fails, at its source with no line, as the ERD and the sitemap do. Any other text draws, an empty page or one that reads none as no tokens. | Also a text that is not an HTML page. |
 | A removed mockup | Its last good page is still served (API-293), since its threads, which SPEC-027 still opens, are about it. | `diagram_not_found`. |
 
@@ -654,7 +654,7 @@ How it reads the page:
 - **Warnings.** It reads none, as `drawing.js` gives a file's picture none.
 
 `test/mockup.test.js` checks TASK-427's done condition: a test page that uses 3 tokens lists 3 token elements, and this repository's page draws as a stored expected list of 95 tokens.
-- `test/mockup-picture.json` is the pinned hub's picture of `design/mockup/nexus-mockup.html`, as its `snapshot03.py` makes it, with the file's SHA-256.
+- `test/mockup-picture.json` is the pinned hub's picture of `docs/09-mockup/nexus-combination.html`, as its `snapshot03.py` makes it, with the file's SHA-256.
 - `test/mockup-expected.json` is its drawing. The test compares it exactly, alone and through the push with the server's own drawer.
 - The test fails when the page changes and the picture does not, and when the drawing changes and its file does not.
 - The server's tests run with Node alone, so `tests/test_mockup_picture.py` makes the picture again with the pinned hub, from the working tree, and fails when it differs from the stored one.
@@ -762,7 +762,7 @@ Both operations read the project space, the entry and the claim's pull request b
     - A file diagram is a diagram of stage 03, 08 or 09 that is a file's, not the stage's item table.
     - It is named by the trace ID its name starts with, read as the hub reads the ID that leads a heading: after any white space, `*`, `_`, `` ` ``, `~`, `[` or `(`, an ID that no letter, digit or `_` follows.
     - Its name is its drawer's: the file's first heading, such as "FL-005 Reflect accepted changes into Git" or "SCR-143 Projects", or the file's name until a drawer names it, such as `SCR-143.md`. The diagram row keeps that name, the one the page shows and an agent reads, so no source is read again, and a failed drawing leaves it as it was.
-    - The mockup page is named by its file's name, `nexus-mockup.html`, and holds no trace ID. It is reached with no item, as its stage's only diagram.
+    - The mockup page is named by its file's name, `nexus-combination.html`, and holds no trace ID. It is reached with no item, as its stage's only diagram.
     - An element that holds the item still wins. Two diagrams named by it get `diagram_ambiguous`. A removed diagram, or one that never drew, is none of them.
     - With `diagram`, the item may also be the one that diagram is named by.
     - So an agent reaches each file of stages 03, 08 and 09 through the pinned hub's `comment` command, which sends `item` and never `diagram`. A proposal's items pick a diagram the same way (see [Proposals](#proposals)).

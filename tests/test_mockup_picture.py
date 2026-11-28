@@ -2,7 +2,7 @@
 
 The mockup drawer (TASK-427) lists the tokens of the stage-09 picture the hub sends: in corthex-hub/0.3, the whole text
 of the page that .corthex/project.json names, which NEXUS reads itself. `server/test/mockup.test.js` draws
-`server/test/mockup-picture.json`, the picture the pinned hub makes of design/mockup/nexus-mockup.html, and compares the
+`server/test/mockup-picture.json`, the picture the pinned hub makes of docs/09-mockup/nexus-combination.html, and compares the
 drawing with the stored one, `server/test/mockup-expected.json`. The server's tests run with Node alone, so this test
 makes the picture again with the pinned hub, the clean checkout at the commit of `hub-ref.json` that
 `CORTHEX_HUB_CHECKOUT` names (prepare it with `python tools/fetch_hub_ref.py`), as the hub's snapshot makes it for this
@@ -88,7 +88,7 @@ class MockupPictureTest(unittest.TestCase):
         stored = json.loads(FIXTURE.read_text(encoding="utf-8"))
         made = hub_picture()
         again = "make it again as this file's docstring says"
-        self.assertEqual(stored["sha256"], made["sha256"], f"design/mockup/nexus-mockup.html changed since the stored picture: {again}")
+        self.assertEqual(stored["sha256"], made["sha256"], f"docs/09-mockup/nexus-combination.html changed since the stored picture: {again}")
         self.assertEqual(stored, made, f"the pinned hub's picture of docs/09-mockup/nexus-combination.html differs from the stored one: {again}")
 
 

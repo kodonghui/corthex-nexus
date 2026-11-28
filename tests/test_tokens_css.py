@@ -62,6 +62,11 @@ class TokensCssTest(unittest.TestCase):
         self.assertEqual(without_comments(page[start:end]), without_comments(TARGET.read_text(encoding="utf-8")),
                          "the stage-09 mockup's token block and server/web/tokens.css differ")
 
+    def test_the_selected_combination_carries_the_same_tokens(self):
+        page = (ROOT / "docs/09-mockup/nexus-combination.html").read_text(encoding="utf-8")
+        token_css = page.split("<style>", 1)[1].split("</style>", 1)[0].strip()
+        self.assertEqual(without_comments(token_css + "\n"), without_comments(TARGET.read_text(encoding="utf-8")))
+
 
 if __name__ == "__main__":
     if sys.argv[1:] == ["--write"]:
